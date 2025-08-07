@@ -1,31 +1,19 @@
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { Car } from '@/database/car.types';
+import useCarStore from '@/store/carList.store';
+
 import React, { useState } from 'react';
-import { FlatList, StatusBar, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import {
+  Button,
+  FlatList,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity
+} from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-
-type ItemData = {
-  id: string;
-  title: string;
-};
-
-const DATA: ItemData[] = [
-  {
-    id: 'bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-    title: 'Alina',
-  },
-  {
-    id: '3ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-    title: 'Dan',
-  },
-  {
-    id: '58694a0f-3da1-471f-bd96-145571e29d72',
-    title: 'Dan & Alina',
-  },
-];
-
 type ItemProps = {
-  item: ItemData;
+  item: Car;
   onPress: () => void;
   backgroundColor: string;
   textColor: string;
@@ -33,68 +21,73 @@ type ItemProps = {
 
 const Item = ({item, onPress, backgroundColor, textColor}: ItemProps) => (
   <TouchableOpacity onPress={onPress} style={[styles.item, {backgroundColor}]}>
-    <Text style={[styles.title, {color: textColor}]}>{item.title}</Text>
+    <Text style={[styles.title, {color:textColor}]}>{item.make}</Text>
   </TouchableOpacity>
 );
 
-const App = () => { 
-  const colorScheme = useColorScheme();
-  const themeContainerStyle =
-    colorScheme === 'light' ? styles.lightContainer : styles.darkContainer;
-
+const App = () => {
+  const carList = useCarStore(state => state.cars);
+  const addCar = useCarStore(state => state.addCar);
+  const removeCar = useCarStore(state => state.removeCar);
   const [selectedId, setSelectedId] = useState<string>();
 
-  const renderItem = ({item}: {item: ItemData}) => {
-    const backgroundColor =
-      colorScheme === 'light'
-        ? item.id === selectedId ? '#6e3b6e' : '#f9c2ff'
-        : item.id === selectedId ? '#36393e' : '#424549';
-    const color = item.id === selectedId ? 'white' : 'black';
+  const renderItem = ({item}: {item: Car}) => {
+    const backgroundColor = item.id === selectedId ? '#7142CD' : '#2C1F5E';
 
     return (
       <Item
         item={item}
         onPress={() => setSelectedId(item.id)}
         backgroundColor={backgroundColor}
-        textColor={color}
+        textColor='#E1E1E2'
       />
     );
   };
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView style={[styles.container, themeContainerStyle]}>
+      <SafeAreaView style={styles.container}>
+        <Text style={{color: '#E1E1E2', fontSize: 24, padding: 20}}>
+          Car List ({carList.length} cars)
+        </Text>
         <FlatList
-          data={DATA}
+          data={carList}
           renderItem={renderItem}
           keyExtractor={item => item.id}
           extraData={selectedId}
         />
+        <Button  
+          title="Add Car"
+          onPress={() => {
+            const newCar: Car = {
+              id: (carList.length + 1).toString(),
+              make: 'NewCar',
+              model: 'Model',
+              year: 2023,
+              licensePlate: 'NEW1234',
+              fuel: 'electric',
+              engineCode: 'NEWCODE',
+              imageUrl: ''
+            };
+            addCar(newCar);
+          }}
+        ></Button>
       </SafeAreaView>
     </SafeAreaProvider>
   );
-}
+};
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#1C1643',
     marginTop: StatusBar.currentHeight || 0,
-  },
-  lightContainer: {
-    backgroundColor: '#7289da',
-  },
-  darkContainer: {
-    backgroundColor: '#282b30',
   },
   item: {
     padding: 20,
     marginVertical: 8,
     marginHorizontal: 16,
-  },
-  lightItem: {
-    backgroundColor: '#36393e',
-  },
-  darkItem: {
-    backgroundColor: '#282b30',
+    borderRadius: 15,
   },
   title: {
     fontSize: 32,

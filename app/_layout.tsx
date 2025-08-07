@@ -5,11 +5,7 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   return (
       <Stack>
-        <Stack.Screen name="index" options={{ title: 'Home', 
-          headerStyle: {
-          backgroundColor: colorScheme === 'light' ? '#f4511e' : '#1e2124'},
-          headerTintColor: '#fff'
-         }} />
+        <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="about" options={{ title: 'About' }} />
       </Stack>
   );

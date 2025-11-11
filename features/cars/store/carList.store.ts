@@ -1,6 +1,6 @@
 // useCarStore.ts
-import { Car } from '@/database/car.types'
 import carList from '@/database/carList'
+import { Car } from '@/features/cars/types/car.types'
 import { create } from 'zustand'
 
 
@@ -8,7 +8,7 @@ interface CarStore {
   cars: Car[]
   addCar: (car: Car) => void
   removeCar: (id: string) => void,
-  // clearCars: () => void
+  clearCars: () => void
 }
 
 const useCarStore = create<CarStore>((set, get) => ({
@@ -18,6 +18,9 @@ const useCarStore = create<CarStore>((set, get) => ({
     },
   removeCar: (id) => {
     set((state) => ({cars: state.cars.filter((car) => car.id !== id)}))
+  },
+  clearCars: () => {
+    set({ cars: [] })
   }
 }));
 

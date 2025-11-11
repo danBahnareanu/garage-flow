@@ -1,4 +1,4 @@
-import { Car } from "./car.types";
+import { Car } from "../features/cars/types/car.types";
 
 let carList: Car[] = [
     {

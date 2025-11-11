@@ -1,12 +1,19 @@
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { Stack } from "expo-router";
+import { Stack } from 'expo-router'
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+export default function Layout() {
   return (
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="about" options={{ title: 'About' }} />
-      </Stack>
-  );
+    <Stack screenOptions={{
+        headerStyle: {
+          backgroundColor: '#1C1643',
+        },
+        headerTintColor: '#fff',
+        headerShadowVisible: false,
+        headerTitleStyle: {
+          fontWeight: 'bold',
+        },
+      }}>
+      <Stack.Screen name="index" options={{ title: 'My Garage' }} />
+      <Stack.Screen name="cars/add" options={{ title: 'Add a Car' }} />
+    </Stack>
+  )
 }

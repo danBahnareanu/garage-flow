@@ -1,10 +1,8 @@
 import useCarStore from '@/features/cars/store/carList.store';
 import { Car } from '@/features/cars/types/car.types';
 import { useRouter } from 'expo-router';
-
 import React, { useState } from 'react';
 import {
-  Button,
   FlatList,
   StatusBar,
   StyleSheet,
@@ -23,6 +21,7 @@ type ItemProps = {
 const Item = ({item, onPress, backgroundColor, textColor}: ItemProps) => (
   <TouchableOpacity onPress={onPress} style={[styles.item, {backgroundColor}]}>
     <Text style={[styles.title, {color:textColor}]}>{item.make}</Text>
+    <Text style={[styles.carText, {color:textColor}]}>{item.licensePlate} | {item.year}</Text>
   </TouchableOpacity>
 );
 
@@ -58,7 +57,6 @@ const CarList = () => {
           keyExtractor={item => item.id}
           extraData={selectedId}
         />
-        <Button title="Add New Car" onPress={() => router.push('/cars/add')} />
       </SafeAreaView>
     </SafeAreaProvider>
   );
@@ -79,7 +77,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
   },
-  carText: { fontSize: 16, fontWeight: '500' },
+  carText: { fontSize: 16, fontWeight: '500', marginTop: 4 },
   subText: { color: '#666', fontSize: 14 }
 });
 

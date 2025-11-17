@@ -1,6 +1,7 @@
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
-import { Button, StyleSheet, Text, TextInput, View } from 'react-native'
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { v4 as uuidv4 } from 'uuid'
 import useCarStore from '../store/carList.store'
 import { Car } from '../types/car.types'
@@ -31,20 +32,89 @@ export default function CarForm() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Add New Car</Text>
-      <TextInput placeholder="Make" value={make} onChangeText={setMake} style={styles.input} />
-      <TextInput placeholder="Model" value={model} onChangeText={setModel} style={styles.input} />
-      <TextInput placeholder="Year" value={year} onChangeText={setYear} keyboardType="numeric" style={styles.input} />
-      <TextInput placeholder="License Plate" value={licensePlate} onChangeText={setLicensePlate} style={styles.input} />
-      <TextInput placeholder="Engine Code (optional)" value={engineCode} onChangeText={setEngineCode} style={styles.input} />
-      <Button title="Save" onPress={handleSubmit} />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <Text style={styles.title}>Add New Car</Text>
+        <TextInput
+          placeholder="Make"
+          placeholderTextColor="#999"
+          value={make}
+          onChangeText={setMake}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Model"
+          placeholderTextColor="#999"
+          value={model}
+          onChangeText={setModel}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Year"
+          placeholderTextColor="#999"
+          value={year}
+          onChangeText={setYear}
+          keyboardType="numeric"
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="License Plate"
+          placeholderTextColor="#999"
+          value={licensePlate}
+          onChangeText={setLicensePlate}
+          style={styles.input}
+        />
+        <TextInput
+          placeholder="Engine Code (optional)"
+          placeholderTextColor="#999"
+          value={engineCode}
+          onChangeText={setEngineCode}
+          style={styles.input}
+        />
+        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+          <Text style={styles.buttonText}>Save</Text>
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 20 },
-  input: { borderWidth: 1, borderRadius: 5, padding: 10, marginBottom: 10 },
+  container: {
+    flex: 1,
+    backgroundColor: '#1C1643',
+  },
+  content: {
+    flex: 1,
+    padding: 24,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#E1E1E2',
+    marginBottom: 24,
+  },
+  input: {
+    backgroundColor: '#2C1F5E',
+    borderWidth: 1,
+    borderColor: '#7142CD',
+    borderRadius: 12,
+    padding: 15,
+    marginVertical: 8,
+    color: '#E1E1E2',
+    fontSize: 16,
+  },
+  button: {
+    backgroundColor: '#7142CD',
+    paddingVertical: 15,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    marginTop: 30,
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#E1E1E2',
+    fontSize: 18,
+    fontWeight: '600',
+  },
 })

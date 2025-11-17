@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useEffect } from 'react';
 import {
   Dimensions,
@@ -87,7 +87,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
 export const MenuButton: React.FC<{ onPress: () => void }> = ({ onPress }) => {
   return (
     <TouchableOpacity onPress={onPress} style={styles.menuButton}>
-      <Ionicons name="ellipsis-horizontal" size={24} color="#fff" />
+      <Ionicons name="ellipsis-horizontal" size={24} color="#fff"/>
     </TouchableOpacity>
   );
 };

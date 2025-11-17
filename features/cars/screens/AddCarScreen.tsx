@@ -1,8 +1,8 @@
+import * as Crypto from 'expo-crypto'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { v4 as uuidv4 } from 'uuid'
 import useCarStore from '../store/carList.store'
 import { Car } from '../types/car.types'
 
@@ -19,7 +19,7 @@ export default function CarForm() {
 
   const handleSubmit = () => {
     const newCar: Car = {
-      id: uuidv4(),
+      id: Crypto.randomUUID(),
       make,
       model,
       year: parseInt(year) || new Date().getFullYear(),

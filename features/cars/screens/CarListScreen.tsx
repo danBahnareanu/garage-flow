@@ -1,6 +1,5 @@
 import useCarStore from '@/features/cars/store/carList.store';
 import { Car } from '@/features/cars/types/car.types';
-import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   FlatList,
@@ -26,10 +25,7 @@ const Item = ({item, onPress, backgroundColor, textColor}: ItemProps) => (
 );
 
 const CarList = () => {
-  const router = useRouter()
   const carList = useCarStore(state => state.cars);
-  const addCar = useCarStore(state => state.addCar);
-  const removeCar = useCarStore(state => state.removeCar);
   const [selectedId, setSelectedId] = useState<string>();
 
   const renderItem = ({item}: {item: Car}) => {

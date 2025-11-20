@@ -1,5 +1,6 @@
 import useCarStore from '@/features/cars/store/carList.store';
 import { Car } from '@/features/cars/types/car.types';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   FlatList,
@@ -9,7 +10,6 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
 
 type ItemProps = {
   item: Car;

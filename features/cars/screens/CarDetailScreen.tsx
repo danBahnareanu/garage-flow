@@ -1,19 +1,18 @@
+import useCarStore from '@/features/cars/store/carList.store';
+import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Dimensions,
+    Dimensions,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Image } from 'expo-image';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import { BarChart } from 'react-native-chart-kit';
-import useCarStore from '@/features/cars/store/carList.store';
-import { Car } from '@/features/cars/types/car.types';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const CarDetailScreen = () => {
   const router = useRouter();
@@ -156,7 +155,7 @@ const CarDetailScreen = () => {
                 {car.insuranceCost !== undefined && (
                   <View style={styles.infoRow}>
                     <Text style={styles.infoLabel}>Annual Cost:</Text>
-                    <Text style={styles.infoValue}>${car.insuranceCost.toFixed(2)}</Text>
+                    <Text style={styles.infoValue}>€{car.insuranceCost.toFixed(2)}</Text>
                   </View>
                 )}
               </>
@@ -241,8 +240,9 @@ const CarDetailScreen = () => {
                   data={costData}
                   width={Dimensions.get('window').width - 80}
                   height={220}
-                  yAxisLabel="$"
+                  yAxisLabel="€"
                   yAxisSuffix=""
+                  fromZero={true}
                   chartConfig={{
                     backgroundColor: '#2C1F5E',
                     backgroundGradientFrom: '#2C1F5E',
@@ -262,20 +262,20 @@ const CarDetailScreen = () => {
                 <View style={styles.costBreakdown}>
                   <View style={styles.costRow}>
                     <Text style={styles.costLabel}>Fuel Costs:</Text>
-                    <Text style={styles.costValue}>${(car.fuelCosts || 0).toFixed(2)}</Text>
+                    <Text style={styles.costValue}>€{(car.fuelCosts || 0).toFixed(2)}</Text>
                   </View>
                   <View style={styles.costRow}>
                     <Text style={styles.costLabel}>Maintenance Costs:</Text>
-                    <Text style={styles.costValue}>${(car.maintenanceCosts || 0).toFixed(2)}</Text>
+                    <Text style={styles.costValue}>€{(car.maintenanceCosts || 0).toFixed(2)}</Text>
                   </View>
                   <View style={styles.costRow}>
                     <Text style={styles.costLabel}>Repair Costs:</Text>
-                    <Text style={styles.costValue}>${(car.repairCosts || 0).toFixed(2)}</Text>
+                    <Text style={styles.costValue}>€{(car.repairCosts || 0).toFixed(2)}</Text>
                   </View>
                   <View style={[styles.costRow, styles.totalRow]}>
                     <Text style={styles.totalLabel}>Total Running Costs:</Text>
                     <Text style={styles.totalValue}>
-                      ${((car.fuelCosts || 0) + (car.maintenanceCosts || 0) + (car.repairCosts || 0)).toFixed(2)}
+                      €{((car.fuelCosts || 0) + (car.maintenanceCosts || 0) + (car.repairCosts || 0)).toFixed(2)}
                     </Text>
                   </View>
                 </View>
@@ -332,7 +332,7 @@ const CarDetailScreen = () => {
                       <Text style={styles.serviceDate}>
                         {new Date(record.date).toLocaleDateString()}
                       </Text>
-                      <Text style={styles.serviceCost}>${record.cost.toFixed(2)}</Text>
+                      <Text style={styles.serviceCost}>€{record.cost.toFixed(2)}</Text>
                     </View>
                     <Text style={styles.serviceDescription}>{record.description}</Text>
                     <View style={styles.serviceRecordFooter}>

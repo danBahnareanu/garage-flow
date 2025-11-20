@@ -11,5 +11,5 @@ export const asyncStorageAdapter: StateStorage = {
   },
   removeItem: async (name) => {
     await AsyncStorage.removeItem(name);
-  },
+  }
 };

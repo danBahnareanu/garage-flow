@@ -9,6 +9,7 @@ import {
   TouchableOpacity
 } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
 type ItemProps = {
   item: Car;
@@ -25,6 +26,7 @@ const Item = ({item, onPress, backgroundColor, textColor}: ItemProps) => (
 );
 
 const CarList = () => {
+  const router = useRouter();
   const carList = useCarStore(state => state.cars);
   const [selectedId, setSelectedId] = useState<string>();
 
@@ -34,7 +36,7 @@ const CarList = () => {
     return (
       <Item
         item={item}
-        onPress={() => setSelectedId(item.id)}
+        onPress={() => router.push(`/cars/${item.id}`)}
         backgroundColor={backgroundColor}
         textColor='#E1E1E2'
       />

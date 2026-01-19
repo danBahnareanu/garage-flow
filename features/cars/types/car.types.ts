@@ -1,10 +1,51 @@
-export interface ServiceRecord {
+export interface InsuranceRecord {
     id: string;
-    date: string; // ISO date string
+    provider: string;
+    policyNumber?: string;
+    startDate: string;          // ISO date string
+    expiryDate: string;         // ISO date string
+    cost: number;               // policy cost
+    coverageType?: string;      // e.g., 'comprehensive', 'third-party'
+    notes?: string;
+}
+
+export interface InspectionRecord {
+    id: string;
+    type: 'technical' | 'registration' | 'emissions' | 'safety' | 'custom' | 'ITP';
+    date: string;               // ISO date string
+    expiryDate?: string;        // ISO date string (when next inspection is due)
+    result: 'pass' | 'fail' | 'pending';
+    mileage?: number;
+    cost?: number;
+    location?: string;          // inspection center
+    notes?: string;
+}
+
+export interface RunningCostRecord {
+    id: string;
+    type: 'fuel' | 'maintenance' | 'repair' | 'insurance' | 'tax' | 'parking' | 'toll' | 'other';
+    date: string;               // ISO date string
+    amount: number;             // cost in currency
+    mileage?: number;           // odometer reading at time of expense
+    description?: string;
+    vendor?: string;
+    // Fuel-specific fields
+    liters?: number;            // for fuel transactions
+    pricePerLiter?: number;     // for fuel transactions
+}
+
+export interface MaintenanceRecord {
+    id: string;
+    date: string;               // ISO date string
     mileage: number;
+    type: 'scheduled' | 'unscheduled' | 'recall';
     description: string;
     cost: number;
-    type: 'maintenance' | 'repair' | 'inspection';
+    partsReplaced?: string[];
+    serviceProvider?: string;
+    nextServiceDate?: string;   // ISO date string
+    nextServiceMileage?: number;
+    notes?: string;
 }
 
 export interface Car {
@@ -17,30 +58,19 @@ export interface Car {
     engineCode?: string; // optional engine code e.g. M54B30
     imageUrl?: string;    // optional thumbnail or photo
 
-    // Insurance information
-    insuranceProvider?: string;
-    insuranceExpiryDate?: string; // ISO date string
-    insuranceCost?: number; // annual cost
-    insurancePolicyNumber?: string;
+    // Insurance history
+    insuranceHistory?: InsuranceRecord[];
 
-    // Inspections
-    technicalInspectionExpiry?: string; // ISO date string
-    registrationExpiry?: string; // ISO date string
+    // Inspection history
+    inspectionHistory?: InspectionRecord[];
 
-    // Running costs
-    purchasePrice?: number;
-    fuelCosts?: number; // cumulative fuel costs
-    maintenanceCosts?: number; // cumulative maintenance costs
-    repairCosts?: number; // cumulative repair costs
+    // Running costs (individual transactions)
+    runningCosts?: RunningCostRecord[];
+    purchasePrice?: number; // one-time purchase cost
 
     // Maintenance tracking
     currentMileage?: number;
-    lastServiceDate?: string; // ISO date string
-    nextServiceDate?: string; // ISO date string
-    nextServiceMileage?: number;
-
-    // Service history
-    serviceHistory?: ServiceRecord[];
+    maintenanceHistory?: MaintenanceRecord[];
 
     // Additional details
     vin?: string; // Vehicle Identification Number

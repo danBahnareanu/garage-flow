@@ -1,4 +1,5 @@
 import useCarStore from '@/features/cars/store/carList.store';
+import { Car, InspectionRecord, MaintenanceRecord } from '@/features/cars/types/car.types';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -13,6 +14,17 @@ import {
 } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+// Helper functions
+const getLatestInsurance = (car: Car) => car.insuranceHistory?.[0];
+
+const getLatestInspectionByType = (car: Car, types: string[]) =>
+  car.inspectionHistory?.find(i => types.includes(i.type));
+
+const getCostsByType = (car: Car, type: string) =>
+  car.runningCosts?.filter(c => c.type === type).reduce((sum, c) => sum + c.amount, 0) || 0;
+
+const getLatestMaintenance = (car: Car) => car.maintenanceHistory?.[0];
 
 const CarDetailScreen = () => {
   const router = useRouter();
@@ -53,24 +65,45 @@ const CarDetailScreen = () => {
     return '#4CAF50'; // valid - green
   };
 
-  const insuranceDays = calculateDaysRemaining(car.insuranceExpiryDate);
-  const inspectionDays = calculateDaysRemaining(car.technicalInspectionExpiry);
-  const registrationDays = calculateDaysRemaining(car.registrationExpiry);
+  // Get data from arrays
+  const latestInsurance = getLatestInsurance(car);
+  const technicalInspection = getLatestInspectionByType(car, ['technical', 'ITP']);
+  const registrationInspection = getLatestInspectionByType(car, ['registration']);
+  const latestMaintenance = getLatestMaintenance(car);
+
+  // Calculate days remaining
+  const insuranceDays = calculateDaysRemaining(latestInsurance?.expiryDate);
+  const inspectionDays = calculateDaysRemaining(technicalInspection?.expiryDate);
+  const registrationDays = calculateDaysRemaining(registrationInspection?.expiryDate);
+
+  // Aggregate running costs
+  const fuelCosts = getCostsByType(car, 'fuel');
+  const maintenanceCosts = getCostsByType(car, 'maintenance');
+  const repairCosts = getCostsByType(car, 'repair');
 
   const costData = {
     labels: ['Fuel', 'Maintenance', 'Repairs'],
     datasets: [
       {
-        data: [
-          car.fuelCosts || 0,
-          car.maintenanceCosts || 0,
-          car.repairCosts || 0,
-        ],
+        data: [fuelCosts, maintenanceCosts, repairCosts],
       },
     ],
   };
 
-  const hasCostData = (car.fuelCosts || 0) + (car.maintenanceCosts || 0) + (car.repairCosts || 0) > 0;
+  const hasCostData = fuelCosts + maintenanceCosts + repairCosts > 0;
+
+  const getMaintenanceBadgeStyle = (type: MaintenanceRecord['type']) => {
+    switch (type) {
+      case 'scheduled':
+        return styles.scheduledBadge;
+      case 'unscheduled':
+        return styles.unscheduledBadge;
+      case 'recall':
+        return styles.recallBadge;
+      default:
+        return styles.scheduledBadge;
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -119,43 +152,41 @@ const CarDetailScreen = () => {
             <Text style={styles.sectionTitle}>Insurance</Text>
           </View>
           <View style={styles.sectionContent}>
-            {car.insuranceProvider || car.insuranceExpiryDate ? (
+            {latestInsurance ? (
               <>
-                {car.insuranceProvider && (
-                  <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Provider:</Text>
-                    <Text style={styles.infoValue}>{car.insuranceProvider}</Text>
-                  </View>
-                )}
-                {car.insurancePolicyNumber && (
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Provider:</Text>
+                  <Text style={styles.infoValue}>{latestInsurance.provider}</Text>
+                </View>
+                {latestInsurance.policyNumber && (
                   <View style={styles.infoRow}>
                     <Text style={styles.infoLabel}>Policy Number:</Text>
-                    <Text style={styles.infoValue}>{car.insurancePolicyNumber}</Text>
+                    <Text style={styles.infoValue}>{latestInsurance.policyNumber}</Text>
                   </View>
                 )}
-                {car.insuranceExpiryDate && (
-                  <>
-                    <View style={styles.infoRow}>
-                      <Text style={styles.infoLabel}>Expiry Date:</Text>
-                      <Text style={styles.infoValue}>
-                        {new Date(car.insuranceExpiryDate).toLocaleDateString()}
-                      </Text>
-                    </View>
-                    <View style={[styles.expiryBadge, { backgroundColor: getExpiryColor(insuranceDays) }]}>
-                      <Text style={styles.expiryText}>
-                        {insuranceDays !== null
-                          ? insuranceDays < 0
-                            ? `Expired ${Math.abs(insuranceDays)} days ago`
-                            : `${insuranceDays} days remaining`
-                          : 'N/A'}
-                      </Text>
-                    </View>
-                  </>
-                )}
-                {car.insuranceCost !== undefined && (
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Expiry Date:</Text>
+                  <Text style={styles.infoValue}>
+                    {new Date(latestInsurance.expiryDate).toLocaleDateString()}
+                  </Text>
+                </View>
+                <View style={[styles.expiryBadge, { backgroundColor: getExpiryColor(insuranceDays) }]}>
+                  <Text style={styles.expiryText}>
+                    {insuranceDays !== null
+                      ? insuranceDays < 0
+                        ? `Expired ${Math.abs(insuranceDays)} days ago`
+                        : `${insuranceDays} days remaining`
+                      : 'N/A'}
+                  </Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Cost:</Text>
+                  <Text style={styles.infoValue}>€{latestInsurance.cost.toFixed(2)}</Text>
+                </View>
+                {latestInsurance.coverageType && (
                   <View style={styles.infoRow}>
-                    <Text style={styles.infoLabel}>Annual Cost:</Text>
-                    <Text style={styles.infoValue}>€{car.insuranceCost.toFixed(2)}</Text>
+                    <Text style={styles.infoLabel}>Coverage:</Text>
+                    <Text style={styles.infoValue}>{latestInsurance.coverageType}</Text>
                   </View>
                 )}
               </>
@@ -172,21 +203,41 @@ const CarDetailScreen = () => {
             <Text style={styles.sectionTitle}>Technical Inspection</Text>
           </View>
           <View style={styles.sectionContent}>
-            {car.technicalInspectionExpiry ? (
+            {technicalInspection ? (
               <>
                 <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Expiry Date:</Text>
+                  <Text style={styles.infoLabel}>Type:</Text>
+                  <Text style={styles.infoValue}>{technicalInspection.type.toUpperCase()}</Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Date:</Text>
                   <Text style={styles.infoValue}>
-                    {new Date(car.technicalInspectionExpiry).toLocaleDateString()}
+                    {new Date(technicalInspection.date).toLocaleDateString()}
                   </Text>
                 </View>
-                <View style={[styles.expiryBadge, { backgroundColor: getExpiryColor(inspectionDays) }]}>
-                  <Text style={styles.expiryText}>
-                    {inspectionDays !== null
-                      ? inspectionDays < 0
-                        ? `Expired ${Math.abs(inspectionDays)} days ago`
-                        : `${inspectionDays} days remaining`
-                      : 'N/A'}
+                {technicalInspection.expiryDate && (
+                  <>
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Expiry Date:</Text>
+                      <Text style={styles.infoValue}>
+                        {new Date(technicalInspection.expiryDate).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    <View style={[styles.expiryBadge, { backgroundColor: getExpiryColor(inspectionDays) }]}>
+                      <Text style={styles.expiryText}>
+                        {inspectionDays !== null
+                          ? inspectionDays < 0
+                            ? `Expired ${Math.abs(inspectionDays)} days ago`
+                            : `${inspectionDays} days remaining`
+                          : 'N/A'}
+                      </Text>
+                    </View>
+                  </>
+                )}
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Result:</Text>
+                  <Text style={[styles.infoValue, { color: technicalInspection.result === 'pass' ? '#4CAF50' : '#FF4444' }]}>
+                    {technicalInspection.result.toUpperCase()}
                   </Text>
                 </View>
               </>
@@ -203,23 +254,33 @@ const CarDetailScreen = () => {
             <Text style={styles.sectionTitle}>Registration</Text>
           </View>
           <View style={styles.sectionContent}>
-            {car.registrationExpiry ? (
+            {registrationInspection ? (
               <>
                 <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Expiry Date:</Text>
+                  <Text style={styles.infoLabel}>Date:</Text>
                   <Text style={styles.infoValue}>
-                    {new Date(car.registrationExpiry).toLocaleDateString()}
+                    {new Date(registrationInspection.date).toLocaleDateString()}
                   </Text>
                 </View>
-                <View style={[styles.expiryBadge, { backgroundColor: getExpiryColor(registrationDays) }]}>
-                  <Text style={styles.expiryText}>
-                    {registrationDays !== null
-                      ? registrationDays < 0
-                        ? `Expired ${Math.abs(registrationDays)} days ago`
-                        : `${registrationDays} days remaining`
-                      : 'N/A'}
-                  </Text>
-                </View>
+                {registrationInspection.expiryDate && (
+                  <>
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Expiry Date:</Text>
+                      <Text style={styles.infoValue}>
+                        {new Date(registrationInspection.expiryDate).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    <View style={[styles.expiryBadge, { backgroundColor: getExpiryColor(registrationDays) }]}>
+                      <Text style={styles.expiryText}>
+                        {registrationDays !== null
+                          ? registrationDays < 0
+                            ? `Expired ${Math.abs(registrationDays)} days ago`
+                            : `${registrationDays} days remaining`
+                          : 'N/A'}
+                      </Text>
+                    </View>
+                  </>
+                )}
               </>
             ) : (
               <Text style={styles.noDataText}>No registration information available</Text>
@@ -262,20 +323,20 @@ const CarDetailScreen = () => {
                 <View style={styles.costBreakdown}>
                   <View style={styles.costRow}>
                     <Text style={styles.costLabel}>Fuel Costs:</Text>
-                    <Text style={styles.costValue}>€{(car.fuelCosts || 0).toFixed(2)}</Text>
+                    <Text style={styles.costValue}>€{fuelCosts.toFixed(2)}</Text>
                   </View>
                   <View style={styles.costRow}>
                     <Text style={styles.costLabel}>Maintenance Costs:</Text>
-                    <Text style={styles.costValue}>€{(car.maintenanceCosts || 0).toFixed(2)}</Text>
+                    <Text style={styles.costValue}>€{maintenanceCosts.toFixed(2)}</Text>
                   </View>
                   <View style={styles.costRow}>
                     <Text style={styles.costLabel}>Repair Costs:</Text>
-                    <Text style={styles.costValue}>€{(car.repairCosts || 0).toFixed(2)}</Text>
+                    <Text style={styles.costValue}>€{repairCosts.toFixed(2)}</Text>
                   </View>
                   <View style={[styles.costRow, styles.totalRow]}>
                     <Text style={styles.totalLabel}>Total Running Costs:</Text>
                     <Text style={styles.totalValue}>
-                      €{((car.fuelCosts || 0) + (car.maintenanceCosts || 0) + (car.repairCosts || 0)).toFixed(2)}
+                      €{(fuelCosts + maintenanceCosts + repairCosts).toFixed(2)}
                     </Text>
                   </View>
                 </View>
@@ -299,55 +360,55 @@ const CarDetailScreen = () => {
                 <Text style={styles.infoValue}>{car.currentMileage.toLocaleString()} km</Text>
               </View>
             )}
-            {car.lastServiceDate && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Last Service:</Text>
-                <Text style={styles.infoValue}>
-                  {new Date(car.lastServiceDate).toLocaleDateString()}
-                </Text>
-              </View>
-            )}
-            {car.nextServiceDate && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Next Service:</Text>
-                <Text style={styles.infoValue}>
-                  {new Date(car.nextServiceDate).toLocaleDateString()}
-                </Text>
-              </View>
-            )}
-            {car.nextServiceMileage !== undefined && (
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Next Service Mileage:</Text>
-                <Text style={styles.infoValue}>{car.nextServiceMileage.toLocaleString()} km</Text>
-              </View>
+            {latestMaintenance && (
+              <>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Last Service:</Text>
+                  <Text style={styles.infoValue}>
+                    {new Date(latestMaintenance.date).toLocaleDateString()}
+                  </Text>
+                </View>
+                {latestMaintenance.nextServiceDate && (
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Next Service:</Text>
+                    <Text style={styles.infoValue}>
+                      {new Date(latestMaintenance.nextServiceDate).toLocaleDateString()}
+                    </Text>
+                  </View>
+                )}
+                {latestMaintenance.nextServiceMileage !== undefined && (
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Next Service Mileage:</Text>
+                    <Text style={styles.infoValue}>{latestMaintenance.nextServiceMileage.toLocaleString()} km</Text>
+                  </View>
+                )}
+              </>
             )}
 
-            {/* Service History */}
-            {car.serviceHistory && car.serviceHistory.length > 0 ? (
-              <View style={styles.serviceHistory}>
-                <Text style={styles.serviceHistoryTitle}>Service History</Text>
-                {car.serviceHistory.map((record) => (
-                  <View key={record.id} style={styles.serviceRecord}>
-                    <View style={styles.serviceRecordHeader}>
-                      <Text style={styles.serviceDate}>
+            {/* Maintenance History */}
+            {car.maintenanceHistory && car.maintenanceHistory.length > 0 ? (
+              <View style={styles.maintenanceHistory}>
+                <Text style={styles.maintenanceHistoryTitle}>Maintenance History</Text>
+                {car.maintenanceHistory.map((record) => (
+                  <View key={record.id} style={styles.maintenanceRecord}>
+                    <View style={styles.maintenanceRecordHeader}>
+                      <Text style={styles.maintenanceDate}>
                         {new Date(record.date).toLocaleDateString()}
                       </Text>
-                      <Text style={styles.serviceCost}>€{record.cost.toFixed(2)}</Text>
+                      <Text style={styles.maintenanceCost}>€{record.cost.toFixed(2)}</Text>
                     </View>
-                    <Text style={styles.serviceDescription}>{record.description}</Text>
-                    <View style={styles.serviceRecordFooter}>
-                      <Text style={styles.serviceMileage}>{record.mileage.toLocaleString()} km</Text>
-                      <View style={[styles.serviceTypeBadge, styles[`${record.type}Badge`]]}>
-                        <Text style={styles.serviceTypeText}>{record.type}</Text>
+                    <Text style={styles.maintenanceDescription}>{record.description}</Text>
+                    <View style={styles.maintenanceRecordFooter}>
+                      <Text style={styles.maintenanceMileage}>{record.mileage.toLocaleString()} km</Text>
+                      <View style={[styles.maintenanceTypeBadge, getMaintenanceBadgeStyle(record.type)]}>
+                        <Text style={styles.maintenanceTypeText}>{record.type}</Text>
                       </View>
                     </View>
                   </View>
                 ))}
               </View>
             ) : (
-              car.currentMileage === undefined &&
-              !car.lastServiceDate &&
-              !car.nextServiceDate && (
+              car.currentMileage === undefined && (
                 <Text style={styles.noDataText}>No maintenance information available</Text>
               )
             )}
@@ -565,65 +626,65 @@ const styles = StyleSheet.create({
     color: '#7142CD',
     fontWeight: '700',
   },
-  serviceHistory: {
+  maintenanceHistory: {
     marginTop: 16,
   },
-  serviceHistoryTitle: {
+  maintenanceHistoryTitle: {
     fontSize: 16,
     fontWeight: '600',
     color: '#E1E1E2',
     marginBottom: 12,
   },
-  serviceRecord: {
+  maintenanceRecord: {
     backgroundColor: '#1C1643',
     padding: 12,
     borderRadius: 10,
     marginBottom: 12,
   },
-  serviceRecordHeader: {
+  maintenanceRecordHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
   },
-  serviceDate: {
+  maintenanceDate: {
     fontSize: 14,
     color: '#B0B0B2',
     fontWeight: '500',
   },
-  serviceCost: {
+  maintenanceCost: {
     fontSize: 14,
     color: '#7142CD',
     fontWeight: '600',
   },
-  serviceDescription: {
+  maintenanceDescription: {
     fontSize: 15,
     color: '#E1E1E2',
     marginBottom: 8,
   },
-  serviceRecordFooter: {
+  maintenanceRecordFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  serviceMileage: {
+  maintenanceMileage: {
     fontSize: 13,
     color: '#8A8A8C',
   },
-  serviceTypeBadge: {
+  maintenanceTypeBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 12,
   },
-  maintenanceBadge: {
+  scheduledBadge: {
     backgroundColor: '#4CAF50',
   },
-  repairBadge: {
+  unscheduledBadge: {
     backgroundColor: '#FFA500',
   },
-  inspectionBadge: {
-    backgroundColor: '#2196F3',
+  recallBadge: {
+    backgroundColor: '#FF4444',
   },
-  serviceTypeText: {
+  maintenanceTypeText: {
     color: '#fff',
     fontSize: 12,
     fontWeight: '600',

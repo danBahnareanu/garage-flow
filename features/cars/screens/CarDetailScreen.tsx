@@ -1,16 +1,16 @@
 import useCarStore from '@/features/cars/store/carList.store';
-import { Car, InspectionRecord, MaintenanceRecord } from '@/features/cars/types/car.types';
+import { Car, MaintenanceRecord } from '@/features/cars/types/car.types';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import {
-    Dimensions,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { BarChart } from 'react-native-chart-kit';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -389,7 +389,7 @@ const CarDetailScreen = () => {
             {car.maintenanceHistory && car.maintenanceHistory.length > 0 ? (
               <View style={styles.maintenanceHistory}>
                 <Text style={styles.maintenanceHistoryTitle}>Maintenance History</Text>
-                {car.maintenanceHistory.map((record) => (
+                {car.maintenanceHistory.map((record: any) => (
                   <View key={record.id} style={styles.maintenanceRecord}>
                     <View style={styles.maintenanceRecordHeader}>
                       <Text style={styles.maintenanceDate}>

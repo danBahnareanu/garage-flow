@@ -2,10 +2,10 @@
 import carList from '@/database/carList';
 import {
   Car,
-  InsuranceRecord,
   InspectionRecord,
-  RunningCostRecord,
+  InsuranceRecord,
   MaintenanceRecord,
+  RunningCostRecord,
 } from '@/features/cars/types/car.types';
 import { asyncStorageAdapter } from '@/store/asyncStorageAdapter';
 

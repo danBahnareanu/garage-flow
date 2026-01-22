@@ -40,6 +40,11 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
 
   const handleSave = () => {
     onSave({
+      make: make || undefined,
+      model: model || undefined,
+      year: year ? parseInt(year, 10) : undefined,
+      licensePlate: licensePlate || undefined,
+      fuel: fuel as 'petrol' | 'diesel' | 'electric' | 'hybrid' || undefined,
       purchasePrice: purchasePrice ? parseFloat(purchasePrice) : undefined,
       currentMileage: currentMileage ? parseInt(currentMileage, 10) : undefined,
       vin: vin || undefined,

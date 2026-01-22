@@ -29,9 +29,10 @@ const getLatestMaintenance = (car: Car) => car.maintenanceHistory?.[0];
 const CarDetailScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const getCarById = useCarStore((state) => state.getCarById);
+  // const getCarById = useCarStore((state) => state.getCarById);
 
-  const car = getCarById(id as string);
+  // const car = getCarById(id as string);
+  const car = useCarStore((state) => state.cars.find(c => c.id === id));
 
   if (!car) {
     return (

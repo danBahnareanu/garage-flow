@@ -74,6 +74,14 @@ export const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#3D2F6E',
   },
+  inputText: {
+    fontSize: 14,
+    color: '#E1E1E2',
+  },
+  placeholderText: {
+    fontSize: 14,
+    color: '#8A8A8C',
+  },
   textArea: { minHeight: 60, paddingTop: 10 },
   buttonRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   optionButton: {

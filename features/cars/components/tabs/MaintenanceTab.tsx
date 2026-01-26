@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 interface MaintenanceTabProps {
   carId: string;
@@ -29,8 +30,11 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
 
   // Form fields
   const [maintType, setMaintType] = useState<MaintenanceRecord['type']>('scheduled');
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState<Date | null>(null);
   const [mileage, setMileage] = useState('');
+
+  // Date picker state
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [description, setDescription] = useState('');
   const [cost, setCost] = useState('');
   const [serviceProvider, setServiceProvider] = useState('');
@@ -41,7 +45,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
     if (record) {
       setEditingId(record.id);
       setMaintType(record.type);
-      setDate(record.date);
+      setDate(new Date(record.date));
       setMileage(record.mileage.toString());
       setDescription(record.description);
       setCost(record.cost.toString());
@@ -51,7 +55,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
     } else {
       setEditingId(null);
       setMaintType('scheduled');
-      setDate('');
+      setDate(null);
       setMileage('');
       setDescription('');
       setCost('');
@@ -69,7 +73,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
     }
     const record: MaintenanceRecord = {
       id: editingId || generateId(),
-      date,
+      date: date.toISOString(),
       mileage: parseInt(mileage, 10),
       type: maintType,
       description,
@@ -84,6 +88,22 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
       addMaintenanceRecord(carId, record);
     }
     setModalVisible(false);
+  };
+
+  const hideDatePicker = () => {
+    setShowDatePicker(false);
+  };
+
+  const handleConfirmDate = (selectedDate: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
+  };
+
+  const formatDateForDisplay = (dateValue: Date | null): string => {
+    if (!dateValue) return '';
+    return dateValue.toLocaleDateString();
   };
 
   const handleDelete = (recordId: string) => {
@@ -159,13 +179,20 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
                   </TouchableOpacity>
                 ))}
               </View>
-              <Text style={styles.label}>Date * (YYYY-MM-DD)</Text>
-              <TextInput
+              <Text style={styles.label}>Date *</Text>
+              <TouchableOpacity
                 style={styles.input}
-                value={date}
-                onChangeText={setDate}
-                placeholder="2024-01-01"
-                placeholderTextColor="#8A8A8C"
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text style={date ? styles.inputText : styles.placeholderText}>
+                  {date ? formatDateForDisplay(date) : 'Select date'}
+                </Text>
+              </TouchableOpacity>
+              <DateTimePickerModal
+                isVisible={showDatePicker}
+                mode="date"
+                onConfirm={handleConfirmDate}
+                onCancel={hideDatePicker}
               />
               <Text style={styles.label}>Mileage * (km)</Text>
               <TextInput

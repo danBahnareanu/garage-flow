@@ -13,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 interface CostsTabProps {
   carId: string;
@@ -38,8 +39,11 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
 
   // Form fields
   const [costType, setCostType] = useState<RunningCostRecord['type']>('fuel');
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState<Date | null>(null);
   const [amount, setAmount] = useState('');
+
+  // Date picker state
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [mileage, setMileage] = useState('');
   const [description, setDescription] = useState('');
   const [vendor, setVendor] = useState('');
@@ -50,7 +54,7 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
     if (record) {
       setEditingId(record.id);
       setCostType(record.type);
-      setDate(record.date);
+      setDate(new Date(record.date));
       setAmount(record.amount.toString());
       setMileage(record.mileage?.toString() || '');
       setDescription(record.description || '');
@@ -60,7 +64,7 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
     } else {
       setEditingId(null);
       setCostType('fuel');
-      setDate('');
+      setDate(null);
       setAmount('');
       setMileage('');
       setDescription('');
@@ -79,7 +83,7 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
     const record: RunningCostRecord = {
       id: editingId || generateId(),
       type: costType,
-      date,
+      date: date.toISOString(),
       amount: parseFloat(amount),
       mileage: mileage ? parseInt(mileage, 10) : undefined,
       description: description || undefined,
@@ -93,6 +97,22 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
       addRunningCostRecord(carId, record);
     }
     setModalVisible(false);
+  };
+
+  const hideDatePicker = () => {
+    setShowDatePicker(false);
+  };
+
+  const handleConfirmDate = (selectedDate: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
+  };
+
+  const formatDateForDisplay = (dateValue: Date | null): string => {
+    if (!dateValue) return '';
+    return dateValue.toLocaleDateString();
   };
 
   const handleDelete = (recordId: string) => {
@@ -167,13 +187,20 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
                   </TouchableOpacity>
                 ))}
               </View>
-              <Text style={styles.label}>Date * (YYYY-MM-DD)</Text>
-              <TextInput
+              <Text style={styles.label}>Date *</Text>
+              <TouchableOpacity
                 style={styles.input}
-                value={date}
-                onChangeText={setDate}
-                placeholder="2024-01-01"
-                placeholderTextColor="#8A8A8C"
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text style={date ? styles.inputText : styles.placeholderText}>
+                  {date ? formatDateForDisplay(date) : 'Select date'}
+                </Text>
+              </TouchableOpacity>
+              <DateTimePickerModal
+                isVisible={showDatePicker}
+                mode="date"
+                onConfirm={handleConfirmDate}
+                onCancel={hideDatePicker}
               />
               <Text style={styles.label}>Amount * (€)</Text>
               <TextInput

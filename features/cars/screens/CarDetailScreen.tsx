@@ -36,7 +36,7 @@ const CarDetailScreen = () => {
 
   if (!car) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Car not found</Text>
           <TouchableOpacity
@@ -107,7 +107,7 @@ const CarDetailScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <ScrollView style={styles.scrollView}>
         {/* Car Image */}
         <View style={styles.imageContainer}>

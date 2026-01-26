@@ -23,7 +23,7 @@ const EditCarDetailScreen = () => {
 
   if (!car) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>Car not found</Text>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -52,7 +52,7 @@ const EditCarDetailScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <ScrollView style={styles.scrollView}>
         <BasicInfoSection car={car} onSave={handleSaveBasicInfo} />
         <TabBar activeTab={activeTab} onTabChange={setActiveTab} />

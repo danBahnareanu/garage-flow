@@ -81,12 +81,15 @@ const CarDetailScreen = () => {
   const fuelCosts = getCostsByType(car, 'fuel');
   const maintenanceCosts = getCostsByType(car, 'maintenance');
   const repairCosts = getCostsByType(car, 'repair');
+  const performanceCosts = getCostsByType(car, 'performance');
+  const otherCosts = getCostsByType(car, 'other');
+  const visualModsCosts = getCostsByType(car, 'visual mods');
 
   const costData = {
-    labels: ['Fuel', 'Maintenance', 'Repairs'],
+    labels: ['Maintenance', 'Repairs', 'Performance', 'Visual Mods'],
     datasets: [
       {
-        data: [fuelCosts, maintenanceCosts, repairCosts],
+        data: [maintenanceCosts, repairCosts, performanceCosts, visualModsCosts],
       },
     ],
   };
@@ -290,10 +293,15 @@ const CarDetailScreen = () => {
         </View>
 
         {/* Running Costs Section */}
-        <View style={styles.section}>
+        <TouchableOpacity
+          style={styles.section}
+          onPress={() => router.push(`/cars/running-costs/${id}`)}
+          activeOpacity={0.7}
+        >
           <View style={styles.sectionHeader}>
             <Ionicons name="cash" size={24} color="#7142CD" />
-            <Text style={styles.sectionTitle}>Running Costs</Text>
+            <Text style={[styles.sectionTitle, { flex: 1 }]}>Running Costs</Text>
+            <Ionicons name="chevron-forward" size={20} color="#7142CD" />
           </View>
           <View style={styles.sectionContent}>
             {hasCostData ? (
@@ -334,10 +342,22 @@ const CarDetailScreen = () => {
                     <Text style={styles.costLabel}>Repair Costs:</Text>
                     <Text style={styles.costValue}>€{repairCosts.toFixed(2)}</Text>
                   </View>
+                  <View style={styles.costRow}>
+                    <Text style={styles.costLabel}>Performance Mods Costs:</Text> 
+                    <Text style={styles.costValue}>€{performanceCosts.toFixed(2)}</Text>
+                  </View>
+                  <View style={styles.costRow}>
+                    <Text style={styles.costLabel}>Visual Mods Costs:</Text>
+                    <Text style={styles.costValue}>€{visualModsCosts.toFixed(2)}</Text>
+                  </View>
+                  <View style={styles.costRow}>
+                    <Text style={styles.costLabel}>Other Costs:</Text>
+                    <Text style={styles.costValue}>€{otherCosts.toFixed(2)}</Text>
+                  </View>
                   <View style={[styles.costRow, styles.totalRow]}>
                     <Text style={styles.totalLabel}>Total Running Costs:</Text>
                     <Text style={styles.totalValue}>
-                      €{(fuelCosts + maintenanceCosts + repairCosts).toFixed(2)}
+                      €{(fuelCosts + maintenanceCosts + repairCosts + performanceCosts + otherCosts + visualModsCosts).toFixed(2)}
                     </Text>
                   </View>
                 </View>
@@ -346,7 +366,7 @@ const CarDetailScreen = () => {
               <Text style={styles.noDataText}>No cost data available</Text>
             )}
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* Maintenance Section */}
         <View style={styles.section}>

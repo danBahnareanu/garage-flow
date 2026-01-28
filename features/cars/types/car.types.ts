@@ -23,7 +23,7 @@ export interface InspectionRecord {
 
 export interface RunningCostRecord {
     id: string;
-    type: 'fuel' | 'maintenance' | 'repair' | 'insurance' | 'tax' | 'parking' | 'toll' | 'other';
+    type: 'fuel' | 'maintenance' | 'repair' | 'insurance' | 'tax' | 'parking' | 'toll' | 'other' | 'aquisition' | 'performance' | 'visual mods';
     date: string;               // ISO date string
     amount: number;             // cost in currency
     mileage?: number;           // odometer reading at time of expense

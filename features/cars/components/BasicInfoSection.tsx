@@ -1,8 +1,9 @@
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { Car } from '@/features/cars/types/car.types';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
-import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface BasicInfoSectionProps {
   car: Car;
@@ -37,6 +38,19 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
     setNotes(car.notes || '');
     setImageUrl(car.imageUrl || '');
   }, [car]);
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [16, 9],
+      quality: 0.8,
+    });
+
+    if (!result.canceled && result.assets[0]) {
+      setImageUrl(result.assets[0].uri);
+    }
+  };
 
   const handleSave = () => {
     onSave({
@@ -199,15 +213,41 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.label}>Image URL</Text>
-      <TextInput
-        style={styles.input}
-        value={imageUrl}
-        onChangeText={setImageUrl}
-        placeholder="https://..."
-        placeholderTextColor="#8A8A8C"
-        autoCapitalize="none"
-      />
+      <Text style={styles.label}>Car Image</Text>
+      <TouchableOpacity
+        onPress={pickImage}
+        style={{
+          backgroundColor: '#1C1643',
+          borderRadius: 8,
+          borderWidth: 1,
+          borderColor: '#3D2F6E',
+          overflow: 'hidden',
+          height: 150,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        {imageUrl ? (
+          <Image
+            source={{ uri: imageUrl }}
+            style={{ width: '100%', height: '100%' }}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={{ alignItems: 'center', gap: 8 }}>
+            <Ionicons name="image-outline" size={40} color="#8A8A8C" />
+            <Text style={{ color: '#8A8A8C', fontSize: 14 }}>Tap to select image</Text>
+          </View>
+        )}
+      </TouchableOpacity>
+      {imageUrl && (
+        <TouchableOpacity
+          onPress={() => setImageUrl('')}
+          style={{ marginTop: 8, alignSelf: 'flex-end' }}
+        >
+          <Text style={{ color: '#FF4444', fontSize: 12 }}>Remove image</Text>
+        </TouchableOpacity>
+      )}
 
       <Text style={styles.label}>Notes</Text>
       <TextInput

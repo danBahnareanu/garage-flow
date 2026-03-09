@@ -1,5 +1,5 @@
-import useCarStore from '@/features/cars/store/carList.store';
 import { DonutChart } from '@/features/cars/components/DonutChart';
+import useCarStore from '@/features/cars/store/carList.store';
 import { costTypeColors, styles } from '@/features/cars/styles/runningCost.styles';
 import { Car, RunningCostRecord } from '@/features/cars/types/car.types';
 import { Ionicons } from '@expo/vector-icons';
@@ -52,6 +52,11 @@ const RunningCostScreen = () => {
   const pieChartData = useMemo(() =>
     (Object.entries(costsByType) as [string, number][])
       .filter(([_, amount]) => amount > 0)
+      .sort(([typeA, amountA], [typeB, amountB]) => {
+        if (typeA === 'other') return 1;
+        if (typeB === 'other') return -1;
+        return amountB - amountA;
+      })
       .map(([type, amount]) => ({
         value: amount as number,
         color: costTypeColors[type] || costTypeColors.other,

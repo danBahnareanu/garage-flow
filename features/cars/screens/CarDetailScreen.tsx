@@ -133,10 +133,13 @@ const CarDetailScreen = () => {
             {car.make} {car.model}
           </Text>
           <Text style={styles.carSubtitle}>
-            {car.year} " {car.licensePlate} " {car.fuel}
+            {car.year} --- {car.licensePlate} --- {car.fuel}
           </Text>
           {car.vin && (
-            <Text style={styles.vinText}>VIN: {car.vin}</Text>
+            <View style={{ flexDirection: 'row' }}>
+              <Text style={styles.vinText}>VIN: </Text>
+              <Text selectable style={styles.vinText}>{car.vin}</Text>
+            </View>
           )}
         </View>
 
@@ -252,7 +255,7 @@ const CarDetailScreen = () => {
         </View>
 
         {/* Registration Section */}
-        <View style={styles.section}>
+        {/* <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Ionicons name="document-text" size={24} color="#7142CD" />
             <Text style={styles.sectionTitle}>Registration</Text>
@@ -290,7 +293,7 @@ const CarDetailScreen = () => {
               <Text style={styles.noDataText}>No registration information available</Text>
             )}
           </View>
-        </View>
+        </View> */}
 
         {/* Running Costs Section */}
         <TouchableOpacity

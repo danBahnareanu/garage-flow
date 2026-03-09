@@ -211,14 +211,15 @@ export const styles = StyleSheet.create({
 
 // Color mapping for cost types
 export const costTypeColors: Record<string, string> = {
-  fuel: '#4CAF50',
-  maintenance: '#7142CD',
-  repair: '#FF6B6B',
-  insurance: '#2196F3',
-  tax: '#FFA726',
-  parking: '#26C6DA',
-  toll: '#AB47BC',
-  other: '#78909C',
-  aquisition: '#FF7043',
-  performance: '#8D6E63',
+    fuel: '#4CAF50',        // Green — universal "go/fuel"
+    maintenance: '#ca8b78', // Teal — steady, mechanical
+    repair: '#E05C5C',      // Muted red — urgent/attention
+    insurance: '#4A9EE0',   // Steel blue — trust/security
+    tax: '#F0A500',         // Amber gold — financial obligation
+    parking: '#00B4C8',     // Cyan — spatial, light
+    toll: '#EF6C00',        // Deep orange — transactional, road
+    other: '#8A9BB0',       // Cool grey-blue — neutral
+    aquisition: '#26A69A',  // Coral orange — significant purchase
+    performance: '#4c6eb3',
+    "visual mods": '#524cb3', // Warm tan/gold — premium, mechanical
 };

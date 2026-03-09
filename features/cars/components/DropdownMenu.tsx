@@ -20,6 +20,8 @@ interface DropdownMenuProps {
   visible: boolean;
   onClose: () => void;
   onAddNewCar: () => void;
+  onExportCarList: () => void;
+  onImportCarList: () => void;
 }
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -27,7 +29,9 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 export const DropdownMenu: React.FC<DropdownMenuProps> = ({
   visible,
   onClose,
-  onAddNewCar
+  onAddNewCar,
+  onExportCarList,
+  onImportCarList,
 }) => {
   const progress = useSharedValue(0);
 
@@ -76,6 +80,22 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
             >
               <Ionicons name="add-circle-outline" size={24} color="#E1E1E2" />
               <Text style={styles.menuItemText}>Add New Car</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={onExportCarList}
+            >
+              <Ionicons name="download-outline" size={24} color="#E1E1E2" />
+              <Text style={styles.menuItemText}>Export Car List</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.menuItem}
+              onPress={onImportCarList}
+            >
+              <Ionicons name="push-outline" size={24} color="#E1E1E2" />
+              <Text style={styles.menuItemText}>Import Car List</Text>
             </TouchableOpacity>
           </Pressable>
         </Animated.View>

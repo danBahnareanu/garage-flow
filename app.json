@@ -4,17 +4,24 @@
     "slug": "garage-flow",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/icons/icon.png",
     "scheme": "garageflow",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.technologylabs.garage-flow",
+      "icon": {
+        "dark": "./assets/icons/icon-dark.png",
+        "light": "./assets/icons/icon-light.png" ,
+        "tinted": "./assets/icons/icon-tinted.png"
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "foregroundImage": "./assets/icons/adaptive-icon.png",
+        "monochrome": "./assets/icons/adaptive-icon.png",
+        "backgroundColor": "#7142CD"
       },
       "edgeToEdgeEnabled": true
     },
@@ -28,10 +35,14 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/icons/splash-icon-dark.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#7142CD",
+          "dark": {
+            "image": "./assets/icons/splash-icon-light.png",
+            "backgroundColor": "#2C1F5E"
+          }
         }
       ],
       "expo-web-browser",

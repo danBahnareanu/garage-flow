@@ -7,6 +7,7 @@ export interface InsuranceRecord {
     cost: number;               // policy cost
     coverageType?: string;      // e.g., 'comprehensive', 'third-party'
     notes?: string;
+    notificationIds?: string[];  // expo-notifications scheduled IDs
 }
 
 export interface InspectionRecord {
@@ -19,6 +20,7 @@ export interface InspectionRecord {
     cost?: number;
     location?: string;          // inspection center
     notes?: string;
+    notificationIds?: string[];  // expo-notifications scheduled IDs
 }
 
 export interface RunningCostRecord {

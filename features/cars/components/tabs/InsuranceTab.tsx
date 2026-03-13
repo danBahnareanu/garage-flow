@@ -2,6 +2,11 @@ import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { InsuranceRecord } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
+import {
+  cancelScheduledNotifications,
+  requestPermissions,
+  scheduleInsuranceNotifications,
+} from '@/features/cars/utils/notificationService';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
@@ -17,10 +22,11 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 interface InsuranceTabProps {
   carId: string;
+  carName: string;
   insuranceHistory?: InsuranceRecord[];
 }
 
-export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, insuranceHistory }) => {
+export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insuranceHistory }) => {
   const { addInsuranceRecord, updateInsuranceRecord, deleteInsuranceRecord } = useCarStore();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -59,7 +65,7 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, insuranceHist
     setModalVisible(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!provider || !startDate || !expiryDate || !cost) {
       Alert.alert('Error', 'Please fill required fields');
       return;
@@ -73,6 +79,19 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, insuranceHist
       cost: parseFloat(cost),
       coverageType: coverageType || undefined,
     };
+
+    const granted = await requestPermissions();
+    if (granted) {
+      // Cancel old notifications if editing and expiry date changed
+      if (editingId) {
+        const oldRecord = insuranceHistory?.find((r) => r.id === editingId);
+        if (oldRecord?.notificationIds) {
+          await cancelScheduledNotifications(oldRecord.notificationIds);
+        }
+      }
+      record.notificationIds = await scheduleInsuranceNotifications(carName, record);
+    }
+
     if (editingId) {
       updateInsuranceRecord(carId, editingId, record);
     } else {
@@ -84,7 +103,17 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, insuranceHist
   const handleDelete = (recordId: string) => {
     Alert.alert('Delete', 'Are you sure?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => deleteInsuranceRecord(carId, recordId) },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          const record = insuranceHistory?.find((r) => r.id === recordId);
+          if (record?.notificationIds) {
+            await cancelScheduledNotifications(record.notificationIds);
+          }
+          deleteInsuranceRecord(carId, recordId);
+        },
+      },
     ]);
   };
 

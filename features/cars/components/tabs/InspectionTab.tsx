@@ -2,6 +2,11 @@ import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { InspectionRecord } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
+import {
+  cancelScheduledNotifications,
+  requestPermissions,
+  scheduleInspectionNotifications,
+} from '@/features/cars/utils/notificationService';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
@@ -17,6 +22,7 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 
 interface InspectionTabProps {
   carId: string;
+  carName: string;
   inspectionHistory?: InspectionRecord[];
 }
 
@@ -31,7 +37,7 @@ const INSPECTION_TYPES: InspectionRecord['type'][] = [
 
 const RESULT_OPTIONS: InspectionRecord['result'][] = ['pass', 'fail', 'pending'];
 
-export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, inspectionHistory }) => {
+export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, inspectionHistory }) => {
   const { addInspectionRecord, updateInspectionRecord, deleteInspectionRecord } = useCarStore();
 
   const [modalVisible, setModalVisible] = useState(false);
@@ -73,7 +79,7 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, inspectionH
     setModalVisible(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!date) {
       Alert.alert('Error', 'Please fill required fields');
       return;
@@ -88,6 +94,18 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, inspectionH
       cost: cost ? parseFloat(cost) : undefined,
       location: location || undefined,
     };
+
+    const granted = await requestPermissions();
+    if (granted && record.expiryDate) {
+      if (editingId) {
+        const oldRecord = inspectionHistory?.find((r) => r.id === editingId);
+        if (oldRecord?.notificationIds) {
+          await cancelScheduledNotifications(oldRecord.notificationIds);
+        }
+      }
+      record.notificationIds = await scheduleInspectionNotifications(carName, record);
+    }
+
     if (editingId) {
       updateInspectionRecord(carId, editingId, record);
     } else {
@@ -127,7 +145,13 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, inspectionH
       {
         text: 'Delete',
         style: 'destructive',
-        onPress: () => deleteInspectionRecord(carId, recordId),
+        onPress: async () => {
+          const record = inspectionHistory?.find((r) => r.id === recordId);
+          if (record?.notificationIds) {
+            await cancelScheduledNotifications(record.notificationIds);
+          }
+          deleteInspectionRecord(carId, recordId);
+        },
       },
     ]);
   };

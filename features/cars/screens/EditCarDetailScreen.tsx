@@ -41,9 +41,9 @@ const EditCarDetailScreen = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'insurance':
-        return <InsuranceTab carId={id as string} insuranceHistory={car.insuranceHistory} />;
+        return <InsuranceTab carId={id as string} carName={`${car.make} ${car.model}`} insuranceHistory={car.insuranceHistory} />;
       case 'inspection':
-        return <InspectionTab carId={id as string} inspectionHistory={car.inspectionHistory} />;
+        return <InspectionTab carId={id as string} carName={`${car.make} ${car.model}`} inspectionHistory={car.inspectionHistory} />;
       case 'costs':
         return <CostsTab carId={id as string} runningCosts={car.runningCosts} />;
       case 'maintenance':

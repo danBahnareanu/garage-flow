@@ -11,7 +11,8 @@ export const useCarImportExport = () => {
     try {
 
       const result = await exportCarsToFile(cars, setIsLoading);
-
+      cars.length === 0 && result.success && Alert.alert('Exported Template', `No cars to export, but a template file has been created for you to fill in and import.`);
+      
       if (result.success && !result.shared) {
         Alert.alert('Export Complete', `File saved to: ${result.filePath}`);
       }

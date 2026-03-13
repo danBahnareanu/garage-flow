@@ -1,6 +1,7 @@
 import * as DocumentPicker from 'expo-document-picker';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
+import template from '../../../assets/import-template/garage-flow-export-template.json';
 import { Car } from '../types/car.types';
 
 export const isValidCar = (obj: unknown): obj is Car => {
@@ -17,7 +18,7 @@ export const isValidCar = (obj: unknown): obj is Car => {
 };
 
 export const exportCarsToFile = async (cars: Car[], setIsLoading?: (loading: boolean) => void): Promise<{ success: boolean; filePath?: string; shared?: boolean }> => {
-  const jsonData = JSON.stringify(cars, null, 2);
+  let jsonData = JSON.stringify(cars, null, 2);
   const fileName = `garage-flow-export-${new Date().toISOString().split('T')[0]}.json`;
   const file = new File(Paths.cache, fileName);
 
@@ -25,6 +26,10 @@ export const exportCarsToFile = async (cars: Car[], setIsLoading?: (loading: boo
     file.delete();
   }
   file.create();
+
+  if(cars.length === 0) {
+    jsonData = JSON.stringify(template, null, 2);
+  }
   file.write(jsonData);
 
   const filePath = file.uri;

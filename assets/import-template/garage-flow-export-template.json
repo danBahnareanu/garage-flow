@@ -1,0 +1,86 @@
+[
+  {
+    "id": "1",
+    "make": "Saab",
+    "model": "9-3 Convertible",
+    "year": 2005,
+    "licensePlate": "B13AAAA",
+    "fuel": "petrol",
+    "engineCode": "B207L",
+    "imageUrl": "",
+    "insuranceHistory": [
+      {
+        "id": "1773392503859s5bjxl75e",
+        "provider": "Axeria",
+        "policyNumber": "54110211176",
+        "startDate": "2025-12-21T08:57:41.000Z",
+        "expiryDate": "2026-12-20T08:57:41.000Z",
+        "cost": 260,
+        "coverageType": "RCA",
+        "notificationIds": []
+      }
+    ],
+    "inspectionHistory": [
+      {
+        "id": "1",
+        "type": "ITP",
+        "date": "2024-12-05T14:48:00.000Z",
+        "expiryDate": "2025-12-05T14:48:00.000Z",
+        "result": "pass",
+        "mileage": 274000,
+        "cost": 50
+      },
+      {
+        "id": "2",
+        "type": "ITP",
+        "date": "2025-12-05T14:48:00.000Z",
+        "expiryDate": "2026-12-05T14:48:00.000Z",
+        "result": "pass",
+        "mileage": 285000,
+        "cost": 50,
+        "notes": "Gainarie required pentru noxe"
+      }
+    ],
+    "runningCosts": [
+      {
+        "id": "1",
+        "type": "aquisition",
+        "date": "2020-01-01T00:00:00.000Z",
+        "amount": 3000,
+        "description": "Vehicle purchase"
+      },
+      {
+        "id": "2",
+        "type": "repair",
+        "date": "2019-01-01T00:00:00.000Z",
+        "amount": 136,
+        "description": "Expansion Tank"
+      }
+    ],
+    "purchasePrice": 3000,
+    "currentMileage": 289000,
+    "maintenanceHistory": [
+      {
+        "id": "1",
+        "date": "2025-08-20T14:48:00.000Z",
+        "mileage": 285000,
+        "type": "scheduled",
+        "description": "kroon oil torsynth 5w40 + oil filter",
+        "cost": 450,
+        "nextServiceDate": "2026-08-20T14:48:00.000Z",
+        "nextServiceMileage": 295000
+      },
+      {
+        "id": "2",
+        "date": "2025-09-20T14:48:00.000Z",
+        "mileage": 287382,
+        "type": "scheduled",
+        "description": "Spark plugs denso ik24 gap 0.8mm",
+        "cost": 450
+      }
+    ],
+    "vin": "YS3FF75S556010287",
+    "color": "Black",
+    "transmission": "manual"
+  }
+]

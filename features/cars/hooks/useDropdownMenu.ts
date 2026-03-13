@@ -17,6 +17,7 @@ export const useDropdownMenu = () => {
   const close = () => setVisible(false);
 
   const handleDeleteCar = (car: Car) => {
+    const carListLength = cars.length;
     Alert.alert('Delete Car', `Remove ${car.make} ${car.model}?`, [
       { text: 'Cancel', style: 'cancel' },
       {
@@ -31,7 +32,9 @@ export const useDropdownMenu = () => {
             await cancelScheduledNotifications(allIds);
           }
           removeCar(car.id);
-          close();
+          if (carListLength === 1) {
+            close();
+          }
         },
       },
     ]);

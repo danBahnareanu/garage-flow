@@ -1,28 +1,21 @@
 import { DropdownMenu, MenuButton } from '@/features/cars/components/DropdownMenu';
-import { useCarImportExport } from '@/features/cars/hooks/useCarImportExport';
-import { Stack, useRouter } from 'expo-router';
-import React, { useState } from 'react';
+import { useDropdownMenu } from '@/features/cars/hooks/useDropdownMenu';
+import { Stack } from 'expo-router';
+import React from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 export default function Layout() {
-  const router = useRouter();
-  const [visible, setVisible] = useState(false);
-  const { isLoading, handleExport, handleImport } = useCarImportExport();
-
-  const handleAddNewCar = () => {
-    setVisible(false);
-    router.push('/cars/add');
-  };
-
-  const handleExportCarList = async () => {
-    await handleExport();
-    setVisible(false);
-  };
-
-  const handleImportCarList = async () => {
-    await handleImport();
-    setVisible(false);
-  };
+  const {
+    visible,
+    open,
+    close,
+    isLoading,
+    cars,
+    handleDeleteCar,
+    handleAddNewCar,
+    handleExportCarList,
+    handleImportCarList,
+  } = useDropdownMenu();
 
   return (
     <>
@@ -41,7 +34,7 @@ export default function Layout() {
           options={{
             title: 'My Garage',
             headerRight: () => (
-              <MenuButton onPress={() => setVisible(true)} />
+              <MenuButton onPress={open} />
             ),
           }}
         />
@@ -53,10 +46,12 @@ export default function Layout() {
 
       <DropdownMenu
         visible={visible}
-        onClose={() => setVisible(false)}
+        onClose={close}
         onAddNewCar={handleAddNewCar}
         onExportCarList={handleExportCarList}
         onImportCarList={handleImportCarList}
+        cars={cars}
+        onDeleteCar={handleDeleteCar}
       />
 
       {isLoading && (

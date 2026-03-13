@@ -129,7 +129,7 @@ async function recheckRecords<T extends { id: string; expiryDate?: string; notif
 
     // If no expiry date or all triggers are in the past, clear IDs
     if (!record.expiryDate) {
-      updateFn(carId, record.id, { notificationIds: [] } as Partial<T>);
+      updateFn(carId, record.id, { notificationIds: [] } as unknown as Partial<T>);
       continue;
     }
 
@@ -138,14 +138,14 @@ async function recheckRecords<T extends { id: string; expiryDate?: string; notif
     const expiryTrigger = new Date(expiry);
     expiryTrigger.setHours(9, 0, 0, 0);
     if (expiryTrigger <= now) {
-      updateFn(carId, record.id, { notificationIds: [] } as Partial<T>);
+      updateFn(carId, record.id, { notificationIds: [] } as unknown as Partial<T>);
       continue;
     }
 
     // Cancel remaining and reschedule
     await cancelScheduledNotifications(record.notificationIds);
     const newIds = await scheduleFn(carName, record);
-    updateFn(carId, record.id, { notificationIds: newIds } as Partial<T>);
+    updateFn(carId, record.id, { notificationIds: newIds } as unknown as Partial<T>);
   }
 }
 

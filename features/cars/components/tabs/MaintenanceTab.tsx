@@ -1,6 +1,6 @@
 import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
-import { MaintenanceRecord } from '@/features/cars/types/car.types';
+import { MaintenanceRecord, ReplacedPart } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -36,8 +36,10 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
   // Date picker state
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [description, setDescription] = useState('');
-  const [cost, setCost] = useState('');
   const [serviceProvider, setServiceProvider] = useState('');
+  const [partsReplaced, setPartsReplaced] = useState<ReplacedPart[]>([]);
+  const [partName, setPartName] = useState('');
+  const [partCost, setPartCost] = useState('');
   const [nextServiceDate, setNextServiceDate] = useState('');
   const [nextServiceMileage, setNextServiceMileage] = useState('');
 
@@ -48,8 +50,8 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
       setDate(new Date(record.date));
       setMileage(record.mileage.toString());
       setDescription(record.description);
-      setCost(record.cost.toString());
       setServiceProvider(record.serviceProvider || '');
+      setPartsReplaced(record.partsReplaced || []);
       setNextServiceDate(record.nextServiceDate || '');
       setNextServiceMileage(record.nextServiceMileage?.toString() || '');
     } else {
@@ -58,16 +60,36 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
       setDate(null);
       setMileage('');
       setDescription('');
-      setCost('');
       setServiceProvider('');
+      setPartsReplaced([]);
       setNextServiceDate('');
       setNextServiceMileage('');
     }
+    setPartName('');
+    setPartCost('');
     setModalVisible(true);
   };
 
+  const totalCost = partsReplaced.reduce((sum, p) => sum + p.cost, 0);
+
+  const handleAddPart = () => {
+    const name = partName.trim();
+    const cost = parseFloat(partCost);
+    if (!name || isNaN(cost)) {
+      Alert.alert('Error', 'Please enter a part name and valid cost');
+      return;
+    }
+    setPartsReplaced([...partsReplaced, { name, cost }]);
+    setPartName('');
+    setPartCost('');
+  };
+
+  const handleRemovePart = (index: number) => {
+    setPartsReplaced(partsReplaced.filter((_, i) => i !== index));
+  };
+
   const handleSave = () => {
-    if (!date || !mileage || !description || !cost) {
+    if (!date || !mileage || !description) {
       Alert.alert('Error', 'Please fill required fields');
       return;
     }
@@ -77,7 +99,8 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
       mileage: parseInt(mileage, 10),
       type: maintType,
       description,
-      cost: parseFloat(cost),
+      cost: totalCost,
+      partsReplaced: partsReplaced.length > 0 ? partsReplaced : undefined,
       serviceProvider: serviceProvider || undefined,
       nextServiceDate: nextServiceDate || undefined,
       nextServiceMileage: nextServiceMileage ? parseInt(nextServiceMileage, 10) : undefined,
@@ -148,6 +171,16 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
           <View style={[styles.typeBadge, styles.maintenanceTypeBadge]}>
             <Text style={styles.typeBadgeText}>{record.type}</Text>
           </View>
+          {record.partsReplaced && record.partsReplaced.length > 0 && (
+            <View style={styles.partsBreakdown}>
+              {record.partsReplaced.map((part, i) => (
+                <View key={i} style={styles.partItem}>
+                  <Text style={styles.partItemText}>{part.name}</Text>
+                  <Text style={styles.partItemCost}>€{part.cost.toFixed(2)}</Text>
+                </View>
+              ))}
+            </View>
+          )}
         </View>
       ))}
 
@@ -214,15 +247,6 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
                 numberOfLines={3}
                 textAlignVertical="top"
               />
-              <Text style={styles.label}>Cost * (€)</Text>
-              <TextInput
-                style={styles.input}
-                value={cost}
-                onChangeText={setCost}
-                placeholder="150"
-                placeholderTextColor="#8A8A8C"
-                keyboardType="decimal-pad"
-              />
               <Text style={styles.label}>Service Provider</Text>
               <TextInput
                 style={styles.input}
@@ -231,6 +255,44 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
                 placeholder="BMW Service"
                 placeholderTextColor="#8A8A8C"
               />
+              <Text style={styles.label}>Parts Replaced</Text>
+              <View style={styles.partsInputRow}>
+                <TextInput
+                  style={[styles.input, styles.partNameInput]}
+                  value={partName}
+                  onChangeText={setPartName}
+                  placeholder="Part name"
+                  placeholderTextColor="#8A8A8C"
+                />
+                <TextInput
+                  style={[styles.input, styles.partCostInput]}
+                  value={partCost}
+                  onChangeText={setPartCost}
+                  placeholder="€"
+                  placeholderTextColor="#8A8A8C"
+                  keyboardType="decimal-pad"
+                />
+                <TouchableOpacity style={styles.partAddButton} onPress={handleAddPart}>
+                  <Ionicons name="add" size={18} color="#fff" />
+                </TouchableOpacity>
+              </View>
+              {partsReplaced.map((part, index) => (
+                <View key={index} style={styles.partItem}>
+                  <Text style={styles.partItemText}>{part.name}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                    <Text style={styles.partItemCost}>€{part.cost.toFixed(2)}</Text>
+                    <TouchableOpacity onPress={() => handleRemovePart(index)}>
+                      <Text style={styles.partRemoveText}>✕</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+              {partsReplaced.length > 0 && (
+                <View style={styles.partsTotalRow}>
+                  <Text style={styles.partsTotalText}>Total</Text>
+                  <Text style={styles.partsTotalText}>€{totalCost.toFixed(2)}</Text>
+                </View>
+              )}
               <Text style={styles.label}>Next Service Date (YYYY-MM-DD)</Text>
               <TextInput
                 style={styles.input}

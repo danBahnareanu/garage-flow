@@ -42,6 +42,7 @@ export default function Layout() {
         <Stack.Screen name="cars/[id]" options={{ title: 'Car Details' }} />
         <Stack.Screen name="cars/edit/[id]" options={{ title: 'Edit Car Details' }} />
         <Stack.Screen name="cars/running-costs/[id]" options={{ title: 'Running Costs' }} />
+        <Stack.Screen name="cars/maintenance-history/[id]" options={{ title: 'Maintenance History' }} />
       </Stack>
 
       <DropdownMenu

@@ -413,7 +413,10 @@ const CarDetailScreen = () => {
             {car.maintenanceHistory && car.maintenanceHistory.length > 0 ? (
               <View style={styles.maintenanceHistory}>
                 <Text style={styles.maintenanceHistoryTitle}>Maintenance History</Text>
-                {car.maintenanceHistory.map((record: any) => (
+                {[...car.maintenanceHistory]
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .slice(0, 3)
+                  .map((record: any) => (
                   <View key={record.id} style={styles.maintenanceRecord}>
                     <View style={styles.maintenanceRecordHeader}>
                       <Text style={styles.maintenanceDate}>
@@ -428,8 +431,24 @@ const CarDetailScreen = () => {
                         <Text style={styles.maintenanceTypeText}>{record.type}</Text>
                       </View>
                     </View>
+                    {record.partsReplaced && record.partsReplaced.length > 0 && (
+                      <View style={styles.partsSection}>
+                        <Text style={styles.partsLabel}>Parts replaced:</Text>
+                        {record.partsReplaced.map((part: any, i: number) => (
+                          <View key={i} style={styles.partRow}>
+                            <Text style={styles.partName}>{part.name}</Text>
+                            <Text style={styles.partCost}>€{part.cost.toFixed(2)}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    )}
                   </View>
                 ))}
+                {car.maintenanceHistory.length > 3 && (
+                  <TouchableOpacity onPress={() => router.push(`/cars/maintenance-history/${id}`)}>
+                    <Text style={styles.seeAllLink}>See All ({car.maintenanceHistory.length})</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             ) : (
               car.currentMileage === undefined && (
@@ -721,6 +740,38 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#E1E1E2',
     lineHeight: 20,
+  },
+  partsSection: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#2C1F5E',
+  },
+  partsLabel: {
+    fontSize: 12,
+    color: '#B0B0B2',
+    marginBottom: 4,
+  },
+  partRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 2,
+  },
+  partName: {
+    fontSize: 13,
+    color: '#E1E1E2',
+  },
+  partCost: {
+    fontSize: 13,
+    color: '#7142CD',
+    fontWeight: '600',
+  },
+  seeAllLink: {
+    color: '#7142CD',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 12,
   },
 });
 

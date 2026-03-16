@@ -36,14 +36,19 @@ export interface RunningCostRecord {
     pricePerLiter?: number;     // for fuel transactions
 }
 
+export interface ReplacedPart {
+    name: string;
+    cost: number;
+}
+
 export interface MaintenanceRecord {
     id: string;
     date: string;               // ISO date string
     mileage: number;
-    type: 'scheduled' | 'unscheduled' | 'recall';
+    type: 'scheduled' | 'unscheduled' | 'recall' | 'upgrade' | 'preventive';
     description: string;
     cost: number;
-    partsReplaced?: string[];
+    partsReplaced?: ReplacedPart[];
     serviceProvider?: string;
     nextServiceDate?: string;   // ISO date string
     nextServiceMileage?: number;

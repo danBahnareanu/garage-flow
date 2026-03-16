@@ -17,10 +17,15 @@ import { BarChart } from 'react-native-chart-kit';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Helper functions
-const getLatestInsurance = (car: Car) => car.insuranceHistory?.[0];
+const getLatestInsurance = (car: Car) =>
+  car.insuranceHistory
+    ?.slice()
+    .sort((a, b) => new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime())[0];
 
 const getLatestInspectionByType = (car: Car, types: string[]) =>
-  car.inspectionHistory?.find(i => types.includes(i.type));
+  car.inspectionHistory
+    ?.filter(i => types.includes(i.type))
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
 const getCostsByType = (car: Car, type: string) =>
   car.runningCosts?.filter(c => c.type === type).reduce((sum, c) => sum + c.amount, 0) || 0;

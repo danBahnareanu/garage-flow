@@ -1,5 +1,6 @@
 import useCarStore from '@/features/cars/store/carList.store';
 import { Car, MaintenanceRecord } from '@/features/cars/types/car.types';
+import { getMaintenanceBadgeStyle, maintenanceStyles } from '@/features/cars/utils/maintenanceStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -125,23 +126,6 @@ const CarDetailScreen = () => {
   };
 
   const hasCostData = fuelCosts + maintenanceCosts + repairCosts > 0;
-
-  const getMaintenanceBadgeStyle = (type: MaintenanceRecord['type']) => {
-    switch (type) {
-      case 'scheduled':
-        return styles.scheduledBadge;
-      case 'unscheduled':
-        return styles.unscheduledBadge;
-      case 'recall':
-        return styles.recallBadge;
-      case 'repair':
-        return styles.repairBadge;
-      case 'upgrade':
-        return styles.upgradeBadge;
-      default:
-        return styles.scheduledBadge;
-    }
-  };
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
@@ -461,8 +445,8 @@ const CarDetailScreen = () => {
                     <Text style={styles.maintenanceDescription}>{record.description}</Text>
                     <View style={styles.maintenanceRecordFooter}>
                       <Text style={styles.maintenanceMileage}>{record.mileage.toLocaleString()} km</Text>
-                      <View style={[styles.maintenanceTypeBadge, getMaintenanceBadgeStyle(record.type)]}>
-                        <Text style={styles.maintenanceTypeText}>{record.type}</Text>
+                      <View style={[maintenanceStyles.maintenanceTypeBadge, getMaintenanceBadgeStyle(record.type)]}>
+                        <Text style={maintenanceStyles.maintenanceTypeText}>{record.type}</Text>
                       </View>
                     </View>
                     {record.partsReplaced && record.partsReplaced.length > 0 && (
@@ -746,32 +730,6 @@ const styles = StyleSheet.create({
   maintenanceMileage: {
     fontSize: 13,
     color: '#8A8A8C',
-  },
-  maintenanceTypeBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  scheduledBadge: {
-    backgroundColor: '#4CAF50',
-  },
-  unscheduledBadge: {
-    backgroundColor: '#FFA500',
-  },
-  recallBadge: {
-    backgroundColor: '#FF4444',
-  },
-  repairBadge: {
-    backgroundColor: '#FF6B6B',
-  },
-  upgradeBadge: {
-    backgroundColor: '#4ECDC4',
-  },
-  maintenanceTypeText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'capitalize',
   },
   notesContainer: {
     gap: 8,

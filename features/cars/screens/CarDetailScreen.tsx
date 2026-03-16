@@ -24,7 +24,37 @@ const getLatestInspectionByType = (car: Car, types: string[]) =>
 const getCostsByType = (car: Car, type: string) =>
   car.runningCosts?.filter(c => c.type === type).reduce((sum, c) => sum + c.amount, 0) || 0;
 
-const getLatestMaintenance = (car: Car) => car.maintenanceHistory?.[0];
+const getLatestMaintenance = (car: Car) => {
+  const records = car.maintenanceHistory;
+  if (!records?.length) return undefined;
+
+  // Get the most recently added record for display (date, description, etc.)
+  const latest = records[0];
+
+  // Find the latest service date across all records
+  const date = records
+    .map(r => r.date)
+    .filter((d): d is string => !!d)
+    .sort()
+    .pop() ?? latest.date;
+
+  // Find the latest nextServiceDate across all records
+  const nextServiceDate = records
+    .map(r => r.nextServiceDate)
+    .filter((d): d is string => !!d)
+    .sort()
+    .pop();
+
+  // Find the highest nextServiceMileage across all records
+  const nextServiceMileage = records.reduce<number | undefined>(
+    (max, r) => r.nextServiceMileage !== undefined
+      ? (max !== undefined ? Math.max(max, r.nextServiceMileage) : r.nextServiceMileage)
+      : max,
+    undefined
+  );
+
+  return { ...latest, date, nextServiceDate, nextServiceMileage };
+};
 
 const CarDetailScreen = () => {
   const router = useRouter();
@@ -104,6 +134,10 @@ const CarDetailScreen = () => {
         return styles.unscheduledBadge;
       case 'recall':
         return styles.recallBadge;
+      case 'repair':
+        return styles.repairBadge;
+      case 'upgrade':
+        return styles.upgradeBadge;
       default:
         return styles.scheduledBadge;
     }
@@ -726,6 +760,12 @@ const styles = StyleSheet.create({
   },
   recallBadge: {
     backgroundColor: '#FF4444',
+  },
+  repairBadge: {
+    backgroundColor: '#FF6B6B',
+  },
+  upgradeBadge: {
+    backgroundColor: '#4ECDC4',
   },
   maintenanceTypeText: {
     color: '#fff',

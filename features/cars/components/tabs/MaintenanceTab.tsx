@@ -6,7 +6,9 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
   Alert,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   ScrollView,
   Text,
   TextInput,
@@ -189,10 +191,13 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
       )}
 
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <View style={styles.modalOverlay}>
+        <KeyboardAvoidingView
+          style={styles.modalOverlay}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{editingId ? 'Edit' : 'Add'} Maintenance</Text>
-            <ScrollView>
+            <ScrollView keyboardShouldPersistTaps="handled">
               <Text style={styles.label}>Type</Text>
               <View style={styles.buttonRow}>
                 {MAINTENANCE_TYPES.map((t) => (
@@ -320,7 +325,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
               </TouchableOpacity>
             </View>
           </View>
-        </View>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );

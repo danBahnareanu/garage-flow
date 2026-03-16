@@ -45,7 +45,7 @@ export interface MaintenanceRecord {
     id: string;
     date: string;               // ISO date string
     mileage: number;
-    type: 'scheduled' | 'unscheduled' | 'recall' | 'upgrade' | 'preventive';
+    type: 'scheduled' | 'unscheduled' | 'recall' | 'upgrade' | 'preventive' | 'repair';
     description: string;
     cost: number;
     partsReplaced?: ReplacedPart[];

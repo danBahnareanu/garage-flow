@@ -18,6 +18,10 @@ const getMaintenanceBadgeStyle = (type: MaintenanceRecord['type']) => {
       return styles.unscheduledBadge;
     case 'recall':
       return styles.recallBadge;
+    case 'repair':
+      return styles.repairBadge;
+    case 'upgrade':
+      return styles.upgradeBadge;
     default:
       return styles.scheduledBadge;
   }
@@ -132,6 +136,12 @@ const styles = StyleSheet.create({
   recallBadge: {
     backgroundColor: '#FF4444',
   },
+  repairBadge: {
+    backgroundColor: '#FF6B6B',
+  },
+  upgradeBadge: {
+    backgroundColor: '#4ECDC4',
+  },
   maintenanceTypeText: {
     color: '#fff',
     fontSize: 12,
@@ -157,6 +167,8 @@ const styles = StyleSheet.create({
   partName: {
     fontSize: 13,
     color: '#E1E1E2',
+    flex: 1,
+    flexShrink: 1,
   },
   partCost: {
     fontSize: 13,

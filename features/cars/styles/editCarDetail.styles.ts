@@ -194,7 +194,7 @@ export const styles = StyleSheet.create({
     borderRadius: 6,
     marginTop: 4,
   },
-  partItemText: { color: '#E1E1E2', fontSize: 13 },
+  partItemText: { color: '#E1E1E2', fontSize: 13, flex: 1, flexShrink: 1 },
   partItemCost: { color: '#7142CD', fontSize: 13, fontWeight: '600' },
   partRemoveText: { color: '#FF4444', fontSize: 16 },
   partsTotalRow: {

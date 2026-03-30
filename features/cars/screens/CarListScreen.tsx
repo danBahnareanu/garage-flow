@@ -36,6 +36,7 @@ const CarList = () => {
   const isHydrated = useCarStore(state => state.isHydrated);
   const updateInsuranceRecord = useCarStore(state => state.updateInsuranceRecord);
   const updateInspectionRecord = useCarStore(state => state.updateInspectionRecord);
+  const updateVignetteRecord = useCarStore(state => state.updateVignetteRecord);
   const [selectedId, setSelectedId] = useState<string>();
   const [showInfo, setShowInfo] = useState(false);
 
@@ -45,7 +46,7 @@ const CarList = () => {
 
   useEffect(() => {
     if (isHydrated && carList.length > 0) {
-      recheckAllNotifications(carList, updateInsuranceRecord, updateInspectionRecord);
+      recheckAllNotifications(carList, updateInsuranceRecord, updateInspectionRecord, updateVignetteRecord);
     }
   }, [isHydrated]);
 

@@ -4,6 +4,7 @@ import { CostsTab } from '@/features/cars/components/tabs/CostsTab';
 import { InspectionTab } from '@/features/cars/components/tabs/InspectionTab';
 import { InsuranceTab } from '@/features/cars/components/tabs/InsuranceTab';
 import { MaintenanceTab } from '@/features/cars/components/tabs/MaintenanceTab';
+import { RoadTaxTab } from '@/features/cars/components/tabs/RoadTaxTab';
 import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { Car } from '@/features/cars/types/car.types';
@@ -44,6 +45,8 @@ const EditCarDetailScreen = () => {
         return <InsuranceTab carId={id as string} carName={`${car.make} ${car.model}`} insuranceHistory={car.insuranceHistory} />;
       case 'inspection':
         return <InspectionTab carId={id as string} carName={`${car.make} ${car.model}`} inspectionHistory={car.inspectionHistory} />;
+      case 'roadTax':
+        return <RoadTaxTab carId={id as string} carName={`${car.make} ${car.model}`} vignetteHistory={car.vignetteHistory} />;
       case 'costs':
         return <CostsTab carId={id as string} runningCosts={car.runningCosts} />;
       case 'maintenance':

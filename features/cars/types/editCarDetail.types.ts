@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 
-export type TabType = 'insurance' | 'inspection' | 'costs' | 'maintenance';
+export type TabType = 'insurance' | 'inspection' | 'roadTax' | 'costs' | 'maintenance';
 
 export interface TabConfig {
   key: TabType;
@@ -11,6 +11,7 @@ export interface TabConfig {
 export const TABS: TabConfig[] = [
   { key: 'insurance', label: 'Insurance', icon: 'shield-checkmark' },
   { key: 'inspection', label: 'Inspections', icon: 'checkmark-done-circle' },
+  { key: 'roadTax', label: 'Road Tax', icon: 'receipt' },
   { key: 'costs', label: 'Costs', icon: 'cash' },
   { key: 'maintenance', label: 'Maintenance', icon: 'build' },
 ];

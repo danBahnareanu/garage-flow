@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-import { Car, InspectionRecord, InsuranceRecord } from '../types/car.types';
+import { Car, InspectionRecord, InsuranceRecord, VignetteRecord } from '../types/car.types';
 
 const REMINDER_CHANNEL_ID = 'reminders';
 
@@ -109,6 +109,17 @@ export async function scheduleInspectionNotifications(
   );
 }
 
+// --- Vignette ---
+
+export async function scheduleVignetteNotifications(
+  carName: string,
+  record: VignetteRecord,
+): Promise<string[]> {
+  return scheduleExpiryNotifications(
+    carName, 'Road Tax Reminder', record.expiryDate, record.id, 'vignette-expiry',
+  );
+}
+
 // --- Recheck on app launch ---
 
 async function recheckRecords<T extends { id: string; expiryDate?: string; notificationIds?: string[] }>(
@@ -153,6 +164,7 @@ export async function recheckAllNotifications(
   cars: Car[],
   updateInsuranceRecord: (carId: string, recordId: string, updates: Partial<InsuranceRecord>) => void,
   updateInspectionRecord: (carId: string, recordId: string, updates: Partial<InspectionRecord>) => void,
+  updateVignetteRecord: (carId: string, recordId: string, updates: Partial<VignetteRecord>) => void,
 ): Promise<void> {
   const scheduled = await Notifications.getAllScheduledNotificationsAsync();
   const scheduledIds = new Set(scheduled.map((n) => n.identifier));
@@ -161,6 +173,7 @@ export async function recheckAllNotifications(
     const carName = `${car.make} ${car.model}`;
     await recheckRecords(car.insuranceHistory, car.id, carName, scheduledIds, scheduleInsuranceNotifications, updateInsuranceRecord);
     await recheckRecords(car.inspectionHistory, car.id, carName, scheduledIds, scheduleInspectionNotifications, updateInspectionRecord);
+    await recheckRecords(car.vignetteHistory, car.id, carName, scheduledIds, scheduleVignetteNotifications, updateVignetteRecord);
   }
 }
 

@@ -5,6 +5,7 @@ import {
   InsuranceRecord,
   MaintenanceRecord,
   RunningCostRecord,
+  VignetteRecord,
 } from '@/features/cars/types/car.types';
 import { asyncStorageAdapter } from '@/store/asyncStorageAdapter';
 
@@ -37,6 +38,11 @@ interface CarStore {
   addRunningCostRecord: (carId: string, record: RunningCostRecord) => void;
   updateRunningCostRecord: (carId: string, recordId: string, updates: Partial<RunningCostRecord>) => void;
   deleteRunningCostRecord: (carId: string, recordId: string) => void;
+
+  // Vignette CRUD
+  addVignetteRecord: (carId: string, record: VignetteRecord) => void;
+  updateVignetteRecord: (carId: string, recordId: string, updates: Partial<VignetteRecord>) => void;
+  deleteVignetteRecord: (carId: string, recordId: string) => void;
 
   // Maintenance CRUD
   addMaintenanceRecord: (carId: string, record: MaintenanceRecord) => void;
@@ -206,6 +212,50 @@ const useCarStore = create<CarStore>()(
               ? {
                   ...car,
                   runningCosts: car.runningCosts?.filter(
+                    (r) => r.id !== recordId
+                  ),
+                }
+              : car
+          ),
+        }));
+      },
+
+      // Vignette CRUD
+      addVignetteRecord: (carId, record) => {
+        set((state) => ({
+          cars: state.cars.map((car) =>
+            car.id === carId
+              ? {
+                  ...car,
+                  vignetteHistory: [record, ...(car.vignetteHistory || [])],
+                }
+              : car
+          ),
+        }));
+      },
+
+      updateVignetteRecord: (carId, recordId, updates) => {
+        set((state) => ({
+          cars: state.cars.map((car) =>
+            car.id === carId
+              ? {
+                  ...car,
+                  vignetteHistory: car.vignetteHistory?.map((r) =>
+                    r.id === recordId ? { ...r, ...updates } : r
+                  ),
+                }
+              : car
+          ),
+        }));
+      },
+
+      deleteVignetteRecord: (carId, recordId) => {
+        set((state) => ({
+          cars: state.cars.map((car) =>
+            car.id === carId
+              ? {
+                  ...car,
+                  vignetteHistory: car.vignetteHistory?.filter(
                     (r) => r.id !== recordId
                   ),
                 }

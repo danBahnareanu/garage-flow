@@ -55,6 +55,17 @@ export interface MaintenanceRecord {
     notes?: string;
 }
 
+export interface VignetteRecord {
+    id: string;
+    name: string;              // e.g., "Romania Vignette", "Hungary e-Vignette"
+    purchaseDate: string;      // ISO date string
+    expiryDate: string;        // ISO date string
+    cost: number;
+    country?: string;          // country the vignette is for
+    notes?: string;
+    notificationIds?: string[];
+}
+
 export interface Car {
     id: string;
     make: string;         // e.g. Toyota
@@ -74,6 +85,9 @@ export interface Car {
     // Running costs (individual transactions)
     runningCosts?: RunningCostRecord[];
     purchasePrice?: number; // one-time purchase cost
+
+    // Vignette / Road Tax history
+    vignetteHistory?: VignetteRecord[];
 
     // Maintenance tracking
     currentMileage?: number;

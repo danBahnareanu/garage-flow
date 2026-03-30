@@ -22,6 +22,11 @@ const getLatestInsurance = (car: Car) =>
     ?.slice()
     .sort((a, b) => new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime())[0];
 
+const getValidVignettes = (car: Car) =>
+  car.vignetteHistory
+    ?.filter(v => new Date(v.expiryDate) >= new Date())
+    .sort((a, b) => new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime()) || [];
+
 const getLatestInspectionByType = (car: Car, types: string[]) =>
   car.inspectionHistory
     ?.filter(i => types.includes(i.type))
@@ -107,6 +112,7 @@ const CarDetailScreen = () => {
   const technicalInspection = getLatestInspectionByType(car, ['technical', 'ITP']);
   const registrationInspection = getLatestInspectionByType(car, ['registration']);
   const latestMaintenance = getLatestMaintenance(car);
+  const validVignettes = getValidVignettes(car);
 
   // Calculate days remaining
   const insuranceDays = calculateDaysRemaining(latestInsurance?.expiryDate);
@@ -273,6 +279,60 @@ const CarDetailScreen = () => {
               </>
             ) : (
               <Text style={styles.noDataText}>No inspection information available</Text>
+            )}
+          </View>
+        </View>
+
+        {/* Road Tax Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Ionicons name="receipt" size={24} color="#7142CD" />
+            <Text style={styles.sectionTitle}>Road Tax</Text>
+          </View>
+          <View style={styles.sectionContent}>
+            {validVignettes.length > 0 ? (
+              validVignettes.map((vignette) => {
+                const vignetteDays = calculateDaysRemaining(vignette.expiryDate);
+                return (
+                  <View key={vignette.id} style={styles.vignetteCard}>
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Name:</Text>
+                      <Text style={styles.infoValue}>{vignette.name}</Text>
+                    </View>
+                    {vignette.country && (
+                      <View style={styles.infoRow}>
+                        <Text style={styles.infoLabel}>Country:</Text>
+                        <Text style={styles.infoValue}>{vignette.country}</Text>
+                      </View>
+                    )}
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Purchase Date:</Text>
+                      <Text style={styles.infoValue}>
+                        {new Date(vignette.purchaseDate).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Expiry Date:</Text>
+                      <Text style={styles.infoValue}>
+                        {new Date(vignette.expiryDate).toLocaleDateString()}
+                      </Text>
+                    </View>
+                    <View style={[styles.expiryBadge, { backgroundColor: getExpiryColor(vignetteDays) }]}>
+                      <Text style={styles.expiryText}>
+                        {vignetteDays !== null
+                          ? `${vignetteDays} days remaining`
+                          : 'N/A'}
+                      </Text>
+                    </View>
+                    <View style={styles.infoRow}>
+                      <Text style={styles.infoLabel}>Cost:</Text>
+                      <Text style={styles.infoValue}>€{vignette.cost.toFixed(2)}</Text>
+                    </View>
+                  </View>
+                );
+              })
+            ) : (
+              <Text style={styles.noDataText}>No valid road tax information available</Text>
             )}
           </View>
         </View>
@@ -768,6 +828,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#7142CD',
     fontWeight: '600',
+  },
+  vignetteCard: {
+    backgroundColor: '#1C1643',
+    padding: 12,
+    borderRadius: 10,
+    marginBottom: 12,
+    gap: 8,
   },
   seeAllLink: {
     color: '#7142CD',

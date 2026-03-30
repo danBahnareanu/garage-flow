@@ -1,4 +1,5 @@
 import useCarStore from '@/features/cars/store/carList.store';
+import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { RunningCostRecord } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
@@ -41,11 +42,11 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
 
   // Form fields
   const [costType, setCostType] = useState<RunningCostRecord['type']>('fuel');
-  const [date, setDate] = useState<Date | null>(null);
   const [amount, setAmount] = useState('');
 
-  // Date picker state
-  const [showDatePicker, setShowDatePicker] = useState(false);
+  // Date picker
+  const { dates, pickerVisible, showPicker, hidePicker, onConfirm, setDate, formatDate } =
+    useDatePicker(['date']);
   const [mileage, setMileage] = useState('');
   const [description, setDescription] = useState('');
   const [vendor, setVendor] = useState('');
@@ -56,7 +57,7 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
     if (record) {
       setEditingId(record.id);
       setCostType(record.type);
-      setDate(new Date(record.date));
+      setDate('date', new Date(record.date));
       setAmount(record.amount.toString());
       setMileage(record.mileage?.toString() || '');
       setDescription(record.description || '');
@@ -66,7 +67,7 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
     } else {
       setEditingId(null);
       setCostType('fuel');
-      setDate(null);
+      setDate('date', null);
       setAmount('');
       setMileage('');
       setDescription('');
@@ -78,14 +79,14 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
   };
 
   const handleSave = () => {
-    if (!date || !amount) {
+    if (!dates.date || !amount) {
       Alert.alert('Error', 'Please fill required fields');
       return;
     }
     const record: RunningCostRecord = {
       id: editingId || generateId(),
       type: costType,
-      date: date.toISOString(),
+      date: dates.date.toISOString(),
       amount: parseFloat(amount),
       mileage: mileage ? parseInt(mileage, 10) : undefined,
       description: description || undefined,
@@ -99,22 +100,6 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
       addRunningCostRecord(carId, record);
     }
     setModalVisible(false);
-  };
-
-  const hideDatePicker = () => {
-    setShowDatePicker(false);
-  };
-
-  const handleConfirmDate = (selectedDate: Date) => {
-    setShowDatePicker(false);
-    if (selectedDate) {
-      setDate(selectedDate);
-    }
-  };
-
-  const formatDateForDisplay = (dateValue: Date | null): string => {
-    if (!dateValue) return '';
-    return dateValue.toLocaleDateString();
   };
 
   const handleDelete = (recordId: string) => {
@@ -195,17 +180,17 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
               <Text style={styles.label}>Date *</Text>
               <TouchableOpacity
                 style={styles.input}
-                onPress={() => setShowDatePicker(true)}
+                onPress={() => showPicker('date')}
               >
-                <Text style={date ? styles.inputText : styles.placeholderText}>
-                  {date ? formatDateForDisplay(date) : 'Select date'}
+                <Text style={dates.date ? styles.inputText : styles.placeholderText}>
+                  {dates.date ? formatDate('date') : 'Select date'}
                 </Text>
               </TouchableOpacity>
               <DateTimePickerModal
-                isVisible={showDatePicker}
+                isVisible={pickerVisible.date}
                 mode="date"
-                onConfirm={handleConfirmDate}
-                onCancel={hideDatePicker}
+                onConfirm={(d) => onConfirm('date', d)}
+                onCancel={() => hidePicker('date')}
               />
               <Text style={styles.label}>Amount * (€)</Text>
               <TextInput

@@ -1,4 +1,5 @@
 import useCarStore from '@/features/cars/store/carList.store';
+import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { InspectionRecord } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
@@ -47,13 +48,11 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
 
   // Form fields
   const [inspType, setInspType] = useState<InspectionRecord['type']>('technical');
-  const [date, setDate] = useState<Date | null>(null);
-  const [expiryDate, setExpiryDate] = useState<Date | null>(null);
   const [result, setResult] = useState<InspectionRecord['result']>('pass');
 
-  // Date picker state
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showExpiryDatePicker, setShowExpiryDatePicker] = useState(false);
+  // Date picker
+  const { dates, pickerVisible, showPicker, hidePicker, onConfirm, setDate, formatDate } =
+    useDatePicker(['date', 'expiryDate']);
   const [mileage, setMileage] = useState('');
   const [cost, setCost] = useState('');
   const [location, setLocation] = useState('');
@@ -62,8 +61,8 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
     if (record) {
       setEditingId(record.id);
       setInspType(record.type);
-      setDate(new Date(record.date));
-      setExpiryDate(record.expiryDate ? new Date(record.expiryDate) : null);
+      setDate('date', new Date(record.date));
+      setDate('expiryDate', record.expiryDate ? new Date(record.expiryDate) : null);
       setResult(record.result);
       setMileage(record.mileage?.toString() || '');
       setCost(record.cost?.toString() || '');
@@ -71,8 +70,8 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
     } else {
       setEditingId(null);
       setInspType('technical');
-      setDate(null);
-      setExpiryDate(null);
+      setDate('date', null);
+      setDate('expiryDate', null);
       setResult('pass');
       setMileage('');
       setCost('');
@@ -82,15 +81,15 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
   };
 
   const handleSave = async () => {
-    if (!date) {
+    if (!dates.date) {
       Alert.alert('Error', 'Please fill required fields');
       return;
     }
     const record: InspectionRecord = {
       id: editingId || generateId(),
       type: inspType,
-      date: date.toISOString(),
-      expiryDate: expiryDate ? expiryDate.toISOString() : undefined,
+      date: dates.date.toISOString(),
+      expiryDate: dates.expiryDate ? dates.expiryDate.toISOString() : undefined,
       result,
       mileage: mileage ? parseInt(mileage, 10) : undefined,
       cost: cost ? parseFloat(cost) : undefined,
@@ -114,31 +113,6 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
       addInspectionRecord(carId, record);
     }
     setModalVisible(false);
-  };
-
-  const hideDatePicker = (fieldName: string) => {
-    fieldName === 'date' ? setShowDatePicker(false) : setShowExpiryDatePicker(false);
-  };
-
-  const handleConfirmDate = (selectedDate: Date) => {
-    setShowDatePicker(false);
-    if (selectedDate) {
-      setDate(selectedDate);
-    }
-    hideDatePicker('date');
-  };
-
-  const handleConfirmExpiryDate = (selectedDate: Date) => {
-    setShowExpiryDatePicker(false);
-    if (selectedDate) {
-      setExpiryDate(selectedDate);
-    }
-    hideDatePicker('expiryDate');
-  };
-
-  const formatDateForDisplay = (dateValue: Date | null): string => {
-    if (!dateValue) return '';
-    return dateValue.toLocaleDateString();
   };
 
   const handleDelete = (recordId: string) => {
@@ -236,32 +210,32 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
               <Text style={styles.label}>Date *</Text>
               <TouchableOpacity
                 style={styles.input}
-                onPress={() => setShowDatePicker(true)}
+                onPress={() => showPicker('date')}
               >
-                <Text style={date ? styles.inputText : styles.placeholderText}>
-                  {date ? formatDateForDisplay(date) : 'Select date'}
+                <Text style={dates.date ? styles.inputText : styles.placeholderText}>
+                  {dates.date ? formatDate('date') : 'Select date'}
                 </Text>
               </TouchableOpacity>
               <DateTimePickerModal
-                isVisible={showDatePicker}
+                isVisible={pickerVisible.date}
                 mode="date"
-                onConfirm={handleConfirmDate}
-                onCancel={() => hideDatePicker('date')}
+                onConfirm={(d) => onConfirm('date', d)}
+                onCancel={() => hidePicker('date')}
               />
               <Text style={styles.label}>Expiry Date</Text>
               <TouchableOpacity
                 style={styles.input}
-                onPress={() => setShowExpiryDatePicker(true)}
+                onPress={() => showPicker('expiryDate')}
               >
-                <Text style={expiryDate ? styles.inputText : styles.placeholderText}>
-                  {expiryDate ? formatDateForDisplay(expiryDate) : 'Select expiry date'}
+                <Text style={dates.expiryDate ? styles.inputText : styles.placeholderText}>
+                  {dates.expiryDate ? formatDate('expiryDate') : 'Select expiry date'}
                 </Text>
               </TouchableOpacity>
               <DateTimePickerModal
-                isVisible={showExpiryDatePicker}
+                isVisible={pickerVisible.expiryDate}
                 mode="date"
-                onConfirm={handleConfirmExpiryDate}
-                onCancel={() => hideDatePicker('expiryDate')}
+                onConfirm={(d) => onConfirm('expiryDate', d)}
+                onCancel={() => hidePicker('expiryDate')}
               />
               <Text style={styles.label}>Result</Text>
               <View style={styles.buttonRow}>

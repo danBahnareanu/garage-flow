@@ -1,4 +1,5 @@
 import useCarStore from '@/features/cars/store/carList.store';
+import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { InsuranceRecord } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
@@ -37,30 +38,28 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
   // Form fields
   const [provider, setProvider] = useState('');
   const [policyNumber, setPolicyNumber] = useState('');
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [expiryDate, setExpiryDate] = useState<Date | null>(null);
   const [cost, setCost] = useState('');
   const [coverageType, setCoverageType] = useState('');
 
-  // Date picker state
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showExpiryDatePicker, setShowExpiryDatePicker] = useState(false);
+  // Date picker
+  const { dates, pickerVisible, showPicker, hidePicker, onConfirm, setDate, formatDate } =
+    useDatePicker(['startDate', 'expiryDate']);
 
   const openModal = (record?: InsuranceRecord) => {
     if (record) {
       setEditingId(record.id);
       setProvider(record.provider);
       setPolicyNumber(record.policyNumber || '');
-      setStartDate(new Date(record.startDate));
-      setExpiryDate(new Date(record.expiryDate));
+      setDate('startDate', new Date(record.startDate));
+      setDate('expiryDate', new Date(record.expiryDate));
       setCost(record.cost.toString());
       setCoverageType(record.coverageType || '');
     } else {
       setEditingId(null);
       setProvider('');
       setPolicyNumber('');
-      setStartDate(null);
-      setExpiryDate(null);
+      setDate('startDate', null);
+      setDate('expiryDate', null);
       setCost('');
       setCoverageType('');
     }
@@ -68,7 +67,7 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
   };
 
   const handleSave = async () => {
-    if (!provider || !startDate || !expiryDate || !cost) {
+    if (!provider || !dates.startDate || !dates.expiryDate || !cost) {
       Alert.alert('Error', 'Please fill required fields');
       return;
     }
@@ -76,8 +75,8 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
       id: editingId || generateId(),
       provider,
       policyNumber: policyNumber || undefined,
-      startDate: startDate.toISOString(),
-      expiryDate: expiryDate.toISOString(),
+      startDate: dates.startDate.toISOString(),
+      expiryDate: dates.expiryDate.toISOString(),
       cost: parseFloat(cost),
       coverageType: coverageType || undefined,
     };
@@ -117,31 +116,6 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
         },
       },
     ]);
-  };
-
-  const hideDatePicker = (fieldName: string) => {
-       fieldName === 'startDate' ? setShowStartDatePicker(false) : setShowExpiryDatePicker(false);
-  };
-
-  const handleConfirmStartDate = (selectedDate: Date) => {
-    setShowStartDatePicker(false);
-        if (selectedDate) {
-       setStartDate(selectedDate);
-       }
-    hideDatePicker('startDate');
-  };
-
-   const handleConfirmExpiryDate= (selectedDate: Date) => {
-    setShowExpiryDatePicker(false);
-        if (selectedDate) {
-       setExpiryDate(selectedDate);
-       }
-    hideDatePicker('expiryDate');
-  };
-
-  const formatDateForDisplay = (date: Date | null): string => {
-    if (!date) return '';
-    return date.toLocaleDateString();
   };
 
   return (
@@ -206,32 +180,32 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
               <Text style={styles.label}>Start Date *</Text>
               <TouchableOpacity
                 style={styles.input}
-                onPress={() => setShowStartDatePicker(true)}
+                onPress={() => showPicker('startDate')}
               >
-                <Text style={startDate ? styles.inputText : styles.placeholderText}>
-                  {startDate ? formatDateForDisplay(startDate) : 'Select start date'}
+                <Text style={dates.startDate ? styles.inputText : styles.placeholderText}>
+                  {dates.startDate ? formatDate('startDate') : 'Select start date'}
                 </Text>
               </TouchableOpacity>
               <DateTimePickerModal
-                isVisible={showStartDatePicker}
+                isVisible={pickerVisible.startDate}
                 mode="date"
-                onConfirm={handleConfirmStartDate}
-                onCancel={() => hideDatePicker('startDate')}
+                onConfirm={(d) => onConfirm('startDate', d)}
+                onCancel={() => hidePicker('startDate')}
               />
               <Text style={styles.label}>Expiry Date *</Text>
               <TouchableOpacity
                 style={styles.input}
-                onPress={() => setShowExpiryDatePicker(true)}
+                onPress={() => showPicker('expiryDate')}
               >
-                <Text style={expiryDate ? styles.inputText : styles.placeholderText}>
-                  {expiryDate ? formatDateForDisplay(expiryDate) : 'Select expiry date'}
+                <Text style={dates.expiryDate ? styles.inputText : styles.placeholderText}>
+                  {dates.expiryDate ? formatDate('expiryDate') : 'Select expiry date'}
                 </Text>
               </TouchableOpacity>
               <DateTimePickerModal
-                isVisible={showExpiryDatePicker}
+                isVisible={pickerVisible.expiryDate}
                 mode="date"
-                onConfirm={handleConfirmExpiryDate}
-                onCancel={() => hideDatePicker('expiryDate')}
+                onConfirm={(d) => onConfirm('expiryDate', d)}
+                onCancel={() => hidePicker('expiryDate')}
               />
               <Text style={styles.label}>Cost * (€)</Text>
               <TextInput

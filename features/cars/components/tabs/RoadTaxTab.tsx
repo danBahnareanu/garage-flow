@@ -1,4 +1,5 @@
 import useCarStore from '@/features/cars/store/carList.store';
+import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { VignetteRecord } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
@@ -37,30 +38,28 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
   // Form fields
   const [name, setName] = useState('');
   const [country, setCountry] = useState('');
-  const [purchaseDate, setPurchaseDate] = useState<Date | null>(null);
-  const [expiryDate, setExpiryDate] = useState<Date | null>(null);
   const [cost, setCost] = useState('');
   const [notes, setNotes] = useState('');
 
-  // Date picker state
-  const [showPurchaseDatePicker, setShowPurchaseDatePicker] = useState(false);
-  const [showExpiryDatePicker, setShowExpiryDatePicker] = useState(false);
+  // Date picker
+  const { dates, pickerVisible, showPicker, hidePicker, onConfirm, setDate, formatDate } =
+    useDatePicker(['purchaseDate', 'expiryDate']);
 
   const openModal = (record?: VignetteRecord) => {
     if (record) {
       setEditingId(record.id);
       setName(record.name);
       setCountry(record.country || '');
-      setPurchaseDate(new Date(record.purchaseDate));
-      setExpiryDate(new Date(record.expiryDate));
+      setDate('purchaseDate', new Date(record.purchaseDate));
+      setDate('expiryDate', new Date(record.expiryDate));
       setCost(record.cost.toString());
       setNotes(record.notes || '');
     } else {
       setEditingId(null);
       setName('');
       setCountry('');
-      setPurchaseDate(null);
-      setExpiryDate(null);
+      setDate('purchaseDate', null);
+      setDate('expiryDate', null);
       setCost('');
       setNotes('');
     }
@@ -68,7 +67,7 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
   };
 
   const handleSave = async () => {
-    if (!name || !purchaseDate || !expiryDate || !cost) {
+    if (!name || !dates.purchaseDate || !dates.expiryDate || !cost) {
       Alert.alert('Error', 'Please fill required fields');
       return;
     }
@@ -76,8 +75,8 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
       id: editingId || generateId(),
       name,
       country: country || undefined,
-      purchaseDate: purchaseDate.toISOString(),
-      expiryDate: expiryDate.toISOString(),
+      purchaseDate: dates.purchaseDate.toISOString(),
+      expiryDate: dates.expiryDate.toISOString(),
       cost: parseFloat(cost),
       notes: notes || undefined,
     };
@@ -116,31 +115,6 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
         },
       },
     ]);
-  };
-
-  const hideDatePicker = (fieldName: string) => {
-    fieldName === 'purchaseDate' ? setShowPurchaseDatePicker(false) : setShowExpiryDatePicker(false);
-  };
-
-  const handleConfirmPurchaseDate = (selectedDate: Date) => {
-    setShowPurchaseDatePicker(false);
-    if (selectedDate) {
-      setPurchaseDate(selectedDate);
-    }
-    hideDatePicker('purchaseDate');
-  };
-
-  const handleConfirmExpiryDate = (selectedDate: Date) => {
-    setShowExpiryDatePicker(false);
-    if (selectedDate) {
-      setExpiryDate(selectedDate);
-    }
-    hideDatePicker('expiryDate');
-  };
-
-  const formatDateForDisplay = (date: Date | null): string => {
-    if (!date) return '';
-    return date.toLocaleDateString();
   };
 
   return (
@@ -208,32 +182,32 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
               <Text style={styles.label}>Purchase Date *</Text>
               <TouchableOpacity
                 style={styles.input}
-                onPress={() => setShowPurchaseDatePicker(true)}
+                onPress={() => showPicker('purchaseDate')}
               >
-                <Text style={purchaseDate ? styles.inputText : styles.placeholderText}>
-                  {purchaseDate ? formatDateForDisplay(purchaseDate) : 'Select purchase date'}
+                <Text style={dates.purchaseDate ? styles.inputText : styles.placeholderText}>
+                  {dates.purchaseDate ? formatDate('purchaseDate') : 'Select purchase date'}
                 </Text>
               </TouchableOpacity>
               <DateTimePickerModal
-                isVisible={showPurchaseDatePicker}
+                isVisible={pickerVisible.purchaseDate}
                 mode="date"
-                onConfirm={handleConfirmPurchaseDate}
-                onCancel={() => hideDatePicker('purchaseDate')}
+                onConfirm={(d) => onConfirm('purchaseDate', d)}
+                onCancel={() => hidePicker('purchaseDate')}
               />
               <Text style={styles.label}>Expiry Date *</Text>
               <TouchableOpacity
                 style={styles.input}
-                onPress={() => setShowExpiryDatePicker(true)}
+                onPress={() => showPicker('expiryDate')}
               >
-                <Text style={expiryDate ? styles.inputText : styles.placeholderText}>
-                  {expiryDate ? formatDateForDisplay(expiryDate) : 'Select expiry date'}
+                <Text style={dates.expiryDate ? styles.inputText : styles.placeholderText}>
+                  {dates.expiryDate ? formatDate('expiryDate') : 'Select expiry date'}
                 </Text>
               </TouchableOpacity>
               <DateTimePickerModal
-                isVisible={showExpiryDatePicker}
+                isVisible={pickerVisible.expiryDate}
                 mode="date"
-                onConfirm={handleConfirmExpiryDate}
-                onCancel={() => hideDatePicker('expiryDate')}
+                onConfirm={(d) => onConfirm('expiryDate', d)}
+                onCancel={() => hidePicker('expiryDate')}
               />
               <Text style={styles.label}>Cost * (€)</Text>
               <TextInput

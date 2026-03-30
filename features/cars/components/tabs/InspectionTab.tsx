@@ -1,5 +1,5 @@
-import useCarStore from '@/features/cars/store/carList.store';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
+import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { InspectionRecord } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
@@ -196,11 +196,11 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
                 {INSPECTION_TYPES.map((t) => (
                   <TouchableOpacity
                     key={t}
-                    style={[styles.typeButton, inspType === t && styles.typeButtonActive]}
+                    style={[styles.optionButton, inspType === t && styles.optionButtonActive]}
                     onPress={() => setInspType(t)}
                   >
                     <Text
-                      style={[styles.typeButtonText, inspType === t && styles.typeButtonTextActive]}
+                      style={[styles.optionButtonText, inspType === t && styles.optionButtonTextActive]}
                     >
                       {t}
                     </Text>

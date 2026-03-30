@@ -1,5 +1,5 @@
-import useCarStore from '@/features/cars/store/carList.store';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
+import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { RunningCostRecord } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
@@ -166,11 +166,11 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
                 {COST_TYPES.map((t) => (
                   <TouchableOpacity
                     key={t}
-                    style={[styles.typeButton, costType === t && styles.typeButtonActive]}
+                    style={[styles.optionButton, costType === t && styles.optionButtonActive]}
                     onPress={() => setCostType(t)}
                   >
                     <Text
-                      style={[styles.typeButtonText, costType === t && styles.typeButtonTextActive]}
+                      style={[styles.optionButtonText, costType === t && styles.optionButtonTextActive]}
                     >
                       {t}
                     </Text>

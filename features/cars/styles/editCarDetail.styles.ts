@@ -85,11 +85,11 @@ export const styles = StyleSheet.create({
   textArea: { minHeight: 60, paddingTop: 10 },
   buttonRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   optionButton: {
-    flex: 1,
     minWidth: 70,
     backgroundColor: '#1C1643',
     borderRadius: 8,
-    padding: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     alignItems: 'center',
     borderWidth: 2,
     borderColor: '#3D2F6E',

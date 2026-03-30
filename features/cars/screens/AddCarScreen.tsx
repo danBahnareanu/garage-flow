@@ -1,7 +1,7 @@
 import * as Crypto from 'expo-crypto'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import useCarStore from '../store/carList.store'
 import { Car } from '../types/car.types'
@@ -33,48 +33,50 @@ export default function CarForm() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <Text style={styles.title}>Add New Car</Text>
-        <TextInput
-          placeholder="Make"
-          placeholderTextColor="#999"
-          value={make}
-          onChangeText={setMake}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="Model"
-          placeholderTextColor="#999"
-          value={model}
-          onChangeText={setModel}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="Year"
-          placeholderTextColor="#999"
-          value={year}
-          onChangeText={setYear}
-          keyboardType="numeric"
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="License Plate"
-          placeholderTextColor="#999"
-          value={licensePlate}
-          onChangeText={setLicensePlate}
-          style={styles.input}
-        />
-        <TextInput
-          placeholder="Engine Code (optional)"
-          placeholderTextColor="#999"
-          value={engineCode}
-          onChangeText={setEngineCode}
-          style={styles.input}
-        />
-        <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>Save</Text>
-        </TouchableOpacity>
-      </View>
+      <KeyboardAvoidingView behavior="padding" style={{flex: 1}}>
+        <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
+          <Text style={styles.title}>Add New Car</Text>
+          <TextInput
+            placeholder="Make"
+            placeholderTextColor="#999"
+            value={make}
+            onChangeText={setMake}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Model"
+            placeholderTextColor="#999"
+            value={model}
+            onChangeText={setModel}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Year"
+            placeholderTextColor="#999"
+            value={year}
+            onChangeText={setYear}
+            keyboardType="numeric"
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="License Plate"
+            placeholderTextColor="#999"
+            value={licensePlate}
+            onChangeText={setLicensePlate}
+            style={styles.input}
+          />
+          <TextInput
+            placeholder="Engine Code (optional)"
+            placeholderTextColor="#999"
+            value={engineCode}
+            onChangeText={setEngineCode}
+            style={styles.input}
+          />
+          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>Save</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   )
 }

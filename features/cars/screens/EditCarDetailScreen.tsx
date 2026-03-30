@@ -11,7 +11,7 @@ import { Car } from '@/features/cars/types/car.types';
 import { TabType } from '@/features/cars/types/editCarDetail.types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const EditCarDetailScreen = () => {
@@ -56,12 +56,14 @@ const EditCarDetailScreen = () => {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
-      <ScrollView style={styles.scrollView}>
-        <BasicInfoSection car={car} onSave={handleSaveBasicInfo} />
-        <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
-        {renderTabContent()}
-        <View style={{ height: 40 }} />
-      </ScrollView>
+      <KeyboardAvoidingView behavior="padding" style={{flex: 1}}>
+        <ScrollView style={styles.scrollView}>
+          <BasicInfoSection car={car} onSave={handleSaveBasicInfo} />
+          <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+          {renderTabContent()}
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

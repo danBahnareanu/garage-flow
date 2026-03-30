@@ -1,6 +1,8 @@
 import * as DocumentPicker from 'expo-document-picker';
 import { File, Paths } from 'expo-file-system';
+import { StorageAccessFramework } from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
+import { Platform } from 'react-native';
 import template from '../../../assets/import-template/garage-flow-export-template.json';
 import { Car } from '../types/car.types';
 
@@ -19,17 +21,36 @@ export const isValidCar = (obj: unknown): obj is Car => {
 
 export const exportCarsToFile = async (cars: Car[], setIsLoading?: (loading: boolean) => void): Promise<{ success: boolean; filePath?: string; shared?: boolean }> => {
   let jsonData = JSON.stringify(cars, null, 2);
-  const fileName = `garage-flow-export-${new Date().toISOString().split('T')[0]}.json`;
-  const file = new File(Paths.cache, fileName);
+  const fileName = `garage-flow-export-${new Date().toISOString().split('T')[0]}`;
 
+  if (cars.length === 0) {
+    jsonData = JSON.stringify(template, null, 2);
+  }
+
+  if (Platform.OS === 'android') {
+    const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
+    if (!permissions.granted) {
+      return { success: false };
+    }
+
+    setIsLoading?.(true);
+    const fileUri = await StorageAccessFramework.createFileAsync(
+      permissions.directoryUri,
+      fileName,
+      'application/json',
+    );
+    await StorageAccessFramework.writeAsStringAsync(fileUri, jsonData);
+    setIsLoading?.(false);
+
+    return { success: true, filePath: fileUri, shared: false };
+  }
+
+  // iOS: write to cache and share
+  const file = new File(Paths.cache, `${fileName}.json`);
   if (file.exists) {
     file.delete();
   }
   file.create();
-
-  if(cars.length === 0) {
-    jsonData = JSON.stringify(template, null, 2);
-  }
   file.write(jsonData);
 
   const filePath = file.uri;

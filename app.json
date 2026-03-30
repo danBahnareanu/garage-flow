@@ -13,7 +13,7 @@
       "bundleIdentifier": "com.technologylabs.garage-flow",
       "icon": {
         "dark": "./assets/icons/icon-dark.png",
-        "light": "./assets/icons/icon-light.png" ,
+        "light": "./assets/icons/icon-light.png",
         "tinted": "./assets/icons/icon-tinted.png"
       }
     },
@@ -23,7 +23,8 @@
         "monochrome": "./assets/icons/adaptive-icon.png",
         "backgroundColor": "#7142CD"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.danbahnareanu.garageflow"
     },
     "web": {
       "bundler": "metro",
@@ -50,6 +51,13 @@
     ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "06080f05-a672-403a-8bcc-000e6c440792"
+      }
+    },
+    "owner": "danbahnareanu"
   }
 }

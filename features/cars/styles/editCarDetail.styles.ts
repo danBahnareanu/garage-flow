@@ -24,10 +24,16 @@ export const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 4,
   },
+  tabBarContent: {
+    flexDirection: 'row',
+    flexGrow: 1,
+    justifyContent: 'space-between',
+    gap: 4,
+  },
   tab: {
-    flex: 1,
     alignItems: 'center',
     paddingVertical: 8,
+    paddingHorizontal: 12,
     borderRadius: 10,
   },
   tabActive: {

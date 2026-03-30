@@ -3,7 +3,6 @@ import { Car } from '@/features/cars/types/car.types';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
-  Button,
   FlatList,
   Modal,
   Pressable,
@@ -85,12 +84,13 @@ const CarList = () => {
           keyExtractor={item => item.id}
           extraData={selectedId}
         />
-        <Button
-                onPress={() => setShowInfo(true)}
-                title="Learn More"
-               color="#cdcdcd"
-              accessibilityLabel="Learn more about this purple button"
-              />
+        <TouchableOpacity
+          onPress={() => setShowInfo(true)}
+          accessibilityLabel="Learn more about this purple button"
+          style={styles.learnMoreButton}
+        >
+          <Text style={styles.learnMoreText}>Learn More</Text>
+        </TouchableOpacity>
 
         <Modal
           visible={showInfo}
@@ -145,6 +145,14 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     textAlign: 'center',
+  },
+  learnMoreButton: {
+    alignSelf: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 10,
+    backgroundColor: '#3D2F6E',
+    marginTop: 8,
   },
   learnMoreText: {
     color: '#E1E1E2',

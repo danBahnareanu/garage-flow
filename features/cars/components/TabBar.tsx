@@ -2,7 +2,7 @@ import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { TABS, TabType } from '@/features/cars/types/editCarDetail.types';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, TouchableOpacity } from 'react-native';
 
 interface TabBarProps {
   activeTab: TabType;
@@ -11,7 +11,12 @@ interface TabBarProps {
 
 export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
   return (
-    <View style={styles.tabBar}>
+    <ScrollView
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      style={styles.tabBar}
+      contentContainerStyle={styles.tabBarContent}
+    >
       {TABS.map((tab) => (
         <TouchableOpacity
           key={tab.key}
@@ -28,6 +33,6 @@ export const TabBar: React.FC<TabBarProps> = ({ activeTab, onTabChange }) => {
           </Text>
         </TouchableOpacity>
       ))}
-    </View>
+    </ScrollView>
   );
 };

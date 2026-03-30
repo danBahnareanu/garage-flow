@@ -22,7 +22,7 @@ interface MaintenanceTabProps {
   maintenanceHistory?: MaintenanceRecord[];
 }
 
-const MAINTENANCE_TYPES: MaintenanceRecord['type'][] = ['scheduled', 'unscheduled', 'recall'];
+const MAINTENANCE_TYPES: MaintenanceRecord['type'][] = ['scheduled', 'unscheduled', 'recall', 'upgrade', 'preventive', 'repair'];
 
 export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenanceHistory }) => {
   const { addMaintenanceRecord, updateMaintenanceRecord, deleteMaintenanceRecord } = useCarStore();
@@ -37,12 +37,13 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
 
   // Date picker state
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showNextServiceDatePicker, setShowNextServiceDatePicker] = useState(false);
   const [description, setDescription] = useState('');
   const [serviceProvider, setServiceProvider] = useState('');
   const [partsReplaced, setPartsReplaced] = useState<ReplacedPart[]>([]);
   const [partName, setPartName] = useState('');
   const [partCost, setPartCost] = useState('');
-  const [nextServiceDate, setNextServiceDate] = useState('');
+  const [nextServiceDate, setNextServiceDate] = useState<Date | null>(null);
   const [nextServiceMileage, setNextServiceMileage] = useState('');
 
   const openModal = (record?: MaintenanceRecord) => {
@@ -54,7 +55,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
       setDescription(record.description);
       setServiceProvider(record.serviceProvider || '');
       setPartsReplaced(record.partsReplaced || []);
-      setNextServiceDate(record.nextServiceDate || '');
+      setNextServiceDate(new Date(record.nextServiceDate || ''));
       setNextServiceMileage(record.nextServiceMileage?.toString() || '');
     } else {
       setEditingId(null);
@@ -64,7 +65,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
       setDescription('');
       setServiceProvider('');
       setPartsReplaced([]);
-      setNextServiceDate('');
+      setNextServiceDate(null);
       setNextServiceMileage('');
     }
     setPartName('');
@@ -104,7 +105,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
       cost: totalCost,
       partsReplaced: partsReplaced.length > 0 ? partsReplaced : undefined,
       serviceProvider: serviceProvider || undefined,
-      nextServiceDate: nextServiceDate || undefined,
+      nextServiceDate: nextServiceDate ? nextServiceDate.toISOString() : undefined,
       nextServiceMileage: nextServiceMileage ? parseInt(nextServiceMileage, 10) : undefined,
     };
     if (editingId) {
@@ -115,14 +116,21 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
     setModalVisible(false);
   };
 
-  const hideDatePicker = () => {
-    setShowDatePicker(false);
+  const hideDatePicker = (fieldName: string) => {
+       fieldName === 'date' ? setShowDatePicker(false) : setShowNextServiceDatePicker(false);
   };
 
   const handleConfirmDate = (selectedDate: Date) => {
     setShowDatePicker(false);
     if (selectedDate) {
       setDate(selectedDate);
+    }
+  };
+
+    const handleNextServiceDate = (selectedDate: Date) => {
+    setShowNextServiceDatePicker(false);
+    if (selectedDate) {
+      setNextServiceDate(selectedDate);
     }
   };
 
@@ -230,7 +238,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
                 isVisible={showDatePicker}
                 mode="date"
                 onConfirm={handleConfirmDate}
-                onCancel={hideDatePicker}
+                onCancel={() =>hideDatePicker('date')}
               />
               <Text style={styles.label}>Mileage * (km)</Text>
               <TextInput
@@ -298,13 +306,20 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
                   <Text style={styles.partsTotalText}>€{totalCost.toFixed(2)}</Text>
                 </View>
               )}
-              <Text style={styles.label}>Next Service Date (YYYY-MM-DD)</Text>
-              <TextInput
+              <Text style={styles.label}>Next Service Date </Text>
+              <TouchableOpacity
                 style={styles.input}
-                value={nextServiceDate}
-                onChangeText={setNextServiceDate}
-                placeholder="2025-01-01"
-                placeholderTextColor="#8A8A8C"
+                onPress={() => setShowNextServiceDatePicker(true)}
+              >
+                <Text style={nextServiceDate ? styles.inputText : styles.placeholderText}>
+                  {nextServiceDate ? formatDateForDisplay(nextServiceDate) : 'Select date'}
+                </Text>
+              </TouchableOpacity>
+              <DateTimePickerModal
+                isVisible={showNextServiceDatePicker}
+                mode="date"
+                onConfirm={handleNextServiceDate}
+                onCancel={() =>hideDatePicker('nextServiceDate')}
               />
               <Text style={styles.label}>Next Service Mileage (km)</Text>
               <TextInput

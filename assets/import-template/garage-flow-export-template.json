@@ -1,23 +1,40 @@
 [
   {
-    "id": "1",
+    "id": "4",
     "make": "Saab",
     "model": "9-3 Convertible",
     "year": 2005,
-    "licensePlate": "B13AAAA",
+    "licensePlate": "XXXXXX",
     "fuel": "petrol",
     "engineCode": "B207L",
     "imageUrl": "",
     "insuranceHistory": [
       {
+        "id": "1773392697762hbqblla1b",
+        "provider": "Example Provider",
+        "policyNumber": "1",
+        "startDate": "2026-01-07T09:07:07.000Z",
+        "expiryDate": "2026-03-20T09:04:20.000Z",
+        "cost": 1,
+        "coverageType": "RCA",
+        "notificationIds": [
+          "63e23467-b036-4dc1-8465-c58e5e04c3b5"
+        ]
+      },
+      {
         "id": "1773392503859s5bjxl75e",
-        "provider": "Axeria",
+        "provider": "Example Provider 2",
         "policyNumber": "54110211176",
         "startDate": "2025-12-21T08:57:41.000Z",
         "expiryDate": "2026-12-20T08:57:41.000Z",
         "cost": 260,
         "coverageType": "RCA",
-        "notificationIds": []
+        "notificationIds": [
+          "678bf60e-5eb0-4972-9e69-1d79d042dcaa",
+          "2601aa34-b621-47a3-9462-2c7b86c651df",
+          "4c5565ca-6312-4c6f-ba55-8a7fa75d4501",
+          "582127c6-b52e-4822-8c7e-3e1c5586f593"
+        ]
       }
     ],
     "inspectionHistory": [
@@ -37,8 +54,7 @@
         "expiryDate": "2026-12-05T14:48:00.000Z",
         "result": "pass",
         "mileage": 285000,
-        "cost": 50,
-        "notes": "Gainarie required pentru noxe"
+        "cost": 50
       }
     ],
     "runningCosts": [
@@ -54,7 +70,7 @@
         "type": "repair",
         "date": "2019-01-01T00:00:00.000Z",
         "amount": 136,
-        "description": "Expansion Tank"
+        "description": "Timing Chain Kit"
       }
     ],
     "purchasePrice": 3000,
@@ -62,24 +78,54 @@
     "maintenanceHistory": [
       {
         "id": "1",
-        "date": "2025-08-20T14:48:00.000Z",
-        "mileage": 285000,
+        "date": "2020-03-01T14:48:00.000Z",
+        "mileage": 218000,
         "type": "scheduled",
-        "description": "kroon oil torsynth 5w40 + oil filter",
-        "cost": 450,
-        "nextServiceDate": "2026-08-20T14:48:00.000Z",
-        "nextServiceMileage": 295000
+        "description": "Timing chain + Oil",
+        "cost": 208,
+        "nextServiceDate": "2021-03-01T14:48:00.000Z",
+        "nextServiceMileage": 228000,
+        "partsReplaced": [
+          {
+            "name": "Balance shaft timing chain",
+            "cost": 100
+          },
+          {
+            "name": "Spark plugs",
+            "cost": 72
+          },
+          {
+            "name": "Power steering pump gaskets + vacuum pump gaskets",
+            "cost": 18
+          },
+          {
+            "name": "Cylinder head cover gaskets",
+            "cost": 18
+          }
+        ]
       },
       {
         "id": "2",
-        "date": "2025-09-20T14:48:00.000Z",
-        "mileage": 287382,
-        "type": "scheduled",
-        "description": "Spark plugs denso ik24 gap 0.8mm",
-        "cost": 450
+        "date": "2020-08-01T14:48:00.000Z",
+        "mileage": 223000,
+        "type": "unscheduled",
+        "description": "Clutch + flywheel",
+        "cost": 560,
+        "nextServiceDate": "2021-03-01T14:48:00.000Z",
+        "nextServiceMileage": 228000,
+        "partsReplaced": [
+          {
+            "name": "Clutch",
+            "cost": 300
+          },
+          {
+            "name": "Flywheel",
+            "cost": 260
+          }
+        ]
       }
     ],
-    "vin": "YS3FF75S22222222",
+    "vin": "YS3FF7XXXXXXXX",
     "color": "Black",
     "transmission": "manual"
   }

@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "garage-flow",
+    "name": "Garage Flow",
     "slug": "garage-flow",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icons/icon.png",
+    "icon": "./assets/icons/ios-light.png",
     "scheme": "garageflow",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -12,9 +12,12 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.technologylabs.garage-flow",
       "icon": {
-        "dark": "./assets/icons/icon-dark.png",
-        "light": "./assets/icons/icon-light.png",
-        "tinted": "./assets/icons/icon-tinted.png"
+        "dark": "./assets/icons/ios-dark.png",
+        "light": "./assets/icons/ios-light.png",
+        "tinted": "./assets/icons/ios-tinted.png"
+      },
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -24,7 +27,7 @@
         "backgroundColor": "#7142CD"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.danbahnareanu.garageflow"
+      "package": "com.technologylabs.garageflow"
     },
     "web": {
       "bundler": "metro",

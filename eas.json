@@ -12,8 +12,13 @@
       "distribution": "internal"
     },
     "production": {
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "ios": {
+        "buildConfiguration": "Release"
+      },
       "autoIncrement": true,
-      "developmentClient": true,
       "distribution": "store"
     }
   },

@@ -24,6 +24,15 @@ interface MaintenanceTabProps {
 
 const MAINTENANCE_TYPES: MaintenanceRecord['type'][] = ['scheduled', 'unscheduled', 'recall', 'upgrade', 'preventive', 'repair'];
 
+const maintenanceTypeColors: Record<MaintenanceRecord['type'], string> = {
+  scheduled: '#4CAF50',
+  unscheduled: '#FFA500',
+  recall: '#FF4444',
+  repair: '#FF6B6B',
+  upgrade: '#4ECDC4',
+  preventive: '#4CAF50',
+};
+
 export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenanceHistory }) => {
   const { addMaintenanceRecord, updateMaintenanceRecord, deleteMaintenanceRecord } = useCarStore();
 
@@ -186,7 +195,11 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
                 {MAINTENANCE_TYPES.map((t) => (
                   <TouchableOpacity
                     key={t}
-                    style={[styles.optionButton, maintType === t && styles.optionButtonActive]}
+                    style={[
+                      styles.optionButton,
+                      { borderColor: maintenanceTypeColors[t] },
+                      maintType === t && { backgroundColor: maintenanceTypeColors[t], borderColor: maintenanceTypeColors[t] },
+                    ]}
                     onPress={() => setMaintType(t)}
                   >
                     <Text

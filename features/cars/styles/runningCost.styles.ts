@@ -1,3 +1,4 @@
+import { RunningCostType } from '@/features/cars/types/car.types';
 import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
@@ -210,7 +211,7 @@ export const styles = StyleSheet.create({
 });
 
 // Color mapping for cost types
-export const costTypeColors: Record<string, string> = {
+export const costTypeColors: Record<RunningCostType, string> = {
     fuel: '#4CAF50',        // Green — universal "go/fuel"
     maintenance: '#ca8b78', // Teal — steady, mechanical
     repair: '#E05C5C',      // Muted red — urgent/attention

@@ -1,5 +1,5 @@
 import useCarStore from '@/features/cars/store/carList.store';
-import { Car, MaintenanceRecord } from '@/features/cars/types/car.types';
+import { Car, RunningCostType } from '@/features/cars/types/car.types';
 import { getMaintenanceBadgeStyle, maintenanceStyles } from '@/features/cars/utils/maintenanceStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -32,7 +32,7 @@ const getLatestInspectionByType = (car: Car, types: string[]) =>
     ?.filter(i => types.includes(i.type))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
-const getCostsByType = (car: Car, type: string) =>
+const getCostsByType = (car: Car, type: RunningCostType) =>
   car.runningCosts?.filter(c => c.type === type).reduce((sum, c) => sum + c.amount, 0) || 0;
 
 const getLatestMaintenance = (car: Car) => {
@@ -183,11 +183,26 @@ const CarDetailScreen = () => {
 
         {/* Insurance Section */}
         <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.sectionContent}
+            disabled={!latestInsurance?.pdfUri}
+            activeOpacity={latestInsurance?.pdfUri ? 0.7 : 1}
+            onPress={() => {
+              if (latestInsurance?.pdfUri) {
+                router.push({
+                  pathname: '/cars/pdf-viewer' as any,
+                  params: { uri: latestInsurance.pdfUri },
+                });
+              }
+            }}
+          >
           <View style={styles.sectionHeader}>
             <Ionicons name="shield-checkmark" size={24} color="#7142CD" />
-            <Text style={styles.sectionTitle}>Insurance</Text>
+            <Text style={[styles.sectionTitle, { flex: 1 }]}>Insurance</Text>
+            {latestInsurance?.pdfUri && (
+              <Ionicons name="document-text" size={18} color="#7142CD" />
+            )}
           </View>
-          <View style={styles.sectionContent}>
             {latestInsurance ? (
               <>
                 <View style={styles.infoRow}>
@@ -229,7 +244,7 @@ const CarDetailScreen = () => {
             ) : (
               <Text style={styles.noDataText}>No insurance information available</Text>
             )}
-          </View>
+          </TouchableOpacity>
         </View>
 
         {/* Technical Inspection Section */}

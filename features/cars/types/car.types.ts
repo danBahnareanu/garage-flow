@@ -1,3 +1,19 @@
+export const RUNNING_COST_TYPES = [
+    'fuel',
+    'maintenance',
+    'repair',
+    'insurance',
+    'tax',
+    'parking',
+    'toll',
+    'other',
+    'aquisition',
+    'performance',
+    'visual mods',
+] as const;
+
+export type RunningCostType = (typeof RUNNING_COST_TYPES)[number];
+
 export interface InsuranceRecord {
     id: string;
     provider: string;
@@ -7,6 +23,7 @@ export interface InsuranceRecord {
     cost: number;               // policy cost
     coverageType?: string;      // e.g., 'comprehensive', 'third-party'
     notes?: string;
+    pdfUri?: string;             // URI to attached PDF document
     notificationIds?: string[];  // expo-notifications scheduled IDs
 }
 
@@ -25,7 +42,7 @@ export interface InspectionRecord {
 
 export interface RunningCostRecord {
     id: string;
-    type: 'fuel' | 'maintenance' | 'repair' | 'insurance' | 'tax' | 'parking' | 'toll' | 'other' | 'aquisition' | 'performance' | 'visual mods';
+    type: RunningCostType;
     date: string;               // ISO date string
     amount: number;             // cost in currency
     mileage?: number;           // odometer reading at time of expense

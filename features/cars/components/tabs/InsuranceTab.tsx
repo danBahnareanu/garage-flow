@@ -1,5 +1,5 @@
-import useCarStore from '@/features/cars/store/carList.store';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
+import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { InsuranceRecord } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
@@ -9,6 +9,8 @@ import {
   scheduleInsuranceNotifications,
 } from '@/features/cars/utils/notificationService';
 import { Ionicons } from '@expo/vector-icons';
+import * as DocumentPicker from 'expo-document-picker';
+import { File, Paths } from 'expo-file-system';
 import React, { useState } from 'react';
 import {
   Alert,
@@ -39,6 +41,7 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
   const [policyNumber, setPolicyNumber] = useState('');
   const [cost, setCost] = useState('');
   const [coverageType, setCoverageType] = useState('');
+  const [pdfUri, setPdfUri] = useState<string | undefined>(undefined);
 
   // Date picker
   const { dates, pickerVisible, showPicker, hidePicker, onConfirm, setDate, formatDate } =
@@ -53,6 +56,7 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
       setDate('expiryDate', new Date(record.expiryDate));
       setCost(record.cost.toString());
       setCoverageType(record.coverageType || '');
+      setPdfUri(record.pdfUri);
     } else {
       setEditingId(null);
       setProvider('');
@@ -61,6 +65,7 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
       setDate('expiryDate', null);
       setCost('');
       setCoverageType('');
+      setPdfUri(undefined);
     }
     setModalVisible(true);
   };
@@ -78,6 +83,7 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
       expiryDate: dates.expiryDate.toISOString(),
       cost: parseFloat(cost),
       coverageType: coverageType || undefined,
+      pdfUri,
     };
 
     const granted = await requestPermissions();
@@ -117,6 +123,27 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
     ]);
   };
 
+  const pickPdf = async () => {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: 'application/pdf',
+      copyToCacheDirectory: true,
+    });
+    if (result.canceled) return;
+
+    const sourceUri = result.assets[0].uri;
+    const originalName = result.assets[0].name || `${Date.now()}.pdf`;
+    const fileName = `insurance-${Date.now()}-${originalName}`;
+
+    // Copy to persistent document directory
+    const dest = new File(Paths.document, fileName);
+    if (dest.exists) {
+      dest.delete();
+    }
+    const source = new File(sourceUri);
+    source.copy(dest);
+    setPdfUri(dest.uri);
+  };
+
   return (
     <View style={styles.tabContent}>
       <View style={styles.tabHeader}>
@@ -129,7 +156,12 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
       {insuranceHistory?.map((record) => (
         <View key={record.id} style={styles.recordCard}>
           <View style={styles.recordHeader}>
-            <Text style={styles.recordTitle}>{record.provider}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
+              <Text style={styles.recordTitle}>{record.provider}</Text>
+              {record.pdfUri && (
+                <Ionicons name="document-text" size={16} color="#7142CD" />
+              )}
+            </View>
             <View style={styles.recordActions}>
               <TouchableOpacity onPress={() => openModal(record)}>
                 <Ionicons name="pencil" size={18} color="#7142CD" />
@@ -223,6 +255,23 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
                 placeholder="comprehensive"
                 placeholderTextColor="#8A8A8C"
               />
+              <Text style={styles.label}>PDF Document</Text>
+              {pdfUri ? (
+                <View style={styles.pdfAttachment}>
+                  <Ionicons name="document-text" size={20} color="#7142CD" />
+                  <Text style={styles.pdfFileName} numberOfLines={1}>
+                    {pdfUri.split('/').pop()}
+                  </Text>
+                  <TouchableOpacity onPress={() => setPdfUri(undefined)}>
+                    <Ionicons name="close-circle" size={20} color="#FF4444" />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity style={styles.pdfPickerButton} onPress={pickPdf}>
+                  <Ionicons name="cloud-upload-outline" size={20} color="#7142CD" />
+                  <Text style={styles.pdfPickerText}>Attach PDF</Text>
+                </TouchableOpacity>
+              )}
             </ScrollView>
             <View style={styles.modalButtons}>
               <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>

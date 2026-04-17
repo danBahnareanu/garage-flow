@@ -1,7 +1,7 @@
 import { DonutChart } from '@/features/cars/components/DonutChart';
 import useCarStore from '@/features/cars/store/carList.store';
 import { costTypeColors, styles } from '@/features/cars/styles/runningCost.styles';
-import { Car, RunningCostRecord } from '@/features/cars/types/car.types';
+import { Car, RunningCostRecord, RunningCostType } from '@/features/cars/types/car.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
@@ -50,7 +50,7 @@ const RunningCostScreen = () => {
 
   // Prepare pie chart data - memoized to prevent re-renders
   const pieChartData = useMemo(() =>
-    (Object.entries(costsByType) as [string, number][])
+    (Object.entries(costsByType) as [RunningCostType, number][])
       .filter(([_, amount]) => amount > 0)
       .sort(([typeA, amountA], [typeB, amountB]) => {
         if (typeA === 'other') return 1;
@@ -74,7 +74,7 @@ const RunningCostScreen = () => {
     return new Date(dateString).toLocaleDateString();
   };
 
-  const getTypeBadgeStyle = (type: string) => ({
+  const getTypeBadgeStyle = (type: RunningCostType) => ({
     backgroundColor: costTypeColors[type] || costTypeColors.other,
   });
 

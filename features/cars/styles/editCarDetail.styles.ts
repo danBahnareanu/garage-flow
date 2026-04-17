@@ -212,4 +212,29 @@ export const styles = StyleSheet.create({
     borderTopColor: '#3D2F6E',
   },
   partsTotalText: { color: '#E1E1E2', fontSize: 14, fontWeight: '600' },
+
+  // PDF Attachment
+  pdfPickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#1C1643',
+    borderRadius: 8,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: '#3D2F6E',
+    borderStyle: 'dashed',
+  },
+  pdfPickerText: { fontSize: 14, color: '#7142CD', fontWeight: '500' },
+  pdfAttachment: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: '#1C1643',
+    borderRadius: 8,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: '#7142CD',
+  },
+  pdfFileName: { fontSize: 13, color: '#E1E1E2', flex: 1 },
 });

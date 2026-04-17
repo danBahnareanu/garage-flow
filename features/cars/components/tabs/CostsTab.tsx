@@ -1,7 +1,8 @@
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
-import { RunningCostRecord } from '@/features/cars/types/car.types';
+import { costTypeColors } from '@/features/cars/styles/runningCost.styles';
+import { RunningCostRecord, RUNNING_COST_TYPES } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -22,16 +23,7 @@ interface CostsTabProps {
   runningCosts?: RunningCostRecord[];
 }
 
-const COST_TYPES: RunningCostRecord['type'][] = [
-  'fuel',
-  'maintenance',
-  'repair',
-  'insurance',
-  'tax',
-  'parking',
-  'toll',
-  'other',
-];
+const COST_TYPES = RUNNING_COST_TYPES;
 
 export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
   const { addRunningCostRecord, updateRunningCostRecord, deleteRunningCostRecord } = useCarStore();
@@ -165,7 +157,11 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
                 {COST_TYPES.map((t) => (
                   <TouchableOpacity
                     key={t}
-                    style={[styles.optionButton, costType === t && styles.optionButtonActive]}
+                    style={[
+                      styles.optionButton,
+                      { borderColor: costTypeColors[t] },
+                      costType === t && { backgroundColor: costTypeColors[t], borderColor: costTypeColors[t] },
+                    ]}
                     onPress={() => setCostType(t)}
                   >
                     <Text

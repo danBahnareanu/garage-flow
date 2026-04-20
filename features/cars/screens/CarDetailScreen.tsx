@@ -141,8 +141,12 @@ const CarDetailScreen = () => {
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <ScrollView style={styles.scrollView}>
+        <TouchableOpacity
+              onPress={() => router.push(`/cars/edit/${id}`)}
+            >
         {/* Car Image */}
         <View style={styles.imageContainer}>
+          
           {car.imageUrl ? (
             <Image
               source={{ uri: car.imageUrl }}
@@ -160,6 +164,7 @@ const CarDetailScreen = () => {
         <View style={styles.headerInfo}>
           <Text style={styles.carTitle}>
             {car.make} {car.model}
+            <Ionicons name="chevron-forward-outline" size={20} color="#fff" />      
           </Text>
           <Text style={styles.carSubtitle}>
             {car.year} --- {car.licensePlate} --- {car.fuel}
@@ -171,38 +176,22 @@ const CarDetailScreen = () => {
             </View>
           )}
         </View>
-
-        {/* Edit Button */}
-        <TouchableOpacity
-          style={styles.editButton}
-          onPress={() => router.push(`/cars/edit/${id}`)}
-        >
-          <Ionicons name="create-outline" size={20} color="#fff" />
-          <Text style={styles.editButtonText}>Edit Details</Text>
         </TouchableOpacity>
 
+        
+
         {/* Insurance Section */}
-        <View style={styles.section}>
-          <TouchableOpacity
-            style={styles.sectionContent}
-            disabled={!latestInsurance?.pdfUri}
-            activeOpacity={latestInsurance?.pdfUri ? 0.7 : 1}
-            onPress={() => {
-              if (latestInsurance?.pdfUri) {
-                router.push({
-                  pathname: '/cars/pdf-viewer' as any,
-                  params: { uri: latestInsurance.pdfUri },
-                });
-              }
-            }}
-          >
+        <TouchableOpacity
+          style={styles.section}
+          onPress={() => router.push(`/cars/edit-insurance/${id}`)}
+          activeOpacity={0.7}
+        >
           <View style={styles.sectionHeader}>
             <Ionicons name="shield-checkmark" size={24} color="#7142CD" />
             <Text style={[styles.sectionTitle, { flex: 1 }]}>Insurance</Text>
-            {latestInsurance?.pdfUri && (
-              <Ionicons name="document-text" size={18} color="#7142CD" />
-            )}
+            <Ionicons name="chevron-forward" size={20} color="#7142CD" />
           </View>
+          <View style={styles.sectionContent}>
             {latestInsurance ? (
               <>
                 <View style={styles.infoRow}>
@@ -244,14 +233,19 @@ const CarDetailScreen = () => {
             ) : (
               <Text style={styles.noDataText}>No insurance information available</Text>
             )}
-          </TouchableOpacity>
-        </View>
+          </View>
+        </TouchableOpacity>
 
         {/* Technical Inspection Section */}
-        <View style={styles.section}>
+        <TouchableOpacity
+          style={styles.section}
+          onPress={() => router.push(`/cars/edit-inspection/${id}`)}
+          activeOpacity={0.7}
+        >
           <View style={styles.sectionHeader}>
             <Ionicons name="checkmark-done-circle" size={24} color="#7142CD" />
-            <Text style={styles.sectionTitle}>Technical Inspection</Text>
+            <Text style={[styles.sectionTitle, { flex: 1 }]}>Technical Inspection</Text>
+            <Ionicons name="chevron-forward" size={20} color="#7142CD" />
           </View>
           <View style={styles.sectionContent}>
             {technicalInspection ? (
@@ -296,13 +290,18 @@ const CarDetailScreen = () => {
               <Text style={styles.noDataText}>No inspection information available</Text>
             )}
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* Road Tax Section */}
-        <View style={styles.section}>
+        <TouchableOpacity
+          style={styles.section}
+          onPress={() => router.push(`/cars/edit-road-tax/${id}`)}
+          activeOpacity={0.7}
+        >
           <View style={styles.sectionHeader}>
             <Ionicons name="receipt" size={24} color="#7142CD" />
-            <Text style={styles.sectionTitle}>Road Tax</Text>
+            <Text style={[styles.sectionTitle, { flex: 1 }]}>Road Tax</Text>
+            <Ionicons name="chevron-forward" size={20} color="#7142CD" />
           </View>
           <View style={styles.sectionContent}>
             {validVignettes.length > 0 ? (
@@ -350,7 +349,7 @@ const CarDetailScreen = () => {
               <Text style={styles.noDataText}>No valid road tax information available</Text>
             )}
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* Registration Section */}
         {/* <View style={styles.section}>
@@ -470,10 +469,15 @@ const CarDetailScreen = () => {
         </TouchableOpacity>
 
         {/* Maintenance Section */}
-        <View style={styles.section}>
+        <TouchableOpacity
+          style={styles.section}
+          onPress={() => router.push(`/cars/edit-maintenance/${id}`)}
+          activeOpacity={0.7}
+        >
           <View style={styles.sectionHeader}>
             <Ionicons name="build" size={24} color="#7142CD" />
-            <Text style={styles.sectionTitle}>Maintenance</Text>
+            <Text style={[styles.sectionTitle, { flex: 1 }]}>Maintenance</Text>
+            <Ionicons name="chevron-forward" size={20} color="#7142CD" />
           </View>
           <View style={styles.sectionContent}>
             {car.currentMileage !== undefined && (
@@ -554,7 +558,7 @@ const CarDetailScreen = () => {
               )
             )}
           </View>
-        </View>
+        </TouchableOpacity>
 
         {/* Additional Details */}
         {(car.color || car.transmission || car.notes) && (
@@ -665,15 +669,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#7142CD',
-    marginHorizontal: 20,
-    marginTop: 20,
-    padding: 15,
+    // marginHorizontal: 20,
+    // marginTop: 20,
+    padding: 5,
     borderRadius: 10,
     gap: 8,
   },
   editButtonText: {
     color: '#fff',
-    fontSize: 16,
+    fontSize: 13,
     fontWeight: '600',
   },
   section: {

@@ -1,6 +1,8 @@
-import useCarStore from '@/features/cars/store/carList.store';
+import { ContextMenu } from '@/features/cars/components/ContextMenu';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
+import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
+import { tabListStyles as ls } from '@/features/cars/styles/tabList.styles';
 import { VignetteRecord } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
 import {
@@ -33,6 +35,7 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [contextRecord, setContextRecord] = useState<VignetteRecord | null>(null);
 
   // Form fields
   const [name, setName] = useState('');
@@ -40,7 +43,6 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
   const [cost, setCost] = useState('');
   const [notes, setNotes] = useState('');
 
-  // Date picker
   const { dates, pickerVisible, showPicker, hidePicker, onConfirm, setDate, formatDate } =
     useDatePicker(['purchaseDate', 'expiryDate']);
 
@@ -117,48 +119,109 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
   };
 
   return (
-    <View style={styles.tabContent}>
-      <View style={styles.tabHeader}>
-        <Text style={styles.tabHeaderTitle}>Road Tax Records</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => openModal()}>
+    <View style={ls.container}>
+      <View style={ls.header}>
+        <Text style={ls.headerTitle}>Road Tax Records</Text>
+        <TouchableOpacity style={ls.addButton} onPress={() => openModal()}>
           <Ionicons name="add" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
 
-      {vignetteHistory?.map((record) => (
-        <View key={record.id} style={styles.recordCard}>
-          <View style={styles.recordHeader}>
-            <Text style={styles.recordTitle}>{record.name}</Text>
-            <View style={styles.recordActions}>
-              <TouchableOpacity onPress={() => openModal(record)}>
-                <Ionicons name="pencil" size={18} color="#7142CD" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleDelete(record.id)}>
-                <Ionicons name="trash" size={18} color="#FF4444" />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <Text style={styles.recordSubtitle}>
-            Expires: {new Date(record.expiryDate).toLocaleDateString()} - €{record.cost}
-          </Text>
-          {record.country && (
-            <Text style={styles.recordDescription}>{record.country}</Text>
-          )}
-          {record.notes && (
-            <Text style={styles.recordDescription}>{record.notes}</Text>
-          )}
-        </View>
-      ))}
+      {vignetteHistory
+        ?.slice()
+        .sort((a, b) => new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime())
+        .map((record) => {
+          const daysRemaining = Math.ceil(
+            (new Date(record.expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+          );
+          const isExpired = daysRemaining < 0;
+          const isExpiringSoon = daysRemaining >= 0 && daysRemaining <= 30;
+          return (
+            <TouchableOpacity
+              key={record.id}
+              style={ls.card}
+              onLongPress={() => setContextRecord(record)}
+              activeOpacity={0.8}
+            >
+              <View style={ls.cardHeader}>
+                <Text style={ls.cardDate}>
+                  {new Date(record.purchaseDate).toLocaleDateString()} – {new Date(record.expiryDate).toLocaleDateString()}
+                </Text>
+                <Text style={ls.cardCost}>€{record.cost.toFixed(2)}</Text>
+              </View>
+              <Text style={ls.cardTitle}>{record.name}</Text>
+              {record.country && (
+                <Text style={ls.cardMeta}>{record.country}</Text>
+              )}
+              {record.notes && (
+                <Text style={ls.cardMeta}>{record.notes}</Text>
+              )}
+              <View style={ls.cardFooter}>
+                <Text style={ls.cardMeta}>
+                  {isExpired
+                    ? `Expired ${Math.abs(daysRemaining)} days ago`
+                    : `${daysRemaining} days remaining`}
+                </Text>
+                <View style={ls.badgeRow}>
+                  <View
+                    style={[
+                      ls.statusBadge,
+                      {
+                        backgroundColor: isExpired
+                          ? '#FF4444'
+                          : isExpiringSoon
+                            ? '#FFA500'
+                            : '#4CAF50',
+                      },
+                    ]}
+                  >
+                    <Text style={ls.statusBadgeText}>
+                      {isExpired ? 'Expired' : isExpiringSoon ? 'Soon' : 'Valid'}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
 
       {(!vignetteHistory || vignetteHistory.length === 0) && (
-        <Text style={styles.noRecordsText}>No road tax records. Tap + to add one.</Text>
+        <Text style={ls.emptyText}>No road tax records. Tap + to add one.</Text>
       )}
 
+      <ContextMenu
+        visible={contextRecord !== null}
+        onClose={() => setContextRecord(null)}
+        title={
+          contextRecord
+            ? `${contextRecord.name}${contextRecord.country ? ` — ${contextRecord.country}` : ''}`
+            : ''
+        }
+        actions={[
+          {
+            label: 'Edit Road Tax',
+            icon: 'create-outline',
+            onPress: () => {
+              const rec = contextRecord;
+              setContextRecord(null);
+              if (rec) openModal(rec);
+            },
+          },
+          {
+            label: 'Remove Road Tax',
+            icon: 'trash-outline',
+            color: '#FF4444',
+            onPress: () => {
+              const rec = contextRecord;
+              setContextRecord(null);
+              if (rec) handleDelete(rec.id);
+            },
+          },
+        ]}
+      />
+
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <KeyboardAvoidingView
-          style={styles.modalOverlay}
-          behavior="padding"
-        >
+        <KeyboardAvoidingView style={styles.modalOverlay} behavior="padding">
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{editingId ? 'Edit' : 'Add'} Road Tax</Text>
             <ScrollView keyboardShouldPersistTaps="handled">
@@ -179,10 +242,7 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
                 placeholderTextColor="#8A8A8C"
               />
               <Text style={styles.label}>Purchase Date *</Text>
-              <TouchableOpacity
-                style={styles.input}
-                onPress={() => showPicker('purchaseDate')}
-              >
+              <TouchableOpacity style={styles.input} onPress={() => showPicker('purchaseDate')}>
                 <Text style={dates.purchaseDate ? styles.inputText : styles.placeholderText}>
                   {dates.purchaseDate ? formatDate('purchaseDate') : 'Select purchase date'}
                 </Text>
@@ -194,10 +254,7 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
                 onCancel={() => hidePicker('purchaseDate')}
               />
               <Text style={styles.label}>Expiry Date *</Text>
-              <TouchableOpacity
-                style={styles.input}
-                onPress={() => showPicker('expiryDate')}
-              >
+              <TouchableOpacity style={styles.input} onPress={() => showPicker('expiryDate')}>
                 <Text style={dates.expiryDate ? styles.inputText : styles.placeholderText}>
                   {dates.expiryDate ? formatDate('expiryDate') : 'Select expiry date'}
                 </Text>

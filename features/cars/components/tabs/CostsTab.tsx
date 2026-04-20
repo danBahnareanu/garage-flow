@@ -1,7 +1,9 @@
+import { ContextMenu } from '@/features/cars/components/ContextMenu';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { costTypeColors } from '@/features/cars/styles/runningCost.styles';
+import { tabListStyles as ls } from '@/features/cars/styles/tabList.styles';
 import { RUNNING_COST_TYPES, RunningCostRecord } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
 import { Ionicons } from '@expo/vector-icons';
@@ -23,19 +25,16 @@ interface CostsTabProps {
   runningCosts?: RunningCostRecord[];
 }
 
-const COST_TYPES = RUNNING_COST_TYPES;
-
 export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
   const { addRunningCostRecord, updateRunningCostRecord, deleteRunningCostRecord } = useCarStore();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [contextRecord, setContextRecord] = useState<RunningCostRecord | null>(null);
 
   // Form fields
   const [costType, setCostType] = useState<RunningCostRecord['type']>('fuel');
   const [amount, setAmount] = useState('');
-
-  // Date picker
   const { dates, pickerVisible, showPicker, hidePicker, onConfirm, setDate, formatDate } =
     useDatePicker(['date']);
   const [mileage, setMileage] = useState('');
@@ -105,56 +104,97 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
   };
 
   return (
-    <View style={styles.tabContent}>
-      <View style={styles.tabHeader}>
-        <Text style={styles.tabHeaderTitle}>Running Costs</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => openModal()}>
+    <View style={ls.container}>
+      <View style={ls.header}>
+        <Text style={ls.headerTitle}>Running Costs</Text>
+        <TouchableOpacity style={ls.addButton} onPress={() => openModal()}>
           <Ionicons name="add" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
 
-      {runningCosts?.map((record) => (
-        <View key={record.id} style={styles.recordCard}>
-          <View style={styles.recordHeader}>
-            <View style={styles.recordTitleRow}>
-              <View style={styles.typeBadge}>
-                <Text style={styles.typeBadgeText}>{record.type.toUpperCase()}</Text>
+      {runningCosts
+        ?.slice()
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .map((record) => (
+          <TouchableOpacity
+            key={record.id}
+            style={ls.card}
+            onLongPress={() => setContextRecord(record)}
+            activeOpacity={0.8}
+          >
+            <View style={ls.cardHeader}>
+              <Text style={ls.cardDate}>
+                {new Date(record.date).toLocaleDateString()}
+              </Text>
+              <Text style={ls.cardCost}>€{record.amount.toFixed(2)}</Text>
+            </View>
+            {record.description && (
+              <Text style={ls.cardTitle}>{record.description}</Text>
+            )}
+            {record.vendor && (
+              <Text style={ls.cardMeta}>{record.vendor}</Text>
+            )}
+            {record.mileage != null && record.mileage > 0 && (
+              <Text style={ls.cardMeta}>{record.mileage.toLocaleString()} km</Text>
+            )}
+            {record.type === 'fuel' && record.liters != null && record.liters > 0 && (
+              <Text style={ls.cardMeta}>
+                {record.liters.toFixed(2)}L @ €{record.pricePerLiter?.toFixed(3)}/L
+              </Text>
+            )}
+            <View style={ls.cardFooter}>
+              <View style={ls.badgeRow}>
+                <View style={[ls.statusBadge, { backgroundColor: costTypeColors[record.type] || costTypeColors.other }]}>
+                  <Text style={ls.statusBadgeText}>{record.type}</Text>
+                </View>
               </View>
-              <Text style={styles.costAmount}>€{record.amount.toFixed(2)}</Text>
             </View>
-            <View style={styles.recordActions}>
-              <TouchableOpacity onPress={() => openModal(record)}>
-                <Ionicons name="pencil" size={18} color="#7142CD" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleDelete(record.id)}>
-                <Ionicons name="trash" size={18} color="#FF4444" />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <Text style={styles.recordSubtitle}>
-            {new Date(record.date).toLocaleDateString()}
-          </Text>
-          {record.description && (
-            <Text style={styles.recordDescription}>{record.description}</Text>
-          )}
-        </View>
-      ))}
+          </TouchableOpacity>
+        ))}
 
       {(!runningCosts || runningCosts.length === 0) && (
-        <Text style={styles.noRecordsText}>No cost records. Tap + to add one.</Text>
+        <Text style={ls.emptyText}>No cost records. Tap + to add one.</Text>
       )}
 
+      <ContextMenu
+        visible={contextRecord !== null}
+        onClose={() => setContextRecord(null)}
+        title={
+          contextRecord
+            ? `€${contextRecord.amount.toFixed(2)} — ${contextRecord.type}${contextRecord.description ? ` — ${contextRecord.description}` : ''}`
+            : ''
+        }
+        actions={[
+          {
+            label: 'Edit Cost',
+            icon: 'create-outline',
+            onPress: () => {
+              const rec = contextRecord;
+              setContextRecord(null);
+              if (rec) openModal(rec);
+            },
+          },
+          {
+            label: 'Remove Cost',
+            icon: 'trash-outline',
+            color: '#FF4444',
+            onPress: () => {
+              const rec = contextRecord;
+              setContextRecord(null);
+              if (rec) handleDelete(rec.id);
+            },
+          },
+        ]}
+      />
+
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <KeyboardAvoidingView
-          style={styles.modalOverlay}
-          behavior="padding"
-        >
+        <KeyboardAvoidingView style={styles.modalOverlay} behavior="padding">
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{editingId ? 'Edit' : 'Add'} Cost</Text>
             <ScrollView keyboardShouldPersistTaps="handled">
               <Text style={styles.label}>Type</Text>
               <View style={styles.typeButtonsWrap}>
-                {COST_TYPES.map((t) => (
+                {RUNNING_COST_TYPES.map((t) => (
                   <TouchableOpacity
                     key={t}
                     style={[
@@ -173,10 +213,7 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
                 ))}
               </View>
               <Text style={styles.label}>Date *</Text>
-              <TouchableOpacity
-                style={styles.input}
-                onPress={() => showPicker('date')}
-              >
+              <TouchableOpacity style={styles.input} onPress={() => showPicker('date')}>
                 <Text style={dates.date ? styles.inputText : styles.placeholderText}>
                   {dates.date ? formatDate('date') : 'Select date'}
                 </Text>

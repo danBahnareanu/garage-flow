@@ -39,4 +39,8 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# template files
+assets/import-template/garage-flow-export-2026-04-20.json
+database/carList.ts
+
 app-example

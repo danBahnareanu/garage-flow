@@ -1,4 +1,5 @@
 // useCarStore.ts
+import carList from '@/database/carList';
 import {
   Car,
   InspectionRecord,
@@ -53,8 +54,8 @@ interface CarStore {
 const useCarStore = create<CarStore>()(
   persist(
     (set) => ({
-      // cars: carList,
-      cars: [] as Car [],
+      cars: carList as Car[],
+      // cars: [] as Car [],
       isHydrated: false,
 
       // Car CRUD

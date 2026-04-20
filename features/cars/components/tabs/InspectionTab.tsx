@@ -1,6 +1,8 @@
+import { ContextMenu } from '@/features/cars/components/ContextMenu';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
+import { tabListStyles as ls } from '@/features/cars/styles/tabList.styles';
 import { InspectionRecord } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
 import {
@@ -39,17 +41,24 @@ const INSPECTION_TYPES: InspectionRecord['type'][] = [
 
 const RESULT_OPTIONS: InspectionRecord['result'][] = ['pass', 'fail', 'pending'];
 
+const getResultColor = (result: string) => {
+  switch (result) {
+    case 'pass': return '#4CAF50';
+    case 'fail': return '#FF4444';
+    default: return '#FFA500';
+  }
+};
+
 export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, inspectionHistory }) => {
   const { addInspectionRecord, updateInspectionRecord, deleteInspectionRecord } = useCarStore();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [contextRecord, setContextRecord] = useState<InspectionRecord | null>(null);
 
   // Form fields
   const [inspType, setInspType] = useState<InspectionRecord['type']>('technical');
   const [result, setResult] = useState<InspectionRecord['result']>('pass');
-
-  // Date picker
   const { dates, pickerVisible, showPicker, hidePicker, onConfirm, setDate, formatDate } =
     useDatePicker(['date', 'expiryDate']);
   const [mileage, setMileage] = useState('');
@@ -132,61 +141,119 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
   };
 
   return (
-    <View style={styles.tabContent}>
-      <View style={styles.tabHeader}>
-        <Text style={styles.tabHeaderTitle}>Inspection Records</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => openModal()}>
+    <View style={ls.container}>
+      <View style={ls.header}>
+        <Text style={ls.headerTitle}>Inspection Records</Text>
+        <TouchableOpacity style={ls.addButton} onPress={() => openModal()}>
           <Ionicons name="add" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
 
-      {inspectionHistory?.map((record) => (
-        <View key={record.id} style={styles.recordCard}>
-          <View style={styles.recordHeader}>
-            <View style={styles.recordTitleRow}>
-              <View
-                style={[
-                  styles.typeBadge,
-                  record.result === 'pass' ? styles.passBadge : styles.failBadge,
-                ]}
-              >
-                <Text style={styles.typeBadgeText}>{record.type.toUpperCase()}</Text>
+      {inspectionHistory
+        ?.slice()
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .map((record) => {
+          const daysRemaining = record.expiryDate
+            ? Math.ceil((new Date(record.expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+            : null;
+          const isExpired = daysRemaining !== null && daysRemaining < 0;
+          const isExpiringSoon = daysRemaining !== null && daysRemaining >= 0 && daysRemaining <= 30;
+          return (
+            <TouchableOpacity
+              key={record.id}
+              style={ls.card}
+              onLongPress={() => setContextRecord(record)}
+              activeOpacity={0.8}
+            >
+              <View style={ls.cardHeader}>
+                <Text style={ls.cardDate}>
+                  {new Date(record.date).toLocaleDateString()}
+                  {record.expiryDate && ` – ${new Date(record.expiryDate).toLocaleDateString()}`}
+                </Text>
+                {record.cost != null && record.cost > 0 && (
+                  <Text style={ls.cardCost}>€{record.cost.toFixed(2)}</Text>
+                )}
               </View>
-              <Text
-                style={[
-                  styles.resultText,
-                  { color: record.result === 'pass' ? '#4CAF50' : '#FF4444' },
-                ]}
-              >
-                {record.result.toUpperCase()}
-              </Text>
-            </View>
-            <View style={styles.recordActions}>
-              <TouchableOpacity onPress={() => openModal(record)}>
-                <Ionicons name="pencil" size={18} color="#7142CD" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleDelete(record.id)}>
-                <Ionicons name="trash" size={18} color="#FF4444" />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <Text style={styles.recordSubtitle}>
-            Date: {new Date(record.date).toLocaleDateString()}
-            {record.expiryDate &&
-              ` • Expires: ${new Date(record.expiryDate).toLocaleDateString()}`}
-          </Text>
-        </View>
-      ))}
+              <Text style={ls.cardTitle}>{record.type.toUpperCase()}</Text>
+              {record.mileage != null && record.mileage > 0 && (
+                <Text style={ls.cardMeta}>{record.mileage.toLocaleString()} km</Text>
+              )}
+              {record.location && (
+                <Text style={ls.cardMeta}>{record.location}</Text>
+              )}
+              <View style={ls.cardFooter}>
+                <Text style={ls.cardMeta}>
+                  {daysRemaining !== null
+                    ? isExpired
+                      ? `Expired ${Math.abs(daysRemaining)} days ago`
+                      : `${daysRemaining} days remaining`
+                    : ''}
+                </Text>
+                <View style={ls.badgeRow}>
+                  <View style={[ls.statusBadge, { backgroundColor: getResultColor(record.result) }]}>
+                    <Text style={ls.statusBadgeText}>{record.result.toUpperCase()}</Text>
+                  </View>
+                  {daysRemaining !== null && (
+                    <View
+                      style={[
+                        ls.statusBadge,
+                        {
+                          backgroundColor: isExpired
+                            ? '#FF4444'
+                            : isExpiringSoon
+                              ? '#FFA500'
+                              : '#4CAF50',
+                        },
+                      ]}
+                    >
+                      <Text style={ls.statusBadgeText}>
+                        {isExpired ? 'Expired' : isExpiringSoon ? 'Soon' : 'Valid'}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
 
       {(!inspectionHistory || inspectionHistory.length === 0) && (
-        <Text style={styles.noRecordsText}>No inspection records. Tap + to add one.</Text>
+        <Text style={ls.emptyText}>No inspection records. Tap + to add one.</Text>
       )}
 
+      <ContextMenu
+        visible={contextRecord !== null}
+        onClose={() => setContextRecord(null)}
+        title={
+          contextRecord
+            ? `${contextRecord.type.toUpperCase()} — ${new Date(contextRecord.date).toLocaleDateString()}`
+            : ''
+        }
+        actions={[
+          {
+            label: 'Edit Inspection',
+            icon: 'create-outline',
+            onPress: () => {
+              const rec = contextRecord;
+              setContextRecord(null);
+              if (rec) openModal(rec);
+            },
+          },
+          {
+            label: 'Remove Inspection',
+            icon: 'trash-outline',
+            color: '#FF4444',
+            onPress: () => {
+              const rec = contextRecord;
+              setContextRecord(null);
+              if (rec) handleDelete(rec.id);
+            },
+          },
+        ]}
+      />
+
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <KeyboardAvoidingView
-          style={styles.modalOverlay}
-          behavior="padding"
-        >
+        <KeyboardAvoidingView style={styles.modalOverlay} behavior="padding">
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{editingId ? 'Edit' : 'Add'} Inspection</Text>
             <ScrollView keyboardShouldPersistTaps="handled">
@@ -207,10 +274,7 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
                 ))}
               </View>
               <Text style={styles.label}>Date *</Text>
-              <TouchableOpacity
-                style={styles.input}
-                onPress={() => showPicker('date')}
-              >
+              <TouchableOpacity style={styles.input} onPress={() => showPicker('date')}>
                 <Text style={dates.date ? styles.inputText : styles.placeholderText}>
                   {dates.date ? formatDate('date') : 'Select date'}
                 </Text>
@@ -222,10 +286,7 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
                 onCancel={() => hidePicker('date')}
               />
               <Text style={styles.label}>Expiry Date</Text>
-              <TouchableOpacity
-                style={styles.input}
-                onPress={() => showPicker('expiryDate')}
-              >
+              <TouchableOpacity style={styles.input} onPress={() => showPicker('expiryDate')}>
                 <Text style={dates.expiryDate ? styles.inputText : styles.placeholderText}>
                   {dates.expiryDate ? formatDate('expiryDate') : 'Select expiry date'}
                 </Text>

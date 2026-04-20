@@ -1,6 +1,8 @@
-import useCarStore from '@/features/cars/store/carList.store';
+import { ContextMenu } from '@/features/cars/components/ContextMenu';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
+import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
+import { tabListStyles as ls } from '@/features/cars/styles/tabList.styles';
 import { MaintenanceRecord, ReplacedPart } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
 import { Ionicons } from '@expo/vector-icons';
@@ -39,12 +41,11 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [contextRecord, setContextRecord] = useState<MaintenanceRecord | null>(null);
 
   // Form fields
   const [maintType, setMaintType] = useState<MaintenanceRecord['type']>('scheduled');
   const [mileage, setMileage] = useState('');
-
-  // Date picker
   const { dates, pickerVisible, showPicker, hidePicker, onConfirm, setDate, formatDate } =
     useDatePicker(['date', 'nextServiceDate']);
   const [description, setDescription] = useState('');
@@ -136,58 +137,93 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
   };
 
   return (
-    <View style={styles.tabContent}>
-      <View style={styles.tabHeader}>
-        <Text style={styles.tabHeaderTitle}>Maintenance Records</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => openModal()}>
+    <View style={ls.container}>
+      <View style={ls.header}>
+        <Text style={ls.headerTitle}>Maintenance Records</Text>
+        <TouchableOpacity style={ls.addButton} onPress={() => openModal()}>
           <Ionicons name="add" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
 
-      {maintenanceHistory?.map((record) => (
-        <View key={record.id} style={styles.recordCard}>
-          <View style={styles.recordHeader}>
-            <Text style={styles.recordTitle} numberOfLines={1}>
-              {record.description}
-            </Text>
-            <View style={styles.recordActions}>
-              <TouchableOpacity onPress={() => openModal(record)}>
-                <Ionicons name="pencil" size={18} color="#7142CD" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleDelete(record.id)}>
-                <Ionicons name="trash" size={18} color="#FF4444" />
-              </TouchableOpacity>
+      {maintenanceHistory
+        ?.slice()
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        .map((record) => (
+          <TouchableOpacity
+            key={record.id}
+            style={ls.card}
+            onLongPress={() => setContextRecord(record)}
+            activeOpacity={0.8}
+          >
+            <View style={ls.cardHeader}>
+              <Text style={ls.cardDate}>
+                {new Date(record.date).toLocaleDateString()}
+              </Text>
+              <Text style={ls.cardCost}>€{record.cost.toFixed(2)}</Text>
             </View>
-          </View>
-          <Text style={styles.recordSubtitle}>
-            {new Date(record.date).toLocaleDateString()} • €{record.cost} •{' '}
-            {record.mileage.toLocaleString()} km
-          </Text>
-          <View style={[styles.typeBadge, styles.maintenanceTypeBadge]}>
-            <Text style={styles.typeBadgeText}>{record.type}</Text>
-          </View>
-          {record.partsReplaced && record.partsReplaced.length > 0 && (
-            <View style={styles.partsBreakdown}>
-              {record.partsReplaced.map((part, i) => (
-                <View key={i} style={styles.partItem}>
-                  <Text style={styles.partItemText}>{part.name}</Text>
-                  <Text style={styles.partItemCost}>€{part.cost.toFixed(2)}</Text>
+            <Text style={ls.cardTitle}>{record.description}</Text>
+            <Text style={ls.cardMeta}>{record.mileage.toLocaleString()} km</Text>
+            {record.serviceProvider && (
+              <Text style={ls.cardMeta}>{record.serviceProvider}</Text>
+            )}
+            <View style={ls.cardFooter}>
+              <View style={ls.badgeRow}>
+                <View style={[ls.statusBadge, { backgroundColor: maintenanceTypeColors[record.type] }]}>
+                  <Text style={ls.statusBadgeText}>{record.type}</Text>
                 </View>
-              ))}
+              </View>
             </View>
-          )}
-        </View>
-      ))}
+            {record.partsReplaced && record.partsReplaced.length > 0 && (
+              <View style={ls.partsSection}>
+                <Text style={ls.partsLabel}>Parts replaced:</Text>
+                {record.partsReplaced.map((part, i) => (
+                  <View key={i} style={ls.partRow}>
+                    <Text style={ls.partName}>{part.name}</Text>
+                    <Text style={ls.partCost}>€{part.cost.toFixed(2)}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+          </TouchableOpacity>
+        ))}
 
       {(!maintenanceHistory || maintenanceHistory.length === 0) && (
-        <Text style={styles.noRecordsText}>No maintenance records. Tap + to add one.</Text>
+        <Text style={ls.emptyText}>No maintenance records. Tap + to add one.</Text>
       )}
 
+      <ContextMenu
+        visible={contextRecord !== null}
+        onClose={() => setContextRecord(null)}
+        title={
+          contextRecord
+            ? `${contextRecord.description} — ${new Date(contextRecord.date).toLocaleDateString()}`
+            : ''
+        }
+        actions={[
+          {
+            label: 'Edit Maintenance',
+            icon: 'create-outline',
+            onPress: () => {
+              const rec = contextRecord;
+              setContextRecord(null);
+              if (rec) openModal(rec);
+            },
+          },
+          {
+            label: 'Remove Maintenance',
+            icon: 'trash-outline',
+            color: '#FF4444',
+            onPress: () => {
+              const rec = contextRecord;
+              setContextRecord(null);
+              if (rec) handleDelete(rec.id);
+            },
+          },
+        ]}
+      />
+
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <KeyboardAvoidingView
-          style={styles.modalOverlay}
-          behavior="padding"
-        >
+        <KeyboardAvoidingView style={styles.modalOverlay} behavior="padding">
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{editingId ? 'Edit' : 'Add'} Maintenance</Text>
             <ScrollView keyboardShouldPersistTaps="handled">
@@ -215,10 +251,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
                 ))}
               </View>
               <Text style={styles.label}>Date *</Text>
-              <TouchableOpacity
-                style={styles.input}
-                onPress={() => showPicker('date')}
-              >
+              <TouchableOpacity style={styles.input} onPress={() => showPicker('date')}>
                 <Text style={dates.date ? styles.inputText : styles.placeholderText}>
                   {dates.date ? formatDate('date') : 'Select date'}
                 </Text>
@@ -295,11 +328,8 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
                   <Text style={styles.partsTotalText}>€{totalCost.toFixed(2)}</Text>
                 </View>
               )}
-              <Text style={styles.label}>Next Service Date </Text>
-              <TouchableOpacity
-                style={styles.input}
-                onPress={() => showPicker('nextServiceDate')}
-              >
+              <Text style={styles.label}>Next Service Date</Text>
+              <TouchableOpacity style={styles.input} onPress={() => showPicker('nextServiceDate')}>
                 <Text style={dates.nextServiceDate ? styles.inputText : styles.placeholderText}>
                   {dates.nextServiceDate ? formatDate('nextServiceDate') : 'Select date'}
                 </Text>

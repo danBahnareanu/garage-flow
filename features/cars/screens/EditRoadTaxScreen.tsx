@@ -1,18 +1,15 @@
-import { BasicInfoSection } from '@/features/cars/components/BasicInfoSection';
+import { RoadTaxTab } from '@/features/cars/components/tabs/RoadTaxTab';
 import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
-import { Car } from '@/features/cars/types/car.types';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import { KeyboardAvoidingView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-const EditCarDetailScreen = () => {
+const EditRoadTaxScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { getCarById, updateCar } = useCarStore();
-
-  const car = getCarById(id as string);
+  const car = useCarStore((state) => state.cars.find(c => c.id === id));
 
   if (!car) {
     return (
@@ -27,15 +24,11 @@ const EditCarDetailScreen = () => {
     );
   }
 
-  const handleSaveBasicInfo = (updates: Partial<Car>) => {
-    updateCar(id as string, updates);
-  };
-
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
-      <KeyboardAvoidingView behavior="padding" style={{flex: 1}}>
+      <KeyboardAvoidingView behavior="padding" style={{ flex: 1 }}>
         <ScrollView style={styles.scrollView}>
-          <BasicInfoSection car={car} onSave={handleSaveBasicInfo} />
+          <RoadTaxTab carId={id as string} carName={`${car.make} ${car.model}`} vignetteHistory={car.vignetteHistory} />
           <View style={{ height: 40 }} />
         </ScrollView>
       </KeyboardAvoidingView>
@@ -43,4 +36,4 @@ const EditCarDetailScreen = () => {
   );
 };
 
-export default EditCarDetailScreen;
+export default EditRoadTaxScreen;

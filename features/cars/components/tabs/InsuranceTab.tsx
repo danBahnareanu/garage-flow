@@ -1,6 +1,8 @@
+import { ContextMenu } from '@/features/cars/components/ContextMenu';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
+import { tabListStyles as ls } from '@/features/cars/styles/tabList.styles';
 import { InsuranceRecord } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
 import {
@@ -11,6 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import { File, Paths } from 'expo-file-system';
+import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Alert,
@@ -31,10 +34,12 @@ interface InsuranceTabProps {
 }
 
 export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insuranceHistory }) => {
+  const router = useRouter();
   const { addInsuranceRecord, updateInsuranceRecord, deleteInsuranceRecord } = useCarStore();
 
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [contextRecord, setContextRecord] = useState<InsuranceRecord | null>(null);
 
   // Form fields
   const [provider, setProvider] = useState('');
@@ -43,7 +48,6 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
   const [coverageType, setCoverageType] = useState('');
   const [pdfUri, setPdfUri] = useState<string | undefined>(undefined);
 
-  // Date picker
   const { dates, pickerVisible, showPicker, hidePicker, onConfirm, setDate, formatDate } =
     useDatePicker(['startDate', 'expiryDate']);
 
@@ -88,7 +92,6 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
 
     const granted = await requestPermissions();
     if (granted) {
-      // Cancel old notifications if editing and expiry date changed
       if (editingId) {
         const oldRecord = insuranceHistory?.find((r) => r.id === editingId);
         if (oldRecord?.notificationIds) {
@@ -134,7 +137,6 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
     const originalName = result.assets[0].name || `${Date.now()}.pdf`;
     const fileName = `insurance-${Date.now()}-${originalName}`;
 
-    // Copy to persistent document directory
     const dest = new File(Paths.document, fileName);
     if (dest.exists) {
       dest.delete();
@@ -145,50 +147,122 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
   };
 
   return (
-    <View style={styles.tabContent}>
-      <View style={styles.tabHeader}>
-        <Text style={styles.tabHeaderTitle}>Insurance Records</Text>
-        <TouchableOpacity style={styles.addButton} onPress={() => openModal()}>
+    <View style={ls.container}>
+      <View style={ls.header}>
+        <Text style={ls.headerTitle}>Insurance Records</Text>
+        <TouchableOpacity style={ls.addButton} onPress={() => openModal()}>
           <Ionicons name="add" size={20} color="#fff" />
         </TouchableOpacity>
       </View>
 
-      {insuranceHistory?.map((record) => (
-        <View key={record.id} style={styles.recordCard}>
-          <View style={styles.recordHeader}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flex: 1 }}>
-              <Text style={styles.recordTitle}>{record.provider}</Text>
-              {record.pdfUri && (
-                <Ionicons name="document-text" size={16} color="#7142CD" />
+      {insuranceHistory
+        ?.slice()
+        .sort((a, b) => new Date(b.expiryDate).getTime() - new Date(a.expiryDate).getTime())
+        .map((record) => {
+          const daysRemaining = Math.ceil(
+            (new Date(record.expiryDate).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+          );
+          const isExpired = daysRemaining < 0;
+          const isExpiringSoon = daysRemaining >= 0 && daysRemaining <= 30;
+          return (
+            <TouchableOpacity
+              key={record.id}
+              style={ls.card}
+              onPress={() => {
+                if (record.pdfUri) {
+                  router.push({
+                    pathname: '/cars/pdf-viewer' as any,
+                    params: { uri: record.pdfUri },
+                  });
+                }
+              }}
+              onLongPress={() => setContextRecord(record)}
+              activeOpacity={0.8}
+            >
+              <View style={ls.cardHeader}>
+                <Text style={ls.cardDate}>
+                  {new Date(record.startDate).toLocaleDateString()} – {new Date(record.expiryDate).toLocaleDateString()}
+                </Text>
+                <Text style={ls.cardCost}>€{record.cost.toFixed(2)}</Text>
+              </View>
+              <Text style={ls.cardTitle}>{record.provider}</Text>
+              {record.policyNumber && (
+                <Text style={ls.cardMeta}>Policy: {record.policyNumber}</Text>
               )}
-            </View>
-            <View style={styles.recordActions}>
-              <TouchableOpacity onPress={() => openModal(record)}>
-                <Ionicons name="pencil" size={18} color="#7142CD" />
-              </TouchableOpacity>
-              <TouchableOpacity onPress={() => handleDelete(record.id)}>
-                <Ionicons name="trash" size={18} color="#FF4444" />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <Text style={styles.recordSubtitle}>
-            Expires: {new Date(record.expiryDate).toLocaleDateString()} - €{record.cost}
-          </Text>
-          {record.coverageType && (
-            <Text style={styles.recordDescription}>{record.coverageType}</Text>
-          )}
-        </View>
-      ))}
+              <View style={ls.cardFooter}>
+                <Text style={ls.cardMeta}>
+                  {isExpired
+                    ? `Expired ${Math.abs(daysRemaining)} days ago`
+                    : `${daysRemaining} days remaining`}
+                </Text>
+                <View style={ls.badgeRow}>
+                  {record.coverageType && (
+                    <View style={ls.badge}>
+                      <Text style={ls.badgeText}>{record.coverageType}</Text>
+                    </View>
+                  )}
+                  {record.pdfUri && (
+                    <Ionicons name="document-text" size={16} color="#7142CD" />
+                  )}
+                  <View
+                    style={[
+                      ls.statusBadge,
+                      {
+                        backgroundColor: isExpired
+                          ? '#FF4444'
+                          : isExpiringSoon
+                            ? '#FFA500'
+                            : '#4CAF50',
+                      },
+                    ]}
+                  >
+                    <Text style={ls.statusBadgeText}>
+                      {isExpired ? 'Expired' : isExpiringSoon ? 'Soon' : 'Valid'}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
 
       {(!insuranceHistory || insuranceHistory.length === 0) && (
-        <Text style={styles.noRecordsText}>No insurance records. Tap + to add one.</Text>
+        <Text style={ls.emptyText}>No insurance records. Tap + to add one.</Text>
       )}
 
+      <ContextMenu
+        visible={contextRecord !== null}
+        onClose={() => setContextRecord(null)}
+        title={
+          contextRecord
+            ? `${contextRecord.provider}${contextRecord.policyNumber ? ` — ${contextRecord.policyNumber}` : ''}`
+            : ''
+        }
+        actions={[
+          {
+            label: 'Edit Insurance',
+            icon: 'create-outline',
+            onPress: () => {
+              const rec = contextRecord;
+              setContextRecord(null);
+              if (rec) openModal(rec);
+            },
+          },
+          {
+            label: 'Remove Insurance',
+            icon: 'trash-outline',
+            color: '#FF4444',
+            onPress: () => {
+              const rec = contextRecord;
+              setContextRecord(null);
+              if (rec) handleDelete(rec.id);
+            },
+          },
+        ]}
+      />
+
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <KeyboardAvoidingView
-          style={styles.modalOverlay}
-          behavior="padding"
-        >
+        <KeyboardAvoidingView style={styles.modalOverlay} behavior="padding">
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>{editingId ? 'Edit' : 'Add'} Insurance</Text>
             <ScrollView keyboardShouldPersistTaps="handled">
@@ -209,10 +283,7 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
                 placeholderTextColor="#8A8A8C"
               />
               <Text style={styles.label}>Start Date *</Text>
-              <TouchableOpacity
-                style={styles.input}
-                onPress={() => showPicker('startDate')}
-              >
+              <TouchableOpacity style={styles.input} onPress={() => showPicker('startDate')}>
                 <Text style={dates.startDate ? styles.inputText : styles.placeholderText}>
                   {dates.startDate ? formatDate('startDate') : 'Select start date'}
                 </Text>
@@ -224,10 +295,7 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
                 onCancel={() => hidePicker('startDate')}
               />
               <Text style={styles.label}>Expiry Date *</Text>
-              <TouchableOpacity
-                style={styles.input}
-                onPress={() => showPicker('expiryDate')}
-              >
+              <TouchableOpacity style={styles.input} onPress={() => showPicker('expiryDate')}>
                 <Text style={dates.expiryDate ? styles.inputText : styles.placeholderText}>
                   {dates.expiryDate ? formatDate('expiryDate') : 'Select expiry date'}
                 </Text>

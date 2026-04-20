@@ -2,7 +2,7 @@ import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { costTypeColors } from '@/features/cars/styles/runningCost.styles';
-import { RunningCostRecord, RUNNING_COST_TYPES } from '@/features/cars/types/car.types';
+import { RUNNING_COST_TYPES, RunningCostRecord } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -210,7 +210,7 @@ export const CostsTab: React.FC<CostsTabProps> = ({ carId, runningCosts }) => {
                 style={styles.input}
                 value={description}
                 onChangeText={setDescription}
-                placeholder="Fuel fill-up"
+                placeholder="Short cost description"
                 placeholderTextColor="#8A8A8C"
               />
               <Text style={styles.label}>Vendor</Text>

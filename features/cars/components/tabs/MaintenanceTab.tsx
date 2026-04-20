@@ -9,6 +9,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Modal,
+  Pressable,
   ScrollView,
   Text,
   TextInput,
@@ -273,9 +274,9 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
                   placeholderTextColor="#8A8A8C"
                   keyboardType="decimal-pad"
                 />
-                <TouchableOpacity style={styles.partAddButton} onPress={handleAddPart}>
+                <Pressable style={styles.partAddButton} onPress={handleAddPart}>
                   <Ionicons name="add" size={18} color="#fff" />
-                </TouchableOpacity>
+                </Pressable>
               </View>
               {partsReplaced.map((part, index) => (
                 <View key={index} style={styles.partItem}>

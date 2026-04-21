@@ -57,22 +57,6 @@
         "cost": 50
       }
     ],
-    "runningCosts": [
-      {
-        "id": "1",
-        "type": "aquisition",
-        "date": "2020-01-01T00:00:00.000Z",
-        "amount": 3000,
-        "description": "Vehicle purchase"
-      },
-      {
-        "id": "2",
-        "type": "repair",
-        "date": "2019-01-01T00:00:00.000Z",
-        "amount": 136,
-        "description": "Timing Chain Kit"
-      }
-    ],
     "purchasePrice": 3000,
     "currentMileage": 289000,
     "maintenanceHistory": [
@@ -81,6 +65,7 @@
         "date": "2020-03-01T14:48:00.000Z",
         "mileage": 218000,
         "type": "scheduled",
+        "category": "maintenance",
         "description": "Timing chain + Oil",
         "cost": 208,
         "nextServiceDate": "2021-03-01T14:48:00.000Z",
@@ -109,6 +94,7 @@
         "date": "2020-08-01T14:48:00.000Z",
         "mileage": 223000,
         "type": "unscheduled",
+        "category": "repair",
         "description": "Clutch + flywheel",
         "cost": 560,
         "nextServiceDate": "2021-03-01T14:48:00.000Z",

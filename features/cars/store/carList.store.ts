@@ -5,7 +5,6 @@ import {
   InspectionRecord,
   InsuranceRecord,
   MaintenanceRecord,
-  RunningCostRecord,
   VignetteRecord,
 } from '@/features/cars/types/car.types';
 import { asyncStorageAdapter } from '@/store/asyncStorageAdapter';
@@ -34,11 +33,6 @@ interface CarStore {
   addInspectionRecord: (carId: string, record: InspectionRecord) => void;
   updateInspectionRecord: (carId: string, recordId: string, updates: Partial<InspectionRecord>) => void;
   deleteInspectionRecord: (carId: string, recordId: string) => void;
-
-  // Running Cost CRUD
-  addRunningCostRecord: (carId: string, record: RunningCostRecord) => void;
-  updateRunningCostRecord: (carId: string, recordId: string, updates: Partial<RunningCostRecord>) => void;
-  deleteRunningCostRecord: (carId: string, recordId: string) => void;
 
   // Vignette CRUD
   addVignetteRecord: (carId: string, record: VignetteRecord) => void;
@@ -169,50 +163,6 @@ const useCarStore = create<CarStore>()(
               ? {
                   ...car,
                   inspectionHistory: car.inspectionHistory?.filter(
-                    (r) => r.id !== recordId
-                  ),
-                }
-              : car
-          ),
-        }));
-      },
-
-      // Running Cost CRUD
-      addRunningCostRecord: (carId, record) => {
-        set((state) => ({
-          cars: state.cars.map((car) =>
-            car.id === carId
-              ? {
-                  ...car,
-                  runningCosts: [record, ...(car.runningCosts || [])],
-                }
-              : car
-          ),
-        }));
-      },
-
-      updateRunningCostRecord: (carId, recordId, updates) => {
-        set((state) => ({
-          cars: state.cars.map((car) =>
-            car.id === carId
-              ? {
-                  ...car,
-                  runningCosts: car.runningCosts?.map((r) =>
-                    r.id === recordId ? { ...r, ...updates } : r
-                  ),
-                }
-              : car
-          ),
-        }));
-      },
-
-      deleteRunningCostRecord: (carId, recordId) => {
-        set((state) => ({
-          cars: state.cars.map((car) =>
-            car.id === carId
-              ? {
-                  ...car,
-                  runningCosts: car.runningCosts?.filter(
                     (r) => r.id !== recordId
                   ),
                 }

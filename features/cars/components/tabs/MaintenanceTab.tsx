@@ -3,7 +3,8 @@ import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { tabListStyles as ls } from '@/features/cars/styles/tabList.styles';
-import { MaintenanceRecord, ReplacedPart } from '@/features/cars/types/car.types';
+import { MaintenanceRecord, ReplacedPart, RUNNING_COST_TYPES, RunningCostType } from '@/features/cars/types/car.types';
+import { costTypeColors } from '@/features/cars/styles/runningCost.styles';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -45,6 +46,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
 
   // Form fields
   const [maintType, setMaintType] = useState<MaintenanceRecord['type']>('scheduled');
+  const [category, setCategory] = useState<RunningCostType>('maintenance');
   const [mileage, setMileage] = useState('');
   const { dates, pickerVisible, showPicker, hidePicker, onConfirm, setDate, formatDate } =
     useDatePicker(['date', 'nextServiceDate']);
@@ -59,6 +61,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
     if (record) {
       setEditingId(record.id);
       setMaintType(record.type);
+      setCategory(record.category || 'maintenance');
       setDate('date', new Date(record.date));
       setMileage(record.mileage.toString());
       setDescription(record.description);
@@ -69,6 +72,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
     } else {
       setEditingId(null);
       setMaintType('scheduled');
+      setCategory('maintenance');
       setDate('date', null);
       setMileage('');
       setDescription('');
@@ -110,6 +114,7 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
       date: dates.date.toISOString(),
       mileage: parseInt(mileage, 10),
       type: maintType,
+      category,
       description,
       cost: totalCost,
       partsReplaced: partsReplaced.length > 0 ? partsReplaced : undefined,
@@ -243,6 +248,29 @@ export const MaintenanceTab: React.FC<MaintenanceTabProps> = ({ carId, maintenan
                       style={[
                         styles.optionButtonText,
                         maintType === t && styles.optionButtonTextActive,
+                      ]}
+                    >
+                      {t}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <Text style={styles.label}>Category</Text>
+              <View style={styles.buttonRow}>
+                {RUNNING_COST_TYPES.map((t) => (
+                  <TouchableOpacity
+                    key={t}
+                    style={[
+                      styles.optionButton,
+                      { borderColor: costTypeColors[t] },
+                      category === t && { backgroundColor: costTypeColors[t], borderColor: costTypeColors[t] },
+                    ]}
+                    onPress={() => setCategory(t)}
+                  >
+                    <Text
+                      style={[
+                        styles.optionButtonText,
+                        category === t && styles.optionButtonTextActive,
                       ]}
                     >
                       {t}

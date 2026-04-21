@@ -40,19 +40,6 @@ export interface InspectionRecord {
     notificationIds?: string[];  // expo-notifications scheduled IDs
 }
 
-export interface RunningCostRecord {
-    id: string;
-    type: RunningCostType;
-    date: string;               // ISO date string
-    amount: number;             // cost in currency
-    mileage?: number;           // odometer reading at time of expense
-    description?: string;
-    vendor?: string;
-    // Fuel-specific fields
-    liters?: number;            // for fuel transactions
-    pricePerLiter?: number;     // for fuel transactions
-}
-
 export interface ReplacedPart {
     name: string;
     cost: number;
@@ -63,6 +50,7 @@ export interface MaintenanceRecord {
     date: string;               // ISO date string
     mileage: number;
     type: 'scheduled' | 'unscheduled' | 'recall' | 'upgrade' | 'preventive' | 'repair';
+    category: RunningCostType;
     description: string;
     cost: number;
     partsReplaced?: ReplacedPart[];
@@ -99,8 +87,6 @@ export interface Car {
     // Inspection history
     inspectionHistory?: InspectionRecord[];
 
-    // Running costs (individual transactions)
-    runningCosts?: RunningCostRecord[];
     purchasePrice?: number; // one-time purchase cost
 
     // Vignette / Road Tax history

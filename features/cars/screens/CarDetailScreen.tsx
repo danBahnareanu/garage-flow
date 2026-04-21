@@ -32,8 +32,8 @@ const getLatestInspectionByType = (car: Car, types: string[]) =>
     ?.filter(i => types.includes(i.type))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
-const getCostsByType = (car: Car, type: RunningCostType) =>
-  car.runningCosts?.filter(c => c.type === type).reduce((sum, c) => sum + c.amount, 0) || 0;
+const getCostsByType = (car: Car, category: RunningCostType) =>
+  car.maintenanceHistory?.filter(c => c.category === category).reduce((sum, c) => sum + c.cost, 0) || 0;
 
 const getLatestMaintenance = (car: Car) => {
   const records = car.maintenanceHistory;
@@ -351,56 +351,15 @@ const CarDetailScreen = () => {
           </View>
         </TouchableOpacity>
 
-        {/* Registration Section */}
-        {/* <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Ionicons name="document-text" size={24} color="#7142CD" />
-            <Text style={styles.sectionTitle}>Registration</Text>
-          </View>
-          <View style={styles.sectionContent}>
-            {registrationInspection ? (
-              <>
-                <View style={styles.infoRow}>
-                  <Text style={styles.infoLabel}>Date:</Text>
-                  <Text style={styles.infoValue}>
-                    {new Date(registrationInspection.date).toLocaleDateString()}
-                  </Text>
-                </View>
-                {registrationInspection.expiryDate && (
-                  <>
-                    <View style={styles.infoRow}>
-                      <Text style={styles.infoLabel}>Expiry Date:</Text>
-                      <Text style={styles.infoValue}>
-                        {new Date(registrationInspection.expiryDate).toLocaleDateString()}
-                      </Text>
-                    </View>
-                    <View style={[styles.expiryBadge, { backgroundColor: getExpiryColor(registrationDays) }]}>
-                      <Text style={styles.expiryText}>
-                        {registrationDays !== null
-                          ? registrationDays < 0
-                            ? `Expired ${Math.abs(registrationDays)} days ago`
-                            : `${registrationDays} days remaining`
-                          : 'N/A'}
-                      </Text>
-                    </View>
-                  </>
-                )}
-              </>
-            ) : (
-              <Text style={styles.noDataText}>No registration information available</Text>
-            )}
-          </View>
-        </View> */}
-
-        {/* Running Costs Section */}
+        {/* Costs & Maintenance Section */}
         <TouchableOpacity
           style={styles.section}
           onPress={() => router.push(`/cars/running-costs/${id}`)}
           activeOpacity={0.7}
         >
           <View style={styles.sectionHeader}>
-            <Ionicons name="cash" size={24} color="#7142CD" />
-            <Text style={[styles.sectionTitle, { flex: 1 }]}>Running Costs</Text>
+            <Ionicons name="cash-outline" size={24} color="#7142CD" />
+            <Text style={[styles.sectionTitle, { flex: 1 }]}>Costs & Maintenance</Text>
             <Ionicons name="chevron-forward" size={20} color="#7142CD" />
           </View>
           <View style={styles.sectionContent}>
@@ -466,18 +425,9 @@ const CarDetailScreen = () => {
               <Text style={styles.noDataText}>No cost data available</Text>
             )}
           </View>
-        </TouchableOpacity>
-
-        {/* Maintenance Section */}
-        <TouchableOpacity
-          style={styles.section}
-          onPress={() => router.push(`/cars/edit-maintenance/${id}`)}
-          activeOpacity={0.7}
-        >
-          <View style={styles.sectionHeader}>
+          <View style={[styles.sectionHeader, styles.maintenanceSection]}>
             <Ionicons name="build" size={24} color="#7142CD" />
-            <Text style={[styles.sectionTitle, { flex: 1 }]}>Maintenance</Text>
-            <Ionicons name="chevron-forward" size={20} color="#7142CD" />
+            <Text style={[styles.sectionTitle, { flex: 1 }]}>Maintenance History</Text>
           </View>
           <View style={styles.sectionContent}>
             {car.currentMileage !== undefined && (
@@ -547,7 +497,7 @@ const CarDetailScreen = () => {
                   </View>
                 ))}
                 {car.maintenanceHistory.length > 3 && (
-                  <TouchableOpacity onPress={() => router.push(`/cars/maintenance-history/${id}`)}>
+                  <TouchableOpacity onPress={() => router.push(`/cars/running-costs/${id}`)}>
                     <Text style={styles.seeAllLink}>See All ({car.maintenanceHistory.length})</Text>
                   </TouchableOpacity>
                 )}
@@ -758,6 +708,7 @@ const styles = StyleSheet.create({
   totalRow: {
     marginTop: 8,
     paddingTop: 12,
+    borderStyle: 'dashed',
     borderTopWidth: 1,
     borderTopColor: '#3D2F6E',
   },
@@ -770,6 +721,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#7142CD',
     fontWeight: '700',
+  },
+  maintenanceSection: {
+    borderTopWidth: 1,
+    borderTopColor: '#3D2F6E',
+    borderStyle: 'solid',
+    marginTop: 20,
+    paddingTop: 20,
   },
   maintenanceHistory: {
     marginTop: 16,

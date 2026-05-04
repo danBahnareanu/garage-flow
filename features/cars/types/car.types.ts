@@ -1,3 +1,8 @@
+/**
+ * Seed source for the dynamic categories taxonomy. Production code paths read
+ * from `useCarStore().categories`, not this list. Kept exported for first-run
+ * seeding in `carList.store.ts` and incidental legacy imports.
+ */
 export const RUNNING_COST_TYPES = [
     'fuel',
     'maintenance',
@@ -49,8 +54,8 @@ export interface MaintenanceRecord {
     id: string;
     date: string;               // ISO date string
     mileage: number;
-    type: 'scheduled' | 'unscheduled' | 'recall' | 'upgrade' | 'preventive' | 'repair';
-    category: RunningCostType;
+    type?: string;              // taxonomy item id (undefined => no type)
+    category: string;           // taxonomy item id
     description: string;
     cost: number;
     partsReplaced?: ReplacedPart[];

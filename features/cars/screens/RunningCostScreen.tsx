@@ -1,16 +1,19 @@
 import { ContextMenu } from '@/features/cars/components/ContextMenu';
 import { DonutChart } from '@/features/cars/components/DonutChart';
+import { ItemEditorModal } from '@/features/cars/components/ItemEditorModal';
+import { PickerModal } from '@/features/cars/components/PickerModal';
+import { TAXONOMY_NEUTRAL } from '@/features/cars/constants/colors';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import useCarStore from '@/features/cars/store/carList.store';
-import { costTypeColors, styles } from '@/features/cars/styles/runningCost.styles';
-import { Car, MaintenanceRecord, ReplacedPart, RUNNING_COST_TYPES, RunningCostType } from '@/features/cars/types/car.types';
+import { styles } from '@/features/cars/styles/runningCost.styles';
+import { Car, MaintenanceRecord, ReplacedPart } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
-  KeyboardAvoidingView,
+  Keyboard,
   Modal,
   Pressable,
   ScrollView,
@@ -18,27 +21,28 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from 'react-native';
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { SafeAreaView } from 'react-native-safe-area-context';
-
-const MAINTENANCE_TYPES: MaintenanceRecord['type'][] = ['scheduled', 'unscheduled', 'recall', 'upgrade', 'preventive', 'repair'];
-
-const maintenanceTypeColors: Record<MaintenanceRecord['type'], string> = {
-  scheduled: '#4CAF50',
-  unscheduled: '#FFA500',
-  recall: '#FF4444',
-  repair: '#FF6B6B',
-  upgrade: '#4ECDC4',
-  preventive: '#4CAF50',
-};
+import { TaxonomyCard } from '../components/TaxonomyCard';
+import { useTaxonomyItem } from '../hooks/useTaxonomyItem';
+import { TaxonomyItem } from '../types/taxonomy.types';
 
 const RunningCostScreen = () => {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const car = useCarStore((state: { cars: Car[] }) => state.cars.find((c: Car) => c.id === id));
-  const { addMaintenanceRecord, updateMaintenanceRecord, deleteMaintenanceRecord } = useCarStore();
+  const {
+    addMaintenanceRecord,
+    updateMaintenanceRecord,
+    deleteMaintenanceRecord,
+    categories,
+    maintTypes,
+  } = useCarStore();
+
+  // Keyboard state
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   // Modal state
   const [modalVisible, setModalVisible] = useState(false);
@@ -46,8 +50,8 @@ const RunningCostScreen = () => {
   const [contextRecord, setContextRecord] = useState<MaintenanceRecord | null>(null);
 
   // Form fields
-  const [maintType, setMaintType] = useState<MaintenanceRecord['type']>('scheduled');
-  const [category, setCategory] = useState<RunningCostType>('maintenance');
+  const [maintType, setMaintType] = useState<string | undefined>(undefined);
+  const [category, setCategory] = useState<string>('maintenance');
   const [cost, setCost] = useState('');
   const { dates, pickerVisible, showPicker, hidePicker, onConfirm, setDate, formatDate } =
     useDatePicker(['date', 'nextServiceDate']);
@@ -59,8 +63,38 @@ const RunningCostScreen = () => {
   const [partCost, setPartCost] = useState('');
   const [nextServiceMileage, setNextServiceMileage] = useState('');
 
-  // Track selected slice for animation
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  // Picker / editor state
+  const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
+  const [typePickerOpen, setTypePickerOpen] = useState(false);
+  const [categoryEditor, setCategoryEditor] = useState<{ mode: 'add' | 'edit'; initial?: TaxonomyItem } | null>(null);
+  const [typeEditor, setTypeEditor] = useState<{ mode: 'add' | 'edit'; initial?: TaxonomyItem } | null>(null);
+  const [taxonomyContextMenu, setTaxonomyContextMenu] = useState<
+    { kind: 'category' | 'type'; item: TaxonomyItem } | null
+  >(null);
+
+  const selectedCategory = categories.find((c) => c.id === category);
+  const selectedType = maintType ? maintTypes.find((t) => t.id === maintType) : undefined;
+
+  const { handleTaxonomySave: handleTaxonomySave, handleTaxonomyDelete: handleTaxonomyDelete } = useTaxonomyItem({
+  onCategoryChange: (categoryId) => setCategory(categoryId),
+  onTypeChange: (typeId) => setMaintType(typeId),
+});
+
+useEffect(() => {
+  const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {
+    setKeyboardHeight(e.endCoordinates.height);
+  });
+  const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
+    setKeyboardHeight(0);
+  });
+
+  return () => {
+    keyboardDidShowListener.remove();
+    keyboardDidHideListener.remove();
+  };
+}, []);
 
   if (!car) {
     return (
@@ -80,7 +114,15 @@ const RunningCostScreen = () => {
 
   const maintenanceHistory = car.maintenanceHistory || [];
 
-  // Aggregate costs by category
+  const lookupCategory = (catId: string | undefined) => {
+    const found = catId ? categories.find((c) => c.id === catId) : undefined;
+    return {
+      color: found?.color ?? TAXONOMY_NEUTRAL,
+      name: found?.name ?? 'Uncategorized',
+    };
+  };
+
+  // Aggregate costs by category id
   const costsByCategory = maintenanceHistory.reduce((acc: Record<string, number>, record: MaintenanceRecord) => {
     const cat: string = record.category || 'maintenance';
     acc[cat] = (acc[cat] || 0) + record.cost;
@@ -90,24 +132,26 @@ const RunningCostScreen = () => {
   const totalCosts: number = (Object.values(costsByCategory) as number[]).reduce((sum, val) => sum + val, 0);
   const hasCostData = totalCosts > 0;
 
-  // Prepare pie chart data
-  const pieChartData = useMemo(() =>
-    (Object.entries(costsByCategory) as [RunningCostType, number][])
-      .filter(([_, amount]) => amount > 0)
-      .sort(([typeA, amountA], [typeB, amountB]) => {
-        if (typeA === 'other') return 1;
-        if (typeB === 'other') return -1;
-        return amountB - amountA;
-      })
-      .map(([type, amount]) => ({
-        value: amount as number,
-        color: costTypeColors[type] || costTypeColors.other,
-        name: type
-      })),
-    [maintenanceHistory]
+  const pieChartData = useMemo(
+    () =>
+      Object.entries(costsByCategory)
+        .filter(([_, amount]) => (amount as number) > 0)
+        .sort(([keyA, amountA], [keyB, amountB]) => {
+          if (keyA === 'other') return 1;
+          if (keyB === 'other') return -1;
+          return (amountB as number) - (amountA as number);
+        })
+        .map(([key, amount]) => {
+          const { color, name } = lookupCategory(key);
+          return {
+            value: amount as number,
+            color,
+            name,
+          };
+        }),
+    [maintenanceHistory, categories]
   );
 
-  // Sort records by date (newest first)
   const sortedRecords = [...maintenanceHistory].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
@@ -127,7 +171,7 @@ const RunningCostScreen = () => {
       setNextServiceMileage(record.nextServiceMileage?.toString() || '');
     } else {
       setEditingId(null);
-      setMaintType('scheduled');
+      setMaintType(undefined);
       setCategory('maintenance');
       setDate('date', null);
       setCost('');
@@ -171,7 +215,6 @@ const RunningCostScreen = () => {
       id: editingId || generateId(),
       date: dates.date.toISOString(),
       mileage: parseInt(mileage, 10),
-      type: maintType,
       category,
       description,
       cost: finalCost,
@@ -179,6 +222,7 @@ const RunningCostScreen = () => {
       serviceProvider: serviceProvider || undefined,
       nextServiceDate: dates.nextServiceDate ? dates.nextServiceDate.toISOString() : undefined,
       nextServiceMileage: nextServiceMileage ? parseInt(nextServiceMileage, 10) : undefined,
+      ...(maintType ? { type: maintType } : {}),
     };
     if (editingId) {
       updateMaintenanceRecord(id as string, editingId, record);
@@ -199,51 +243,65 @@ const RunningCostScreen = () => {
     ]);
   };
 
-  const renderRecordCard = (record: MaintenanceRecord) => (
-    <TouchableOpacity
-      key={record.id}
-      style={styles.costCard}
-      onLongPress={() => setContextRecord(record)}
-      activeOpacity={0.8}
-    >
-      <View style={styles.costCardHeader}>
-        <View style={styles.costCardLeft}>
-          <View style={[styles.typeBadge, { backgroundColor: costTypeColors[record.category || 'maintenance'] }]}>
-            <Text style={styles.typeBadgeText}>{record.category || 'maintenance'}</Text>
-          </View>
-        </View>
-        <Text style={styles.costAmount}>€{record.cost.toFixed(2)}</Text>
-      </View>
-      <View style={styles.costCardBody}>
-        <Text style={styles.costDescription}>{record.description}</Text>
-        <Text style={styles.costDate}>{new Date(record.date).toLocaleDateString()}</Text>
-        {record.mileage > 0 && (
-          <Text style={styles.costMileage}>
-            {record.mileage.toLocaleString()} km
-          </Text>
-        )}
-        {record.serviceProvider && (
-          <Text style={styles.costVendor}>{record.serviceProvider}</Text>
-        )}
-      </View>
-      {record.partsReplaced && record.partsReplaced.length > 0 && (
-        <View style={localStyles.partsSection}>
-          <Text style={localStyles.partsLabel}>Parts:</Text>
-          {record.partsReplaced.map((part, i) => (
-            <View key={i} style={localStyles.partRow}>
-              <Text style={localStyles.partName}>{part.name}</Text>
-              <Text style={localStyles.partCost}>€{part.cost.toFixed(2)}</Text>
+// Update handleDeleteTaxonomy calls to pass current state:
+const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: TaxonomyItem) => {
+  handleTaxonomyDelete(kind, item, {
+    currentCategoryId: category,
+    currentTypeId: maintType,
+  });
+};
+
+  const renderRecordCard = (record: MaintenanceRecord) => {
+    const cat = lookupCategory(record.category);
+    const recType = record.type ? maintTypes.find((t) => t.id === record.type) : undefined;
+    return (
+      <TouchableOpacity
+        key={record.id}
+        style={styles.costCard}
+        onLongPress={() => setContextRecord(record)}
+        activeOpacity={0.8}
+      >
+        <View style={styles.costCardHeader}>
+          <View style={styles.costCardLeft}>
+            <View style={[styles.typeBadge, { backgroundColor: cat.color }]}>
+              <Text style={styles.typeBadgeText}>{cat.name}</Text>
             </View>
-          ))}
+          </View>
+          <Text style={styles.costAmount}>€{record.cost.toFixed(2)}</Text>
         </View>
-      )}
-      <View style={localStyles.cardFooter}>
-        <View style={[localStyles.maintTypeBadge, { backgroundColor: maintenanceTypeColors[record.type] }]}>
-          <Text style={localStyles.maintTypeBadgeText}>{record.type}</Text>
+        <View style={styles.costCardBody}>
+          <Text style={styles.costDescription}>{record.description}</Text>
+          <Text style={styles.costDate}>{new Date(record.date).toLocaleDateString()}</Text>
+          {record.mileage > 0 && (
+            <Text style={styles.costMileage}>
+              {record.mileage.toLocaleString()} km
+            </Text>
+          )}
+          {record.serviceProvider && (
+            <Text style={styles.costVendor}>{record.serviceProvider}</Text>
+          )}
         </View>
-      </View>
-    </TouchableOpacity>
-  );
+        {record.partsReplaced && record.partsReplaced.length > 0 && (
+          <View style={localStyles.partsSection}>
+            <Text style={localStyles.partsLabel}>Parts:</Text>
+            {record.partsReplaced.map((part, i) => (
+              <View key={i} style={localStyles.partRow}>
+                <Text style={localStyles.partName}>{part.name}</Text>
+                <Text style={localStyles.partCost}>€{part.cost.toFixed(2)}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+        {recType && (
+          <View style={localStyles.cardFooter}>
+            <View style={[localStyles.maintTypeBadge, { backgroundColor: recType.color }]}>
+              <Text style={localStyles.maintTypeBadgeText}>{recType.name}</Text>
+            </View>
+          </View>
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
@@ -401,50 +459,26 @@ const RunningCostScreen = () => {
 
       {/* Add/Edit Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent>
-        <KeyboardAvoidingView style={localStyles.modalOverlay} behavior="padding">
+        <View style={localStyles.modalOverlay}>
           <View style={localStyles.modalContent}>
             <Text style={localStyles.modalTitle}>{editingId ? 'Edit' : 'Add'} Record</Text>
-            <ScrollView keyboardShouldPersistTaps="handled">
-              <Text style={localStyles.label}>Category</Text>
-              <View style={localStyles.typeButtonsWrap}>
-                {RUNNING_COST_TYPES.map((t) => (
-                  <TouchableOpacity
-                    key={t}
-                    style={[
-                      localStyles.optionButton,
-                      { borderColor: costTypeColors[t] },
-                      category === t && { backgroundColor: costTypeColors[t], borderColor: costTypeColors[t] },
-                    ]}
-                    onPress={() => setCategory(t)}
-                  >
-                    <Text
-                      style={[localStyles.optionButtonText, category === t && localStyles.optionButtonTextActive]}
-                    >
-                      {t}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-              <Text style={localStyles.label}>Type</Text>
-              <View style={localStyles.typeButtonsWrap}>
-                {MAINTENANCE_TYPES.map((t) => (
-                  <TouchableOpacity
-                    key={t}
-                    style={[
-                      localStyles.optionButton,
-                      { borderColor: maintenanceTypeColors[t] },
-                      maintType === t && { backgroundColor: maintenanceTypeColors[t], borderColor: maintenanceTypeColors[t] },
-                    ]}
-                    onPress={() => setMaintType(t)}
-                  >
-                    <Text
-                      style={[localStyles.optionButtonText, maintType === t && localStyles.optionButtonTextActive]}
-                    >
-                      {t}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+            <ScrollView 
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: keyboardHeight +20 }}
+            >
+              <TaxonomyCard
+                label="Category"
+                value={selectedCategory?.name ?? 'Maintenance'}
+                color={selectedCategory?.color ?? TAXONOMY_NEUTRAL}
+                onPress={() => setCategoryPickerOpen(true)}
+              />
+              <TaxonomyCard
+                label="Type"
+                value={selectedType?.name ?? 'None'}
+                color={selectedType?.color ?? TAXONOMY_NEUTRAL}
+                onPress={() => setTypePickerOpen(true)}
+              />
               <Text style={localStyles.label}>Date *</Text>
               <TouchableOpacity
                 style={localStyles.input}
@@ -570,8 +604,87 @@ const RunningCostScreen = () => {
               </TouchableOpacity>
             </View>
           </View>
-        </KeyboardAvoidingView>
+        </View>
       </Modal>
+
+      <PickerModal
+        visible={categoryPickerOpen}
+        onClose={() => setCategoryPickerOpen(false)}
+        title="Select Category"
+        items={categories}
+        selectedId={category}
+        onSelect={(catId) => setCategory(catId ?? 'maintenance')}
+        onItemLongPress={(item) => setTaxonomyContextMenu({ kind: 'category', item })}
+        onAddPress={() => {
+          setCategoryPickerOpen(false);
+          setCategoryEditor({ mode: 'add' });
+        }}
+      />
+
+      <PickerModal
+        visible={typePickerOpen}
+        onClose={() => setTypePickerOpen(false)}
+        title="Select Type"
+        items={maintTypes}
+        selectedId={maintType}
+        showNoneOption
+        onSelect={(tid) => setMaintType(tid)}
+        onItemLongPress={(item) => setTaxonomyContextMenu({ kind: 'type', item })}
+        onAddPress={() => {
+          setTypePickerOpen(false);
+          setTypeEditor({ mode: 'add' });
+        }}
+      />
+
+      <ContextMenu
+        visible={taxonomyContextMenu !== null}
+        onClose={() => setTaxonomyContextMenu(null)}
+        title={taxonomyContextMenu ? taxonomyContextMenu.item.name : ''}
+        actions={[
+          {
+            label: 'Edit',
+            icon: 'create-outline',
+            onPress: () => {
+              const ctx = taxonomyContextMenu;
+              setTaxonomyContextMenu(null);
+              if (!ctx) return;
+              if (ctx.kind === 'category') {
+                setCategoryEditor({ mode: 'edit', initial: ctx.item });
+              } else {
+                setTypeEditor({ mode: 'edit', initial: ctx.item });
+              }
+            },
+          },
+          {
+            label: 'Delete',
+            icon: 'trash-outline',
+            color: '#FF4444',
+            onPress: () => {
+              const ctx = taxonomyContextMenu;
+              setTaxonomyContextMenu(null);
+              if (ctx) handleDeleteTaxonomyWithContext(ctx.kind, ctx.item);
+            },
+          },
+        ]}
+      />
+
+      <ItemEditorModal
+        visible={categoryEditor !== null}
+        mode={categoryEditor?.mode ?? 'add'}
+        initial={categoryEditor?.initial}
+        title="Category"
+        onClose={() => setCategoryEditor(null)}
+        onSave={handleTaxonomySave}
+      />
+
+      <ItemEditorModal
+        visible={typeEditor !== null}
+        mode={typeEditor?.mode ?? 'add'}
+        initial={typeEditor?.initial}
+        title="Type"
+        onClose={() => setTypeEditor(null)}
+        onSave={handleTaxonomySave}
+      />
     </SafeAreaView>
   );
 };
@@ -664,26 +777,6 @@ const localStyles = StyleSheet.create({
   placeholderText: {
     color: '#8A8A8C',
     fontSize: 15,
-  },
-  typeButtonsWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  optionButton: {
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  optionButtonText: {
-    color: '#E1E1E2',
-    fontSize: 13,
-    textTransform: 'capitalize',
-  },
-  optionButtonTextActive: {
-    color: '#fff',
-    fontWeight: '600',
   },
   partsInputRow: {
     flexDirection: 'row',

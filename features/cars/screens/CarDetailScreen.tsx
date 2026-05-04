@@ -1,6 +1,6 @@
 import useCarStore from '@/features/cars/store/carList.store';
 import { Car, RunningCostType } from '@/features/cars/types/car.types';
-import { getMaintenanceBadgeStyle, maintenanceStyles } from '@/features/cars/utils/maintenanceStyles';
+import { maintenanceStyles } from '@/features/cars/utils/maintenanceStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -74,6 +74,7 @@ const CarDetailScreen = () => {
 
   // const car = getCarById(id as string);
   const car = useCarStore((state) => state.cars.find(c => c.id === id));
+  const maintTypes = useCarStore((state) => state.maintTypes);
 
   if (!car) {
     return (
@@ -468,7 +469,9 @@ const CarDetailScreen = () => {
                 {[...car.maintenanceHistory]
                   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                   .slice(0, 3)
-                  .map((record: any) => (
+                  .map((record: any) => {
+                  const recType = record.type ? maintTypes.find((t) => t.id === record.type) : undefined;
+                  return (
                   <View key={record.id} style={styles.maintenanceRecord}>
                     <View style={styles.maintenanceRecordHeader}>
                       <Text style={styles.maintenanceDate}>
@@ -479,9 +482,11 @@ const CarDetailScreen = () => {
                     <Text style={styles.maintenanceDescription}>{record.description}</Text>
                     <View style={styles.maintenanceRecordFooter}>
                       <Text style={styles.maintenanceMileage}>{record.mileage.toLocaleString()} km</Text>
-                      <View style={[maintenanceStyles.maintenanceTypeBadge, getMaintenanceBadgeStyle(record.type)]}>
-                        <Text style={maintenanceStyles.maintenanceTypeText}>{record.type}</Text>
-                      </View>
+                      {recType && (
+                        <View style={[maintenanceStyles.maintenanceTypeBadge, { backgroundColor: recType.color }]}>
+                          <Text style={maintenanceStyles.maintenanceTypeText}>{recType.name}</Text>
+                        </View>
+                      )}
                     </View>
                     {record.partsReplaced && record.partsReplaced.length > 0 && (
                       <View style={styles.partsSection}>
@@ -495,7 +500,8 @@ const CarDetailScreen = () => {
                       </View>
                     )}
                   </View>
-                ))}
+                  );
+                })}
                 {car.maintenanceHistory.length > 3 && (
                   <TouchableOpacity onPress={() => router.push(`/cars/running-costs/${id}`)}>
                     <Text style={styles.seeAllLink}>See All ({car.maintenanceHistory.length})</Text>

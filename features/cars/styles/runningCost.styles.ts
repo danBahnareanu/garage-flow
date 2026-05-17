@@ -109,8 +109,15 @@ export const styles = StyleSheet.create({
   costCard: {
     backgroundColor: '#1C1643',
     borderRadius: 10,
-    padding: 12,
+    // padding: 12,
     marginBottom: 10,
+  },
+  costCardContainer: {
+    paddingBottom: 12,
+    paddingHorizontal: 12, 
+  },
+  costCardBadgeContainer: {
+    flexDirection: 'row',
   },
   costCardHeader: {
     flexDirection: 'row',
@@ -124,7 +131,7 @@ export const styles = StyleSheet.create({
   typeBadge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 12,
+    borderTopStartRadius: 10,
     alignSelf: 'flex-start',
   },
   typeBadgeText: {
@@ -137,6 +144,8 @@ export const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#E1E1E2',
+    paddingRight: 12,
+    marginTop: 6,
   },
   costCardBody: {
     gap: 4,

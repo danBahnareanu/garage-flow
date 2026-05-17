@@ -156,9 +156,11 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
 
 export const MenuButton: React.FC<{ onPress: () => void }> = ({ onPress }) => {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.menuButton}>
+    <Pressable 
+      onPress={onPress} 
+      style={({ pressed }) => [styles.menuButton, { opacity: pressed ? 0.7 : 1 }]}>
       <Ionicons name="ellipsis-horizontal" size={24} color="#fff"/>
-    </TouchableOpacity>
+    </Pressable>
   );
 };
 
@@ -166,6 +168,8 @@ const styles = StyleSheet.create({
   menuButton: {
     padding: 8,
     marginRight: 8,
+    backgroundColor: '#2C1F5E',
+    borderRadius: 20,
   },
   modalOverlay: {
     flex: 1,

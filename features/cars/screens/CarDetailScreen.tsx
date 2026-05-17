@@ -1,6 +1,5 @@
 import useCarStore from '@/features/cars/store/carList.store';
 import { Car, RunningCostType } from '@/features/cars/types/car.types';
-import { maintenanceStyles } from '@/features/cars/utils/maintenanceStyles';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
@@ -467,38 +466,42 @@ const CarDetailScreen = () => {
               <View style={styles.maintenanceHistory}>
                 <Text style={styles.maintenanceHistoryTitle}>Maintenance History</Text>
                 {[...car.maintenanceHistory]
+                  .filter(record => record.category === 'maintenance') // Only maintenance category
                   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                   .slice(0, 3)
                   .map((record: any) => {
                   const recType = record.type ? maintTypes.find((t) => t.id === record.type) : undefined;
                   return (
                   <View key={record.id} style={styles.maintenanceRecord}>
-                    <View style={styles.maintenanceRecordHeader}>
-                      <Text style={styles.maintenanceDate}>
-                        {new Date(record.date).toLocaleDateString()}
-                      </Text>
-                      <Text style={styles.maintenanceCost}>€{record.cost.toFixed(2)}</Text>
-                    </View>
-                    <Text style={styles.maintenanceDescription}>{record.description}</Text>
-                    <View style={styles.maintenanceRecordFooter}>
-                      <Text style={styles.maintenanceMileage}>{record.mileage.toLocaleString()} km</Text>
-                      {recType && (
-                        <View style={[maintenanceStyles.maintenanceTypeBadge, { backgroundColor: recType.color }]}>
-                          <Text style={maintenanceStyles.maintenanceTypeText}>{recType.name}</Text>
+                    <View style={styles.maintenanceRecordContainer}>
+                      <View style={styles.maintenanceRecordHeader}>
+                        <Text style={styles.maintenanceDate}>
+                          {new Date(record.date).toLocaleDateString()}
+                        </Text>
+                        <Text style={styles.maintenanceCost}>€{record.cost.toFixed(2)}</Text>
+                      </View>
+                      <Text style={styles.maintenanceDescription}>{record.description}</Text>
+                      <View style={styles.maintenanceRecordFooter}>
+                        <Text style={styles.maintenanceMileage}>{record.mileage.toLocaleString()} km</Text>
+                        
+                      </View>
+                      {record.partsReplaced && record.partsReplaced.length > 0 && (
+                        <View style={styles.partsSection}>
+                          <Text style={styles.partsLabel}>Parts replaced:</Text>
+                          {record.partsReplaced.map((part: any, i: number) => (
+                            <View key={i} style={styles.partRow}>
+                              <Text style={styles.partName}>{part.name}</Text>
+                              <Text style={styles.partCost}>€{part.cost.toFixed(2)}</Text>
+                            </View>
+                          ))}
                         </View>
                       )}
                     </View>
-                    {record.partsReplaced && record.partsReplaced.length > 0 && (
-                      <View style={styles.partsSection}>
-                        <Text style={styles.partsLabel}>Parts replaced:</Text>
-                        {record.partsReplaced.map((part: any, i: number) => (
-                          <View key={i} style={styles.partRow}>
-                            <Text style={styles.partName}>{part.name}</Text>
-                            <Text style={styles.partCost}>€{part.cost.toFixed(2)}</Text>
-                          </View>
-                        ))}
-                      </View>
-                    )}
+                    {recType && (
+                        <View style={[styles.maintenanceTypeBadge, { backgroundColor: recType.color }]}>
+                          <Text style={styles.maintenanceTypeText}>{recType.name}</Text>
+                        </View>
+                      )}
                   </View>
                   );
                 })}
@@ -746,9 +749,11 @@ const styles = StyleSheet.create({
   },
   maintenanceRecord: {
     backgroundColor: '#1C1643',
-    padding: 12,
     borderRadius: 10,
     marginBottom: 12,
+  },
+  maintenanceRecordContainer: {
+    padding: 12,
   },
   maintenanceRecordHeader: {
     flexDirection: 'row',
@@ -825,6 +830,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     marginTop: 12,
+  },
+  maintenanceTypeBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderBottomStartRadius: 10,
+    borderBottomEndRadius: 10,
+    // borderRadius: 12,
+  },
+  maintenanceTypeText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'capitalize',
   },
 });
 

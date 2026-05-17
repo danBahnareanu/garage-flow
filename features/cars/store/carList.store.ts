@@ -1,5 +1,4 @@
 // useCarStore.ts
-import carList from '@/database/carList';
 import { TAXONOMY_NEUTRAL } from '@/features/cars/constants/colors';
 import { costTypeColors } from '@/features/cars/styles/runningCost.styles';
 import {
@@ -90,7 +89,7 @@ interface CarStore {
 const useCarStore = create<CarStore>()(
   persist(
     (set) => ({
-      cars: carList as Car[],
+      cars: [] as Car[],
       categories: [],
       maintTypes: [],
       isHydrated: false,

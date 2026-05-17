@@ -77,7 +77,7 @@ const RunningCostScreen = () => {
   const selectedCategory = categories.find((c) => c.id === category);
   const selectedType = maintType ? maintTypes.find((t) => t.id === maintType) : undefined;
 
-  const { handleTaxonomySave: handleTaxonomySave, handleTaxonomyDelete: handleTaxonomyDelete } = useTaxonomyItem({
+  const { handleTaxonomySave, handleTaxonomyDelete } = useTaxonomyItem({
   onCategoryChange: (categoryId) => setCategory(categoryId),
   onTypeChange: (typeId) => setMaintType(typeId),
 });
@@ -263,42 +263,46 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
       >
         <View style={styles.costCardHeader}>
           <View style={styles.costCardLeft}>
-            <View style={[styles.typeBadge, { backgroundColor: cat.color }]}>
-              <Text style={styles.typeBadgeText}>{cat.name}</Text>
+            <View style={styles.costCardBadgeContainer}>
+              <View style={[styles.typeBadge, { backgroundColor: cat.color }]}>
+                <Text style={styles.typeBadgeText}>{cat.name}</Text>
+              </View>
+              {recType && (
+              <View>
+                <View style={[localStyles.maintTypeBadge, { backgroundColor: recType.color }]}>
+                  <Text style={localStyles.maintTypeBadgeText}>{recType.name}</Text>
+                </View>
+              </View>
+              )}
             </View>
           </View>
           <Text style={styles.costAmount}>€{record.cost.toFixed(2)}</Text>
         </View>
-        <View style={styles.costCardBody}>
-          <Text style={styles.costDescription}>{record.description}</Text>
-          <Text style={styles.costDate}>{new Date(record.date).toLocaleDateString()}</Text>
-          {record.mileage > 0 && (
-            <Text style={styles.costMileage}>
-              {record.mileage.toLocaleString()} km
-            </Text>
-          )}
-          {record.serviceProvider && (
-            <Text style={styles.costVendor}>{record.serviceProvider}</Text>
+        <View style={styles.costCardContainer}>
+          <View style={styles.costCardBody}>
+            <Text style={styles.costDescription}>{record.description}</Text>
+            <Text style={styles.costDate}>{new Date(record.date).toLocaleDateString()}</Text>
+            {record.mileage > 0 && (
+              <Text style={styles.costMileage}>
+                {record.mileage.toLocaleString()} km
+              </Text>
+            )}
+            {record.serviceProvider && (
+              <Text style={styles.costVendor}>{record.serviceProvider}</Text>
+            )}
+          </View>
+          {record.partsReplaced && record.partsReplaced.length > 0 && (
+            <View style={localStyles.partsSection}>
+              <Text style={localStyles.partsLabel}>Parts:</Text>
+              {record.partsReplaced.map((part, i) => (
+                <View key={i} style={localStyles.partRow}>
+                  <Text style={localStyles.partName}>{part.name}</Text>
+                  <Text style={localStyles.partCost}>€{part.cost.toFixed(2)}</Text>
+                </View>
+              ))}
+            </View>
           )}
         </View>
-        {record.partsReplaced && record.partsReplaced.length > 0 && (
-          <View style={localStyles.partsSection}>
-            <Text style={localStyles.partsLabel}>Parts:</Text>
-            {record.partsReplaced.map((part, i) => (
-              <View key={i} style={localStyles.partRow}>
-                <Text style={localStyles.partName}>{part.name}</Text>
-                <Text style={localStyles.partCost}>€{part.cost.toFixed(2)}</Text>
-              </View>
-            ))}
-          </View>
-        )}
-        {recType && (
-          <View style={localStyles.cardFooter}>
-            <View style={[localStyles.maintTypeBadge, { backgroundColor: recType.color }]}>
-              <Text style={localStyles.maintTypeBadgeText}>{recType.name}</Text>
-            </View>
-          </View>
-        )}
       </TouchableOpacity>
     );
   };
@@ -674,7 +678,10 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
         initial={categoryEditor?.initial}
         title="Category"
         onClose={() => setCategoryEditor(null)}
-        onSave={handleTaxonomySave}
+        onSave={(data, context) => {
+          handleTaxonomySave(data, context)
+          setCategoryEditor(null)
+        }}
       />
 
       <ItemEditorModal
@@ -683,7 +690,10 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
         initial={typeEditor?.initial}
         title="Type"
         onClose={() => setTypeEditor(null)}
-        onSave={handleTaxonomySave}
+        onSave={(data, context) => {
+          handleTaxonomySave(data, context)
+          setTypeEditor(null)
+        }}
       />
     </SafeAreaView>
   );
@@ -698,14 +708,10 @@ const localStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  cardFooter: {
-    flexDirection: 'row',
-    marginTop: 8,
-  },
   maintTypeBadge: {
     paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 12,
+    paddingVertical: 4,
+    borderBottomEndRadius: 10,
   },
   maintTypeBadgeText: {
     fontSize: 11,

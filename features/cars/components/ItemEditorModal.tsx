@@ -3,7 +3,6 @@ import React, { useEffect, useState } from 'react';
 import {
   Alert,
   KeyboardAvoidingView,
-  Modal,
   Platform,
   StyleSheet,
   Text,
@@ -55,8 +54,10 @@ export const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
     onSave({ name: trimmed, color }, { mode, kind: title.toLowerCase() as 'category' | 'type', initial });
   };
 
+  if (!visible) return null;
+
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+    <View style={StyleSheet.absoluteFill} pointerEvents="auto">
       <KeyboardAvoidingView
         style={styles.overlay}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -104,7 +105,7 @@ export const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
           </View>
         </View>
       </KeyboardAvoidingView>
-    </Modal>
+    </View>
   );
 };
 

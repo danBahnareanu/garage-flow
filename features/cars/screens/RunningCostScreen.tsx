@@ -463,6 +463,7 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
 
       {/* Add/Edit Modal */}
       <Modal visible={modalVisible} animationType="slide" transparent>
+        <View style={{ flex: 1 }}>
         <View style={localStyles.modalOverlay}>
           <View style={localStyles.modalContent}>
             <Text style={localStyles.modalTitle}>{editingId ? 'Edit' : 'Add'} Record</Text>
@@ -609,92 +610,93 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
             </View>
           </View>
         </View>
+
+        <PickerModal
+          visible={categoryPickerOpen}
+          onClose={() => setCategoryPickerOpen(false)}
+          title="Select Category"
+          items={categories}
+          selectedId={category}
+          onSelect={(catId) => setCategory(catId ?? 'maintenance')}
+          onItemLongPress={(item) => setTaxonomyContextMenu({ kind: 'category', item })}
+          onAddPress={() => {
+            setCategoryPickerOpen(false);
+            setCategoryEditor({ mode: 'add' });
+          }}
+        />
+
+        <PickerModal
+          visible={typePickerOpen}
+          onClose={() => setTypePickerOpen(false)}
+          title="Select Type"
+          items={maintTypes}
+          selectedId={maintType}
+          showNoneOption
+          onSelect={(tid) => setMaintType(tid)}
+          onItemLongPress={(item) => setTaxonomyContextMenu({ kind: 'type', item })}
+          onAddPress={() => {
+            setTypePickerOpen(false);
+            setTypeEditor({ mode: 'add' });
+          }}
+        />
+
+        <ContextMenu
+          visible={taxonomyContextMenu !== null}
+          onClose={() => setTaxonomyContextMenu(null)}
+          title={taxonomyContextMenu ? taxonomyContextMenu.item.name : ''}
+          actions={[
+            {
+              label: 'Edit',
+              icon: 'create-outline',
+              onPress: () => {
+                const ctx = taxonomyContextMenu;
+                setTaxonomyContextMenu(null);
+                if (!ctx) return;
+                if (ctx.kind === 'category') {
+                  setCategoryEditor({ mode: 'edit', initial: ctx.item });
+                } else {
+                  setTypeEditor({ mode: 'edit', initial: ctx.item });
+                }
+              },
+            },
+            {
+              label: 'Delete',
+              icon: 'trash-outline',
+              color: '#FF4444',
+              onPress: () => {
+                const ctx = taxonomyContextMenu;
+                setTaxonomyContextMenu(null);
+                if (ctx) handleDeleteTaxonomyWithContext(ctx.kind, ctx.item);
+              },
+            },
+          ]}
+        />
+
+        <ItemEditorModal
+          visible={categoryEditor !== null}
+          mode={categoryEditor?.mode ?? 'add'}
+          initial={categoryEditor?.initial}
+          title="Category"
+          onClose={() => setCategoryEditor(null)}
+          onSave={(data, context) => {
+            handleTaxonomySave(data, context)
+            setCategoryEditor(null)
+          }}
+        />
+
+        <ItemEditorModal
+          visible={typeEditor !== null}
+          mode={typeEditor?.mode ?? 'add'}
+          initial={typeEditor?.initial}
+          title="Type"
+          onClose={() => setTypeEditor(null)}
+          onSave={(data, context) => {
+            handleTaxonomySave(data, context)
+            setTypeEditor(null)
+          }}
+        />
+        </View>
       </Modal>
-
-      <PickerModal
-        visible={categoryPickerOpen}
-        onClose={() => setCategoryPickerOpen(false)}
-        title="Select Category"
-        items={categories}
-        selectedId={category}
-        onSelect={(catId) => setCategory(catId ?? 'maintenance')}
-        onItemLongPress={(item) => setTaxonomyContextMenu({ kind: 'category', item })}
-        onAddPress={() => {
-          setCategoryPickerOpen(false);
-          setCategoryEditor({ mode: 'add' });
-        }}
-      />
-
-      <PickerModal
-        visible={typePickerOpen}
-        onClose={() => setTypePickerOpen(false)}
-        title="Select Type"
-        items={maintTypes}
-        selectedId={maintType}
-        showNoneOption
-        onSelect={(tid) => setMaintType(tid)}
-        onItemLongPress={(item) => setTaxonomyContextMenu({ kind: 'type', item })}
-        onAddPress={() => {
-          setTypePickerOpen(false);
-          setTypeEditor({ mode: 'add' });
-        }}
-      />
-
-      <ContextMenu
-        visible={taxonomyContextMenu !== null}
-        onClose={() => setTaxonomyContextMenu(null)}
-        title={taxonomyContextMenu ? taxonomyContextMenu.item.name : ''}
-        actions={[
-          {
-            label: 'Edit',
-            icon: 'create-outline',
-            onPress: () => {
-              const ctx = taxonomyContextMenu;
-              setTaxonomyContextMenu(null);
-              if (!ctx) return;
-              if (ctx.kind === 'category') {
-                setCategoryEditor({ mode: 'edit', initial: ctx.item });
-              } else {
-                setTypeEditor({ mode: 'edit', initial: ctx.item });
-              }
-            },
-          },
-          {
-            label: 'Delete',
-            icon: 'trash-outline',
-            color: '#FF4444',
-            onPress: () => {
-              const ctx = taxonomyContextMenu;
-              setTaxonomyContextMenu(null);
-              if (ctx) handleDeleteTaxonomyWithContext(ctx.kind, ctx.item);
-            },
-          },
-        ]}
-      />
-
-      <ItemEditorModal
-        visible={categoryEditor !== null}
-        mode={categoryEditor?.mode ?? 'add'}
-        initial={categoryEditor?.initial}
-        title="Category"
-        onClose={() => setCategoryEditor(null)}
-        onSave={(data, context) => {
-          handleTaxonomySave(data, context)
-          setCategoryEditor(null)
-        }}
-      />
-
-      <ItemEditorModal
-        visible={typeEditor !== null}
-        mode={typeEditor?.mode ?? 'add'}
-        initial={typeEditor?.initial}
-        title="Type"
-        onClose={() => setTypeEditor(null)}
-        onSave={(data, context) => {
-          handleTaxonomySave(data, context)
-          setTypeEditor(null)
-        }}
-      />
     </SafeAreaView>
   );
 };

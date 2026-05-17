@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect } from 'react';
 import {
   Dimensions,
-  Modal,
   Pressable,
   StyleSheet,
   Text,
@@ -52,12 +51,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ visible, onClose, titl
   }));
 
   return (
-    <Modal
-      animationType="none"
-      transparent
-      visible={visible}
-      onRequestClose={onClose}
-    >
+    <View style={StyleSheet.absoluteFill} pointerEvents={visible ? 'auto' : 'none'}>
       <Pressable style={styles.overlay} onPress={onClose}>
         <Animated.View style={[styles.overlayBg, overlayStyle]} />
         <Animated.View style={[styles.content, modalStyle]}>
@@ -83,7 +77,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ visible, onClose, titl
           </Pressable>
         </Animated.View>
       </Pressable>
-    </Modal>
+    </View>
   );
 };
 

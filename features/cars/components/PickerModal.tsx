@@ -3,7 +3,6 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect } from 'react';
 import {
   Dimensions,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -64,8 +63,9 @@ export const PickerModal: React.FC<PickerModalProps> = ({
 
   const noneSelected = showNoneOption && !selectedId;
 
+  // Rendered as an absolute overlay (no nested Modal) so it works inside a parent Modal on iOS.
   return (
-    <Modal animationType="none" transparent visible={visible} onRequestClose={onClose}>
+    <View style={StyleSheet.absoluteFill} pointerEvents={visible ? 'auto' : 'none'}>
       <Pressable style={styles.overlay} onPress={onClose}>
         <Animated.View style={[styles.overlayBg, overlayStyle]} />
         <Animated.View style={[styles.content, modalStyle]}>
@@ -117,7 +117,7 @@ export const PickerModal: React.FC<PickerModalProps> = ({
           </Pressable>
         </Animated.View>
       </Pressable>
-    </Modal>
+    </View>
   );
 };
 

@@ -1,18 +1,17 @@
+import { CostBreakdownChart } from '@/features/cars/components/CostBreakdownChart';
 import useCarStore from '@/features/cars/store/carList.store';
-import { Car, RunningCostType } from '@/features/cars/types/car.types';
+import { Car } from '@/features/cars/types/car.types';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React from 'react';
 import {
-  Dimensions,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import { BarChart } from 'react-native-chart-kit';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 // Helper functions
@@ -31,11 +30,8 @@ const getLatestInspectionByType = (car: Car, types: string[]) =>
     ?.filter(i => types.includes(i.type))
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
-const getCostsByType = (car: Car, category: RunningCostType) =>
-  car.maintenanceHistory?.filter(c => c.category === category).reduce((sum, c) => sum + c.cost, 0) || 0;
-
 const getLatestMaintenance = (car: Car) => {
-  const records = car.maintenanceHistory;
+  const records = car.maintenanceHistory?.filter(record => record.category === 'maintenance');
   if (!records?.length) return undefined;
 
   // Get the most recently added record for display (date, description, etc.)
@@ -74,6 +70,7 @@ const CarDetailScreen = () => {
   // const car = getCarById(id as string);
   const car = useCarStore((state) => state.cars.find(c => c.id === id));
   const maintTypes = useCarStore((state) => state.maintTypes);
+  const categories = useCarStore((state) => state.categories);
 
   if (!car) {
     return (
@@ -119,24 +116,7 @@ const CarDetailScreen = () => {
   const inspectionDays = calculateDaysRemaining(technicalInspection?.expiryDate);
   const registrationDays = calculateDaysRemaining(registrationInspection?.expiryDate);
 
-  // Aggregate running costs
-  const fuelCosts = getCostsByType(car, 'fuel');
-  const maintenanceCosts = getCostsByType(car, 'maintenance');
-  const repairCosts = getCostsByType(car, 'repair');
-  const performanceCosts = getCostsByType(car, 'performance');
-  const otherCosts = getCostsByType(car, 'other');
-  const visualModsCosts = getCostsByType(car, 'visual mods');
-
-  const costData = {
-    labels: ['Maintenance', 'Repairs', 'Performance', 'Visual Mods'],
-    datasets: [
-      {
-        data: [maintenanceCosts, repairCosts, performanceCosts, visualModsCosts],
-      },
-    ],
-  };
-
-  const hasCostData = fuelCosts + maintenanceCosts + repairCosts > 0;
+  const hasCostData = (car.maintenanceHistory?.reduce((s, r) => s + r.cost, 0) ?? 0) > 0;
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
@@ -364,63 +344,10 @@ const CarDetailScreen = () => {
           </View>
           <View style={styles.sectionContent}>
             {hasCostData ? (
-              <>
-                <BarChart
-                  data={costData}
-                  width={Dimensions.get('window').width - 80}
-                  height={220}
-                  yAxisLabel="€"
-                  yAxisSuffix=""
-                  fromZero={true}
-                  chartConfig={{
-                    backgroundColor: '#2C1F5E',
-                    backgroundGradientFrom: '#2C1F5E',
-                    backgroundGradientTo: '#2C1F5E',
-                    decimalPlaces: 0,
-                    color: (opacity = 1) => `rgba(113, 66, 205, ${opacity})`,
-                    labelColor: (opacity = 1) => `rgba(225, 225, 226, ${opacity})`,
-                    style: {
-                      borderRadius: 16,
-                    },
-                    propsForLabels: {
-                      fontSize: 12,
-                    },
-                  }}
-                  style={styles.chart}
-                />
-                <View style={styles.costBreakdown}>
-                  <View style={styles.costRow}>
-                    <Text style={styles.costLabel}>Fuel Costs:</Text>
-                    <Text style={styles.costValue}>€{fuelCosts.toFixed(2)}</Text>
-                  </View>
-                  <View style={styles.costRow}>
-                    <Text style={styles.costLabel}>Maintenance Costs:</Text>
-                    <Text style={styles.costValue}>€{maintenanceCosts.toFixed(2)}</Text>
-                  </View>
-                  <View style={styles.costRow}>
-                    <Text style={styles.costLabel}>Repair Costs:</Text>
-                    <Text style={styles.costValue}>€{repairCosts.toFixed(2)}</Text>
-                  </View>
-                  <View style={styles.costRow}>
-                    <Text style={styles.costLabel}>Performance Mods Costs:</Text> 
-                    <Text style={styles.costValue}>€{performanceCosts.toFixed(2)}</Text>
-                  </View>
-                  <View style={styles.costRow}>
-                    <Text style={styles.costLabel}>Visual Mods Costs:</Text>
-                    <Text style={styles.costValue}>€{visualModsCosts.toFixed(2)}</Text>
-                  </View>
-                  <View style={styles.costRow}>
-                    <Text style={styles.costLabel}>Other Costs:</Text>
-                    <Text style={styles.costValue}>€{otherCosts.toFixed(2)}</Text>
-                  </View>
-                  <View style={[styles.costRow, styles.totalRow]}>
-                    <Text style={styles.totalLabel}>Total Running Costs:</Text>
-                    <Text style={styles.totalValue}>
-                      €{(fuelCosts + maintenanceCosts + repairCosts + performanceCosts + otherCosts + visualModsCosts).toFixed(2)}
-                    </Text>
-                  </View>
-                </View>
-              </>
+              <CostBreakdownChart
+                maintenanceHistory={car.maintenanceHistory ?? []}
+                categories={categories}
+              />
             ) : (
               <Text style={styles.noDataText}>No cost data available</Text>
             )}
@@ -691,45 +618,6 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     textAlign: 'center',
     paddingVertical: 8,
-  },
-  chart: {
-    marginVertical: 8,
-    borderRadius: 16,
-  },
-  costBreakdown: {
-    marginTop: 16,
-    gap: 8,
-  },
-  costRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 4,
-  },
-  costLabel: {
-    fontSize: 15,
-    color: '#B0B0B2',
-  },
-  costValue: {
-    fontSize: 15,
-    color: '#E1E1E2',
-    fontWeight: '500',
-  },
-  totalRow: {
-    marginTop: 8,
-    paddingTop: 12,
-    borderStyle: 'dashed',
-    borderTopWidth: 1,
-    borderTopColor: '#3D2F6E',
-  },
-  totalLabel: {
-    fontSize: 16,
-    color: '#E1E1E2',
-    fontWeight: '600',
-  },
-  totalValue: {
-    fontSize: 16,
-    color: '#7142CD',
-    fontWeight: '700',
   },
   maintenanceSection: {
     borderTopWidth: 1,

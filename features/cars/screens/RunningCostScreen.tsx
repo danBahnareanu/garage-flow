@@ -1,5 +1,5 @@
 import { ContextMenu } from '@/features/cars/components/ContextMenu';
-import { DonutChart } from '@/features/cars/components/DonutChart';
+import { CostBreakdownChart } from '@/features/cars/components/CostBreakdownChart';
 import { ItemEditorModal } from '@/features/cars/components/ItemEditorModal';
 import { PickerModal } from '@/features/cars/components/PickerModal';
 import { TAXONOMY_NEUTRAL } from '@/features/cars/constants/colors';
@@ -10,7 +10,7 @@ import { Car, MaintenanceRecord, ReplacedPart } from '@/features/cars/types/car.
 import { generateId } from '@/features/cars/types/editCarDetail.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Keyboard,
@@ -62,8 +62,6 @@ const RunningCostScreen = () => {
   const [partName, setPartName] = useState('');
   const [partCost, setPartCost] = useState('');
   const [nextServiceMileage, setNextServiceMileage] = useState('');
-
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
 
   // Picker / editor state
   const [categoryPickerOpen, setCategoryPickerOpen] = useState(false);
@@ -122,35 +120,8 @@ useEffect(() => {
     };
   };
 
-  // Aggregate costs by category id
-  const costsByCategory = maintenanceHistory.reduce((acc: Record<string, number>, record: MaintenanceRecord) => {
-    const cat: string = record.category || 'maintenance';
-    acc[cat] = (acc[cat] || 0) + record.cost;
-    return acc;
-  }, {} as Record<string, number>);
-
-  const totalCosts: number = (Object.values(costsByCategory) as number[]).reduce((sum, val) => sum + val, 0);
+  const totalCosts = maintenanceHistory.reduce((sum, r) => sum + r.cost, 0);
   const hasCostData = totalCosts > 0;
-
-  const pieChartData = useMemo(
-    () =>
-      Object.entries(costsByCategory)
-        .filter(([_, amount]) => (amount as number) > 0)
-        .sort(([keyA, amountA], [keyB, amountB]) => {
-          if (keyA === 'other') return 1;
-          if (keyB === 'other') return -1;
-          return (amountB as number) - (amountA as number);
-        })
-        .map(([key, amount]) => {
-          const { color, name } = lookupCategory(key);
-          return {
-            value: amount as number,
-            color,
-            name,
-          };
-        }),
-    [maintenanceHistory, categories]
-  );
 
   const sortedRecords = [...maintenanceHistory].sort(
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -319,32 +290,6 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
     </View>
   );
 
-  const renderLegend = () => (
-    <View style={styles.legendContainer}>
-      {pieChartData.map((item, index) => {
-        const percentage = ((item.value / totalCosts) * 100).toFixed(1);
-        const isSelected = selectedIndex === index;
-        return (
-          <TouchableOpacity
-            key={item.name}
-            style={[styles.legendRow, isSelected && { backgroundColor: '#3D2F6E', borderRadius: 8 }]}
-            onPress={() => setSelectedIndex(isSelected ? null : index)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.legendLeft}>
-              <View style={[styles.legendColor, { backgroundColor: item.color }]} />
-              <Text style={styles.legendLabel}>{item.name}</Text>
-            </View>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.legendValue}>€{item.value.toFixed(2)}</Text>
-              <Text style={styles.legendPercentage}>({percentage}%)</Text>
-            </View>
-          </TouchableOpacity>
-        );
-      })}
-    </View>
-  );
-
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.contentContainer}>
@@ -367,39 +312,10 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
                 <Ionicons name="pie-chart" size={24} color="#7142CD" />
                 <Text style={styles.sectionTitle}>Cost Breakdown</Text>
               </View>
-              <View style={styles.chartContainer}>
-                <DonutChart
-                  data={pieChartData}
-                  size={220}
-                  strokeWidth={30}
-                  selectedIndex={selectedIndex}
-                  onSlicePress={(index) =>
-                    setSelectedIndex(selectedIndex === index ? null : index)
-                  }
-                  centerLabel={
-                    selectedIndex !== null && pieChartData[selectedIndex] ? (
-                      <>
-                        <Text style={{ fontSize: 24, color: '#fff', fontWeight: 'bold' }}>
-                          {((pieChartData[selectedIndex].value / totalCosts) * 100).toFixed(1)}%
-                        </Text>
-                        <Text style={{ fontSize: 14, color: '#B0B0B2', textTransform: 'capitalize' }}>
-                          {pieChartData[selectedIndex].name}
-                        </Text>
-                      </>
-                    ) : (
-                      <>
-                        <Text style={{ fontSize: 24, color: '#fff', fontWeight: 'bold' }}>
-                          €{totalCosts.toFixed(0)}
-                        </Text>
-                        <Text style={{ fontSize: 14, color: '#B0B0B2' }}>
-                          Total
-                        </Text>
-                      </>
-                    )
-                  }
-                />
-              </View>
-              {renderLegend()}
+              <CostBreakdownChart
+                maintenanceHistory={maintenanceHistory}
+                categories={categories}
+              />
             </View>
 
             {/* Records List */}

@@ -3,21 +3,21 @@
  * from `useCarStore().categories`, not this list. Kept exported for first-run
  * seeding in `carList.store.ts` and incidental legacy imports.
  */
-export const RUNNING_COST_TYPES = [
-    'fuel',
-    'maintenance',
-    'repair',
-    'insurance',
-    'tax',
-    'parking',
-    'toll',
+export const CATEGORIES = [
+    'Oils & Filters',
+    'Engine',
+    'Brakes',
+    'Suspension',
+    'Steering',
+    'Heating & AC',
+    'Car Body: External',
+    'Car Body: Internal',
+    'Electrical',
+    'Tires & Wheels',
     'other',
-    'aquisition',
-    'performance',
-    'visual mods',
 ] as const;
 
-export type RunningCostType = (typeof RUNNING_COST_TYPES)[number];
+export type CategoriesType = (typeof CATEGORIES)[number];
 
 export interface InsuranceRecord {
     id: string;

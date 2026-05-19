@@ -5,12 +5,12 @@ import { exportCarsToFile, pickAndReadCarFile } from '../utils/carFileOperations
 
 export const useCarImportExport = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const { cars, clearCars, addCar } = useCarStore();
+  const { cars, categories, maintTypes, clearCars, addCar, addCategory, addMaintType } = useCarStore();
 
   const handleExport = async () => {
     try {
 
-      const result = await exportCarsToFile(cars, setIsLoading);
+      const result = await exportCarsToFile(cars, categories, maintTypes, setIsLoading);
 
       if (!result.success) {
         return;
@@ -35,7 +35,11 @@ export const useCarImportExport = () => {
         return;
       }
 
-      const importedCars = result.cars;
+      const { cars: importedCars, categories: importedCategories, maintTypes: importedMaintTypes } = result;
+
+      // Add any imported taxonomy not already in store (store skips duplicates by name)
+      importedCategories.forEach((cat) => addCategory(cat));
+      importedMaintTypes.forEach((t) => addMaintType(t));
 
       Alert.alert(
         'Import Car List',

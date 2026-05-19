@@ -38,7 +38,7 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
         return amountB - amountA;
       })
       .map(([key, amount]) => {
-        const found = categories.find((c) => c.id === key);
+        const found = categories.find((c) => c.name === key);
         return {
           value: amount,
           color: found?.color ?? TAXONOMY_NEUTRAL,

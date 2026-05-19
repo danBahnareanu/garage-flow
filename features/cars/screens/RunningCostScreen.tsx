@@ -72,8 +72,8 @@ const RunningCostScreen = () => {
     { kind: 'category' | 'type'; item: TaxonomyItem } | null
   >(null);
 
-  const selectedCategory = categories.find((c) => c.id === category);
-  const selectedType = maintType ? maintTypes.find((t) => t.id === maintType) : undefined;
+  const selectedCategory = categories.find((c) => c.name === category);
+  const selectedType = maintType ? maintTypes.find((t) => t.name === maintType) : undefined;
 
   const { handleTaxonomySave, handleTaxonomyDelete } = useTaxonomyItem({
   onCategoryChange: (categoryId) => setCategory(categoryId),
@@ -113,7 +113,7 @@ useEffect(() => {
   const maintenanceHistory = car.maintenanceHistory || [];
 
   const lookupCategory = (catId: string | undefined) => {
-    const found = catId ? categories.find((c) => c.id === catId) : undefined;
+    const found = catId ? categories.find((c) => c.name === catId) : undefined;
     return {
       color: found?.color ?? TAXONOMY_NEUTRAL,
       name: found?.name ?? 'Uncategorized',
@@ -224,7 +224,7 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
 
   const renderRecordCard = (record: MaintenanceRecord) => {
     const cat = lookupCategory(record.category);
-    const recType = record.type ? maintTypes.find((t) => t.id === record.type) : undefined;
+    const recType = record.type ? maintTypes.find((t) => t.name === record.type) : undefined;
     return (
       <TouchableOpacity
         key={record.id}

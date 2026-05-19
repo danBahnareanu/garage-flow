@@ -3,10 +3,10 @@ import { TAXONOMY_NEUTRAL } from '@/features/cars/constants/colors';
 import { costTypeColors } from '@/features/cars/styles/runningCost.styles';
 import {
   Car,
+  CATEGORIES,
   InspectionRecord,
   InsuranceRecord,
   MaintenanceRecord,
-  RUNNING_COST_TYPES,
   VignetteRecord,
 } from '@/features/cars/types/car.types';
 import { asyncStorageAdapter } from '@/store/asyncStorageAdapter';
@@ -26,7 +26,7 @@ const MAINT_TYPE_SEEDS: { id: string; name: string; color: string }[] = [
 
 const seedCategories = (): CategoryItem[] => {
   const now = new Date().toISOString();
-  return RUNNING_COST_TYPES.map((id) => ({
+  return CATEGORIES.map((id) => ({
     id,
     name: id,
     color: costTypeColors[id] ?? TAXONOMY_NEUTRAL,
@@ -303,7 +303,14 @@ const useCarStore = create<CarStore>()(
 
       // Category taxonomy CRUD
       addCategory: (item) => {
-        set((state) => ({ categories: [...state.categories, item] }));
+        set((state) => {
+          const nameLower = item.name.trim().toLowerCase();
+          const isDuplicate = state.categories.some(
+            (c) => c.name.trim().toLowerCase() === nameLower
+          );
+          if (isDuplicate) return state;
+          return { categories: [...state.categories, item] };
+        });
       },
 
       updateCategory: (id, updates) => {
@@ -315,24 +322,35 @@ const useCarStore = create<CarStore>()(
       },
 
       deleteCategory: (id) => {
-        set((state) => ({
-          categories: state.categories.filter((c) => c.id !== id),
-          cars: state.cars.map((car) =>
-            car.maintenanceHistory
-              ? {
-                  ...car,
-                  maintenanceHistory: car.maintenanceHistory.map((r) =>
-                    r.category === id ? { ...r, category: 'maintenance' } : r
-                  ),
-                }
-              : car
-          ),
-        }));
+        set((state) => {
+          const cat = state.categories.find((c) => c.id === id);
+          const catName = cat?.name ?? id;
+          return {
+            categories: state.categories.filter((c) => c.id !== id),
+            cars: state.cars.map((car) =>
+              car.maintenanceHistory
+                ? {
+                    ...car,
+                    maintenanceHistory: car.maintenanceHistory.map((r) =>
+                      r.category === catName ? { ...r, category: 'maintenance' } : r
+                    ),
+                  }
+                : car
+            ),
+          };
+        });
       },
 
       // Maintenance type taxonomy CRUD
       addMaintType: (item) => {
-        set((state) => ({ maintTypes: [...state.maintTypes, item] }));
+        set((state) => {
+          const nameLower = item.name.trim().toLowerCase();
+          const isDuplicate = state.maintTypes.some(
+            (t) => t.name.trim().toLowerCase() === nameLower
+          );
+          if (isDuplicate) return state;
+          return { maintTypes: [...state.maintTypes, item] };
+        });
       },
 
       updateMaintType: (id, updates) => {
@@ -344,19 +362,23 @@ const useCarStore = create<CarStore>()(
       },
 
       deleteMaintType: (id) => {
-        set((state) => ({
-          maintTypes: state.maintTypes.filter((t) => t.id !== id),
-          cars: state.cars.map((car) =>
-            car.maintenanceHistory
-              ? {
-                  ...car,
-                  maintenanceHistory: car.maintenanceHistory.map((r) =>
-                    r.type === id ? { ...r, type: undefined } : r
-                  ),
-                }
-              : car
-          ),
-        }));
+        set((state) => {
+          const mType = state.maintTypes.find((t) => t.id === id);
+          const typeName = mType?.name ?? id;
+          return {
+            maintTypes: state.maintTypes.filter((t) => t.id !== id),
+            cars: state.cars.map((car) =>
+              car.maintenanceHistory
+                ? {
+                    ...car,
+                    maintenanceHistory: car.maintenanceHistory.map((r) =>
+                      r.type === typeName ? { ...r, type: undefined } : r
+                    ),
+                  }
+                : car
+            ),
+          };
+        });
       },
 
       ensureSeeded: () => {

@@ -397,7 +397,7 @@ const CarDetailScreen = () => {
                   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                   .slice(0, 3)
                   .map((record: any) => {
-                  const recType = record.type ? maintTypes.find((t) => t.id === record.type) : undefined;
+                  const recType = record.type ? maintTypes.find((t) => t.name === record.type) : undefined;
                   return (
                   <View key={record.id} style={styles.maintenanceRecord}>
                     <View style={styles.maintenanceRecordContainer}>

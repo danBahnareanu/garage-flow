@@ -5,6 +5,14 @@ import * as Sharing from 'expo-sharing';
 import { Platform } from 'react-native';
 import template from '../../../assets/import-template/garage-flow-export-template.json';
 import { Car } from '../types/car.types';
+import { CategoryItem, MaintTypeItem } from '../types/taxonomy.types';
+
+interface CarExportEnvelope {
+  version: 2;
+  categories: CategoryItem[];
+  maintTypes: MaintTypeItem[];
+  cars: Car[];
+}
 
 export const isValidCar = (obj: unknown): obj is Car => {
   if (typeof obj !== 'object' || obj === null) return false;
@@ -19,12 +27,15 @@ export const isValidCar = (obj: unknown): obj is Car => {
   );
 };
 
-export const exportCarsToFile = async (cars: Car[], setIsLoading?: (loading: boolean) => void): Promise<{ success: boolean; filePath?: string; shared?: boolean }> => {
-  let jsonData = JSON.stringify(cars, null, 2);
+export const exportCarsToFile = async (cars: Car[], categories: CategoryItem[], maintTypes: MaintTypeItem[], setIsLoading?: (loading: boolean) => void): Promise<{ success: boolean; filePath?: string; shared?: boolean }> => {
+  let jsonData: string;
   const fileName = `garage-flow-export-${new Date().toISOString().split('T')[0]}`;
 
   if (cars.length === 0) {
     jsonData = JSON.stringify(template, null, 2);
+  } else {
+    const envelope: CarExportEnvelope = { version: 2, categories, maintTypes, cars };
+    jsonData = JSON.stringify(envelope, null, 2);
   }
 
   if (Platform.OS === 'android') {
@@ -69,7 +80,7 @@ export const exportCarsToFile = async (cars: Car[], setIsLoading?: (loading: boo
   return { success: true, filePath, shared: false };
 };
 
-export const pickAndReadCarFile = async (setIsLoading?: (loading: boolean) => void): Promise<{ canceled: true } | { canceled: false; cars: Car[] }> => {
+export const pickAndReadCarFile = async (setIsLoading?: (loading: boolean) => void): Promise<{ canceled: true } | { canceled: false; cars: Car[]; categories: CategoryItem[]; maintTypes: MaintTypeItem[] }> => {
   const result = await DocumentPicker.getDocumentAsync({
     type: 'application/json',
     copyToCacheDirectory: true,
@@ -83,16 +94,32 @@ export const pickAndReadCarFile = async (setIsLoading?: (loading: boolean) => vo
   const fileUri = result.assets[0].uri;
   const importedFile = new File(fileUri);
   const fileContent = await importedFile.text();
-  const importedCars: Car[] = JSON.parse(fileContent);
   setIsLoading?.(false);
 
-  if (!Array.isArray(importedCars)) {
-    throw new Error('Invalid format: expected an array of cars');
+  const raw: unknown = JSON.parse(fileContent);
+  let rawCars: unknown[];
+  let importedCategories: CategoryItem[] = [];
+  let importedMaintTypes: MaintTypeItem[] = [];
+
+  if (Array.isArray(raw)) {
+    rawCars = raw;
+  } else if (
+    raw !== null &&
+    typeof raw === 'object' &&
+    (raw as CarExportEnvelope).version === 2 &&
+    Array.isArray((raw as CarExportEnvelope).cars) &&
+    Array.isArray((raw as CarExportEnvelope).categories)
+  ) {
+    rawCars = (raw as CarExportEnvelope).cars;
+    importedCategories = (raw as CarExportEnvelope).categories;
+    importedMaintTypes = (raw as CarExportEnvelope).maintTypes ?? [];
+  } else {
+    throw new Error('Invalid format: unrecognized file structure');
   }
 
-  if (!importedCars.every(isValidCar)) {
+  if (!rawCars.every(isValidCar)) {
     throw new Error('Invalid car data: missing required fields');
   }
 
-  return { canceled: false, cars: importedCars };
+  return { canceled: false, cars: rawCars as Car[], categories: importedCategories, maintTypes: importedMaintTypes };
 };

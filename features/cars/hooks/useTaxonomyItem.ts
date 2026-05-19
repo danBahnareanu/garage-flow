@@ -29,6 +29,11 @@ export const useTaxonomyItem = ({ onCategoryChange, onTypeChange }: UseTaxonomyI
   ) => {
     if (context.kind === 'category') {
       if (context.mode === 'add') {
+        const existing = useCarStore.getState().categories;
+        if (existing.some((c) => c.name.trim().toLowerCase() === data.name.trim().toLowerCase())) {
+          Alert.alert('Duplicate Category', `A category named "${data.name}" already exists.`);
+          return;
+        }
         const item: TaxonomyItem = {
           id: generateId(),
           name: data.name,
@@ -36,12 +41,17 @@ export const useTaxonomyItem = ({ onCategoryChange, onTypeChange }: UseTaxonomyI
           createdAt: new Date().toISOString(),
         };
         addCategory(item);
-        onCategoryChange?.(item.id);
+        onCategoryChange?.(item.name);
       } else if (context.initial) {
         updateCategory(context.initial.id, { name: data.name, color: data.color });
       }
     } else {
       if (context.mode === 'add') {
+        const existing = useCarStore.getState().maintTypes;
+        if (existing.some((t) => t.name.trim().toLowerCase() === data.name.trim().toLowerCase())) {
+          Alert.alert('Duplicate Type', `A type named "${data.name}" already exists.`);
+          return;
+        }
         const item: TaxonomyItem = {
           id: generateId(),
           name: data.name,
@@ -49,7 +59,7 @@ export const useTaxonomyItem = ({ onCategoryChange, onTypeChange }: UseTaxonomyI
           createdAt: new Date().toISOString(),
         };
         addMaintType(item);
-        onTypeChange?.(item.id);
+        onTypeChange?.(item.name);
       } else if (context.initial) {
         updateMaintType(context.initial.id, { name: data.name, color: data.color });
       }
@@ -77,13 +87,13 @@ export const useTaxonomyItem = ({ onCategoryChange, onTypeChange }: UseTaxonomyI
           onPress: () => {
             if (kind === 'category') {
               deleteCategory(item.id);
-              if (options?.currentCategoryId === item.id) {
+              if (options?.currentCategoryId === item.name) {
                 onCategoryChange?.('maintenance');
               }
               options?.onCategoryDeleted?.();
             } else {
               deleteMaintType(item.id);
-              if (options?.currentTypeId === item.id) {
+              if (options?.currentTypeId === item.name) {
                 onTypeChange?.(undefined);
               }
               options?.onTypeDeleted?.();

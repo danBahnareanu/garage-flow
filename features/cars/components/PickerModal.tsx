@@ -89,13 +89,13 @@ export const PickerModal: React.FC<PickerModalProps> = ({
                 </TouchableOpacity>
               )}
               {items.map((item) => {
-                const isSelected = selectedId === item.id;
+                const isSelected = selectedId === item.name;
                 return (
                   <TouchableOpacity
                     key={item.id}
                     style={[styles.item, isSelected && styles.itemSelected]}
                     onPress={() => {
-                      onSelect(item.id);
+                      onSelect(item.name);
                       onClose();
                     }}
                     onLongPress={() => onItemLongPress(item)}

@@ -121,9 +121,7 @@ const CarDetailScreen = () => {
   return (
     <SafeAreaView style={styles.container} edges={['bottom', 'left', 'right']}>
       <ScrollView style={styles.scrollView}>
-        <TouchableOpacity
-              onPress={() => router.push(`/cars/edit/${id}`)}
-            >
+        
         {/* Car Image */}
         <View style={styles.imageContainer}>
           
@@ -142,13 +140,16 @@ const CarDetailScreen = () => {
 
         {/* Car Header Info */}
         <View style={styles.headerInfo}>
-          <Text style={styles.carTitle}>
-            {car.make} {car.model}
-            <Ionicons name="chevron-forward-outline" size={20} color="#fff" />      
-          </Text>
-          <Text style={styles.carSubtitle}>
-            {car.year} --- {car.licensePlate} --- {car.fuel}
-          </Text>
+          <TouchableOpacity
+              onPress={() => router.push(`/cars/edit/${id}`)}>
+            <Text style={styles.carTitle}>
+              {car.make} {car.model}
+              <Ionicons name="chevron-forward-outline" size={20} color="#fff" />      
+            </Text>
+            <Text style={styles.carSubtitle}>
+              {car.year} --- {car.licensePlate} --- {car.fuel}
+            </Text>
+          </TouchableOpacity>
           {car.vin && (
             <View style={{ flexDirection: 'row' }}>
               <Text style={styles.vinText}>VIN: </Text>
@@ -156,7 +157,7 @@ const CarDetailScreen = () => {
             </View>
           )}
         </View>
-        </TouchableOpacity>
+        
 
         
 
@@ -516,7 +517,7 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     width: '100%',
-    height: 250,
+    aspectRatio: 16 / 9,
     backgroundColor: '#2C1F5E',
   },
   carImage: {

@@ -1,9 +1,13 @@
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { Car } from '@/features/cars/types/car.types';
 import { Ionicons } from '@expo/vector-icons';
+import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+const IMAGE_ASPECT = 16 / 9;
+const MAX_IMAGE_WIDTH = 1600;
 
 interface BasicInfoSectionProps {
   car: Car;
@@ -39,16 +43,50 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
     setImageUrl(car.imageUrl || '');
   }, [car]);
 
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ['images'],
-      allowsEditing: true,
-      aspect: [16, 9],
-      quality: 0.8,
-    });
+  const normalizeImage = async (asset: ImagePicker.ImagePickerAsset): Promise<string> => {
+    const { uri, width, height } = asset;
+    if (!width || !height) return uri;
 
-    if (!result.canceled && result.assets[0]) {
-      setImageUrl(result.assets[0].uri);
+    const context = ImageManipulator.manipulate(uri);
+    let finalWidth = width;
+
+    if (Math.abs(width / height - IMAGE_ASPECT) > 0.01) {
+      const wider = width / height > IMAGE_ASPECT;
+      const cropWidth = wider ? Math.round(height * IMAGE_ASPECT) : width;
+      const cropHeight = wider ? height : Math.round(width / IMAGE_ASPECT);
+      context.crop({
+        originX: Math.floor((width - cropWidth) / 2),
+        originY: Math.floor((height - cropHeight) / 2),
+        width: cropWidth,
+        height: cropHeight,
+      });
+      finalWidth = cropWidth;
+    }
+
+    if (finalWidth > MAX_IMAGE_WIDTH) {
+      context.resize({ width: MAX_IMAGE_WIDTH });
+    }
+
+    const rendered = await context.renderAsync();
+    const saved = await rendered.saveAsync({ compress: 0.8, format: SaveFormat.JPEG });
+    return saved.uri;
+  };
+
+  const pickImage = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        // The iOS system editor only supports square crops, so only offer
+        // native editing on Android; iOS is center-cropped in normalizeImage.
+        allowsEditing: Platform.OS === 'android',
+        aspect: [16, 9],
+        quality: 1,
+      });
+
+      if (result.canceled || !result.assets[0]) return;
+      setImageUrl(await normalizeImage(result.assets[0]));
+    } catch {
+      Alert.alert('Error', 'Could not load the selected image. Please try again.');
     }
   };
 
@@ -222,7 +260,8 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
           borderWidth: 1,
           borderColor: '#3D2F6E',
           overflow: 'hidden',
-          height: 150,
+          width: '100%',
+          aspectRatio: IMAGE_ASPECT,
           justifyContent: 'center',
           alignItems: 'center',
         }}

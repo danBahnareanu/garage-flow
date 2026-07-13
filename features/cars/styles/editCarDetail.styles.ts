@@ -15,6 +15,16 @@ export const styles = StyleSheet.create({
   sectionTitle: { fontSize: 18, fontWeight: '600', color: '#E1E1E2' },
   basicInfoGrid: { flexDirection: 'row', gap: 12 },
   gridItem: { flex: 1 },
+  soldToggle:{ 
+    flexDirection: 'row', 
+    alignItems: 'center', 
+    justifyContent: 'space-between', 
+    marginBottom: 16, 
+    marginTop: 20, 
+    paddingTop:16,
+    borderTopWidth: 1,
+    borderTopColor: '#3D2F6E',
+    borderStyle: 'solid', },
 
   // Tab Bar
   tabBar: {

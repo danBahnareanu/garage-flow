@@ -17,7 +17,8 @@
         "tinted": "./assets/icons/ios-tinted.png"
       },
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "Garage Flow needs access to your photo library so you can add pictures of your cars."
       }
     },
     "android": {

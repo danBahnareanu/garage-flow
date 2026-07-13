@@ -1,13 +1,27 @@
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { Car } from '@/features/cars/types/car.types';
 import { Ionicons } from '@expo/vector-icons';
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import * as ImagePicker from 'expo-image-picker';
 import React, { useEffect, useState } from 'react';
-import { Alert, Image, Platform, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import ImageCropPicker from 'react-native-image-crop-picker';
 
 const IMAGE_ASPECT = 16 / 9;
-const MAX_IMAGE_WIDTH = 1600;
+
+const cropperOptions = {
+  mediaType: 'photo' as const,
+  width: 1600,
+  height: 900,
+  compressImageQuality: 0.8,
+  cropperToolbarTitle: 'Crop Image',
+  // Android cropper theming (ignored on iOS)
+  cropperToolbarColor: '#1C1643',
+  cropperToolbarWidgetColor: '#FFFFFF',
+  cropperStatusBarColor: '#1C1643',
+  cropperActiveWidgetColor: '#7142CD',
+};
+
+const isPickerCancelled = (error: unknown): boolean =>
+  typeof error === 'object' && error !== null && (error as { code?: string }).code === 'E_PICKER_CANCELLED';
 
 interface BasicInfoSectionProps {
   car: Car;
@@ -15,6 +29,7 @@ interface BasicInfoSectionProps {
 }
 
 export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave }) => {
+  const [name, setName] = useState('');
   const [make, setMake] = useState('');
   const [model, setModel] = useState('');
   const [year, setYear] = useState('');
@@ -27,8 +42,10 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
   const [transmission, setTransmission] = useState<'manual' | 'automatic' | ''>('');
   const [notes, setNotes] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [sold, setSold] = useState(false);
 
   useEffect(() => {
+    setName(car.name || '');
     setMake(car.make || '');
     setModel(car.model || '');
     setYear(car.year?.toString() || '');
@@ -41,57 +58,33 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
     setTransmission(car.transmission || '');
     setNotes(car.notes || '');
     setImageUrl(car.imageUrl || '');
+    setSold(car.sold ?? false);
   }, [car]);
-
-  const normalizeImage = async (asset: ImagePicker.ImagePickerAsset): Promise<string> => {
-    const { uri, width, height } = asset;
-    if (!width || !height) return uri;
-
-    const context = ImageManipulator.manipulate(uri);
-    let finalWidth = width;
-
-    if (Math.abs(width / height - IMAGE_ASPECT) > 0.01) {
-      const wider = width / height > IMAGE_ASPECT;
-      const cropWidth = wider ? Math.round(height * IMAGE_ASPECT) : width;
-      const cropHeight = wider ? height : Math.round(width / IMAGE_ASPECT);
-      context.crop({
-        originX: Math.floor((width - cropWidth) / 2),
-        originY: Math.floor((height - cropHeight) / 2),
-        width: cropWidth,
-        height: cropHeight,
-      });
-      finalWidth = cropWidth;
-    }
-
-    if (finalWidth > MAX_IMAGE_WIDTH) {
-      context.resize({ width: MAX_IMAGE_WIDTH });
-    }
-
-    const rendered = await context.renderAsync();
-    const saved = await rendered.saveAsync({ compress: 0.8, format: SaveFormat.JPEG });
-    return saved.uri;
-  };
 
   const pickImage = async () => {
     try {
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ['images'],
-        // The iOS system editor only supports square crops, so only offer
-        // native editing on Android; iOS is center-cropped in normalizeImage.
-        allowsEditing: Platform.OS === 'android',
-        aspect: [16, 9],
-        quality: 1,
-      });
-
-      if (result.canceled || !result.assets[0]) return;
-      setImageUrl(await normalizeImage(result.assets[0]));
-    } catch {
+      const image = await ImageCropPicker.openPicker({ ...cropperOptions, cropping: true });
+      setImageUrl(image.path);
+    } catch (error) {
+      if (isPickerCancelled(error)) return;
       Alert.alert('Error', 'Could not load the selected image. Please try again.');
+    }
+  };
+
+  const adjustCrop = async () => {
+    if (!imageUrl) return;
+    try {
+      const image = await ImageCropPicker.openCropper({ ...cropperOptions, path: imageUrl });
+      setImageUrl(image.path);
+    } catch (error) {
+      if (isPickerCancelled(error)) return;
+      Alert.alert('Error', 'Could not crop the image. Try selecting it again.');
     }
   };
 
   const handleSave = () => {
     onSave({
+      name: name || undefined,
       make: make || undefined,
       model: model || undefined,
       year: year ? parseInt(year, 10) : undefined,
@@ -104,6 +97,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
       transmission: transmission || undefined,
       notes: notes || undefined,
       imageUrl: imageUrl || undefined,
+      sold: sold || undefined,
     });
     Alert.alert('Success', 'Basic info updated!');
   };
@@ -114,6 +108,15 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
         <Ionicons name="car" size={24} color="#7142CD" />
         <Text style={styles.sectionTitle}>Basic Info</Text>
       </View>
+
+      <Text style={styles.label}>Name</Text>
+      <TextInput
+        style={styles.input}
+        value={name}
+        onChangeText={setName}
+        placeholder="e.g. My Daily Driver"
+        placeholderTextColor="#8A8A8C"
+      />
 
       <View style={styles.basicInfoGrid}>
         <View style={styles.gridItem}>
@@ -280,12 +283,14 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
         )}
       </TouchableOpacity>
       {imageUrl && (
-        <TouchableOpacity
-          onPress={() => setImageUrl('')}
-          style={{ marginTop: 8, alignSelf: 'flex-end' }}
-        >
-          <Text style={{ color: '#FF4444', fontSize: 12 }}>Remove image</Text>
-        </TouchableOpacity>
+        <View style={{ marginTop: 8, flexDirection: 'row', justifyContent: 'flex-end', gap: 16 }}>
+          <TouchableOpacity onPress={adjustCrop}>
+            <Text style={{ color: '#9B7BE0', fontSize: 12 }}>Adjust crop</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setImageUrl('')}>
+            <Text style={{ color: '#FF4444', fontSize: 12 }}>Remove image</Text>
+          </TouchableOpacity>
+        </View>
       )}
 
       <Text style={styles.label}>Notes</Text>
@@ -299,6 +304,16 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
         numberOfLines={2}
         textAlignVertical="top"
       />
+
+      <View style={styles.soldToggle}>
+        <Text style={styles.label}>Sold</Text>
+        <Switch
+          value={sold}
+          onValueChange={setSold}
+          trackColor={{ false: '#3D2F6E', true: '#7142CD' }}
+          thumbColor={sold ? '#E1E1E2' : '#8A8A8C'}
+        />
+      </View>
 
       <TouchableOpacity style={styles.saveBasicButton} onPress={handleSave}>
         <Ionicons name="save" size={16} color="#fff" />

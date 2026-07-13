@@ -1,5 +1,6 @@
 import useCarStore from '@/features/cars/store/carList.store';
 import { Car } from '@/features/cars/types/car.types';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
@@ -15,19 +16,110 @@ import {
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { recheckAllNotifications, setupNotificationHandler } from '../utils/notificationService';
 
-type ItemProps = {
-  item: Car;
-  onPress: () => void;
-  backgroundColor: string;
-  textColor: string;
+const daysUntil = (isoDate: string): number =>
+  Math.ceil((new Date(isoDate).getTime() - Date.now()) / 86_400_000);
+
+const daysLabel = (days: number): { text: string; color: string } => {
+  if (days < 0)  return { text: 'Expired',    color: '#FF4444' };
+  if (days === 0) return { text: 'Today',      color: '#FF4444' };
+  if (days <= 14) return { text: `${days} days left`,   color: '#FF8C00' };
+  if (days <= 30) return { text: `${days} days left`,   color: '#F0C040' };
+  return              { text: `${days} days left`,   color: '#4CAF50' };
 };
 
-const Item = ({item, onPress, backgroundColor, textColor}: ItemProps) => (
-  <TouchableOpacity onPress={onPress} style={[styles.item, {backgroundColor}]}>
-    <Text style={[styles.title, {color:textColor}]}>{item.make}</Text>
-    <Text style={[styles.carText, {color:textColor}]}>{item.licensePlate} | {item.year}</Text>
-  </TouchableOpacity>
-);
+const getInsuranceDays = (car: Car) => {
+  const records = car.insuranceHistory;
+  if (!records?.length) return null;
+  const latest = records.reduce((a, b) =>
+    new Date(a.expiryDate) > new Date(b.expiryDate) ? a : b
+  );
+  return daysLabel(daysUntil(latest.expiryDate));
+};
+
+const getServiceDays = (car: Car) => {
+  const records = car.maintenanceHistory;
+  if (!records?.length) return null;
+  const soonest = records
+    .filter(r => r.category === 'Oils & Filters')
+    .sort((a, b) => new Date(b.nextServiceDate!).getTime() - new Date(a.nextServiceDate!).getTime())[0];
+  if (!soonest) return null;
+  return daysLabel(daysUntil(soonest.nextServiceDate!));
+};
+
+const CarCard = ({ item, selected, onPress }: { item: Car; selected: boolean; onPress: () => void }) => {
+  const insurance = getInsuranceDays(item);
+  const service = getServiceDays(item);
+  const fuelDisplay = item.fuel
+    ? item.fuel.charAt(0).toUpperCase() + item.fuel.slice(1)
+    : null;
+
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={[styles.card, selected && styles.cardSelected]}
+      activeOpacity={0.85}
+    >
+      {/* Row 1 — Name + sold tag + chevron */}
+      <View style={styles.cardNameRow}>
+        <Text style={styles.cardName} numberOfLines={1}>
+          {item.name || item.make}
+        </Text>
+        {item.sold && (
+          <View style={styles.soldTag}>
+            <Text style={styles.soldTagText}>SOLD</Text>
+          </View>
+        )}
+        <Ionicons name="chevron-forward" size={20} color="#7142CD" />
+      </View>
+
+      {/* Row 2 — Make & Model */}
+      <Text style={styles.cardMakeModel} numberOfLines={1}>
+        {item.make} {item.model}
+      </Text>
+
+      {/* Row 3 — License plate */}
+      {item.licensePlate ? (
+        <View style={styles.plateBox}>
+          <Text style={styles.plateText}>{item.licensePlate.toUpperCase()}</Text>
+        </View>
+      ) : null}
+
+      {/* Row 4 — Year · Fuel */}
+      <Text style={styles.cardMeta}>
+        {item.year}{fuelDisplay ? ` · ${fuelDisplay}` : ''}
+      </Text>
+
+      {/* Row 5 — Insurance & Service */}
+      {(insurance || service) ? (
+        <View style={styles.statusRow}>
+          {insurance ? (
+            <View style={styles.statusCell}>
+              <View style={styles.statusLabelRow}>
+                <Ionicons name="shield-checkmark" size={16} color="#7142CD" />
+                <Text style={styles.statusLabel}>Insurance</Text>
+              </View>
+              <Text style={[styles.statusDays, { color: insurance.color }]}>
+                {insurance.text}
+              </Text>
+            </View>
+          ) : <View style={styles.statusCell} />}
+          <View style={styles.statusDivider} />
+          {service ? (
+            <View style={styles.statusCell}>
+              <View style={styles.statusLabelRow}>
+                <Ionicons name="build" size={16} color="#7142CD" />
+                <Text style={styles.statusLabel}>Service</Text>
+              </View>
+              <Text style={[styles.statusDays, { color: service.color }]}>
+                {service.text}
+              </Text>
+            </View>
+          ) : <View style={styles.statusCell} />}
+        </View>
+      ) : null}
+    </TouchableOpacity>
+  );
+};
 
 const CarList = () => {
   const router = useRouter();
@@ -49,44 +141,39 @@ const CarList = () => {
     }
   }, [isHydrated]);
 
-  const renderItem = ({item}: {item: Car}) => {
-    const backgroundColor = item.id === selectedId ? '#7142CD' : '#2C1F5E';
+  const sortedCarList = [...carList].sort((a, b) => Number(a.sold ?? false) - Number(b.sold ?? false));
 
-    return (
-      <Item
-        item={item}
-        onPress={() => router.push(`/cars/${item.id}`)}
-        backgroundColor={backgroundColor}
-        textColor='#E1E1E2'
-      />
-    );
-  };
+  const renderItem = ({ item }: { item: Car }) => (
+    <CarCard
+      item={item}
+      selected={item.id === selectedId}
+      onPress={() => router.push(`/cars/${item.id}`)}
+    />
+  );
 
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
-        <Text style={{color: '#E1E1E2', fontSize: 24, padding: 20}}>
-          Car List ({carList.length} cars)
+        <Text style={styles.screenTitle}>
+          Cars ({carList.length})
         </Text>
         {carList.length === 0 && (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateText}>
-              No cars yet.
-            </Text>
+            <Text style={styles.emptyStateText}>No cars yet.</Text>
             <Text style={styles.emptyStateText}>
               Tap the ⋯ button in the top right to add a new car, or use "Export Car List" to download a template you can fill in and import.
             </Text>
           </View>
         )}
         <FlatList
-          data={carList}
+          data={sortedCarList}
           renderItem={renderItem}
           keyExtractor={item => item.id}
           extraData={selectedId}
+          contentContainerStyle={{ paddingBottom: 16 }}
         />
         <TouchableOpacity
           onPress={() => setShowInfo(true)}
-          accessibilityLabel="Learn more about this purple button"
           style={styles.learnMoreButton}
         >
           <Text style={styles.learnMoreText}>Learn More</Text>
@@ -124,17 +211,121 @@ const styles = StyleSheet.create({
     backgroundColor: '#1C1643',
     marginTop: StatusBar.currentHeight || 0,
   },
-  item: {
+  screenTitle: {
+    color: '#E1E1E2',
+    fontSize: 24,
+    fontWeight: '700',
     padding: 20,
-    marginVertical: 8,
+  },
+
+  // Card
+  card: {
+    backgroundColor: '#2C1F5E',
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 18,
+    marginVertical: 6,
     marginHorizontal: 16,
-    borderRadius: 15,
   },
-  title: {
-    fontSize: 32,
+  cardSelected: {
+    backgroundColor: '#3D2F8A',
+    borderWidth: 1,
+    borderColor: '#7142CD',
   },
-  carText: { fontSize: 16, fontWeight: '500', marginTop: 4 },
-  subText: { color: '#666', fontSize: 14 },
+  cardNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  cardName: {
+    color: '#E1E1E2',
+    fontSize: 26,
+    fontWeight: '700',
+    letterSpacing: 0.2,
+    flex: 1,
+  },
+  soldTag: {
+    backgroundColor: '#FF444422',
+    borderWidth: 1,
+    borderColor: '#FF4444',
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  soldTagText: {
+    color: '#FF4444',
+    fontSize: 10,
+    fontWeight: '700',
+    letterSpacing: 1,
+  },
+  cardMakeModel: {
+    color: '#7A6EA0',
+    fontSize: 15,
+    fontWeight: '500',
+    marginTop: 2,
+  },
+
+  // License plate
+  plateBox: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    backgroundColor: '#F5F0D0',
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#000',
+  },
+  plateText: {
+    color: '#1A1A1A',
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 2,
+  },
+
+  // Meta row
+  cardMeta: {
+    color: '#9B8FBF',
+    fontSize: 12,
+    fontWeight: '500',
+    marginTop: 8,
+    letterSpacing: 0.4,
+  },
+
+  // Status row (Insurance / Service)
+  statusRow: {
+    flexDirection: 'row',
+    marginTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: '#3D2F6E',
+    paddingTop: 12,
+  },
+  statusCell: {
+    flex: 1,
+    alignItems: 'flex-start',
+    gap: 3,
+  },
+  statusDivider: {
+    width: 1,
+    backgroundColor: '#3D2F6E',
+    marginHorizontal: 8,
+  },
+  statusLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+  },
+  statusLabel: {
+    color: '#9B8FBF',
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  statusDays: {
+    fontSize: 12,
+    fontWeight: '700',
+  },
+
+  // Empty state
   emptyState: {
     paddingHorizontal: 20,
     paddingVertical: 60,
@@ -146,6 +337,8 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     textAlign: 'center',
   },
+
+  // Learn more
   learnMoreButton: {
     alignSelf: 'center',
     paddingVertical: 10,
@@ -159,6 +352,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+
+  // Modal
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.6)',
@@ -196,7 +391,7 @@ const styles = StyleSheet.create({
     color: '#E1E1E2',
     fontSize: 16,
     fontWeight: '600',
-  }
+  },
 });
 
 export default CarList;

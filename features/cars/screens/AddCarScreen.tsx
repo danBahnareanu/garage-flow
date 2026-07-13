@@ -1,7 +1,7 @@
 import * as Crypto from 'expo-crypto'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
-import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import useCarStore from '../store/carList.store'
 import { Car } from '../types/car.types'
@@ -10,6 +10,7 @@ export default function CarForm() {
   const router = useRouter()
   const addCar = useCarStore((state) => state.addCar)
 
+  const [name, setName] = useState('')
   const [make, setMake] = useState('')
   const [model, setModel] = useState('')
   const [year, setYear] = useState('')
@@ -20,6 +21,7 @@ export default function CarForm() {
   const handleSubmit = () => {
     const newCar: Car = {
       id: Crypto.randomUUID(),
+      name: name || undefined,
       make,
       model,
       year: parseInt(year) || new Date().getFullYear(),
@@ -36,6 +38,13 @@ export default function CarForm() {
       <KeyboardAvoidingView behavior="padding" style={{flex: 1}}>
         <ScrollView style={styles.content} keyboardShouldPersistTaps="handled">
           <Text style={styles.title}>Add New Car</Text>
+          <TextInput
+            placeholder="Name (optional, e.g. My Daily Driver)"
+            placeholderTextColor="#999"
+            value={name}
+            onChangeText={setName}
+            style={styles.input}
+          />
           <TextInput
             placeholder="Make"
             placeholderTextColor="#999"

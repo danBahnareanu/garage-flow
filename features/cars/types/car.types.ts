@@ -79,6 +79,8 @@ export interface VignetteRecord {
 
 export interface Car {
     id: string;
+    name?: string;        // user-defined nickname e.g. "My Daily Driver"
+    sold?: boolean;       // marks the car as sold
     make: string;         // e.g. Toyota
     model: string;        // e.g. Corolla
     year: number;

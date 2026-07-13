@@ -382,10 +382,30 @@ const useCarStore = create<CarStore>()(
       },
 
       ensureSeeded: () => {
-        set((state) => ({
-          categories: state.categories.length === 0 ? seedCategories() : state.categories,
-          maintTypes: state.maintTypes.length === 0 ? seedMaintTypes() : state.maintTypes,
-        }));
+        set((state) => {
+          let categories = state.categories;
+          if (categories.length === 0) {
+            categories = seedCategories();
+          } else {
+            const colorMap = costTypeColors as Record<string, string | undefined>;
+            const existingNames = new Set(categories.map((c) => c.name));
+            const now = new Date().toISOString();
+            const missing = (CATEGORIES as readonly string[])
+              .filter((name) => !existingNames.has(name))
+              .map((name) => ({ id: name, name, color: colorMap[name] ?? TAXONOMY_NEUTRAL, createdAt: now }));
+            categories = [
+              ...categories.map((c) => {
+                const builtInColor = colorMap[c.name];
+                return builtInColor !== undefined ? { ...c, color: builtInColor } : c;
+              }),
+              ...missing,
+            ];
+          }
+          return {
+            categories,
+            maintTypes: state.maintTypes.length === 0 ? seedMaintTypes() : state.maintTypes,
+          };
+        });
       },
     }),
     {

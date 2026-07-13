@@ -6,13 +6,14 @@ import { TAXONOMY_NEUTRAL } from '@/features/cars/constants/colors';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import useCarStore from '@/features/cars/store/carList.store';
 import { styles } from '@/features/cars/styles/runningCost.styles';
-import { Car, MaintenanceRecord, ReplacedPart } from '@/features/cars/types/car.types';
+import { Car, CATEGORIES, MaintenanceRecord, ReplacedPart } from '@/features/cars/types/car.types';
 import { generateId } from '@/features/cars/types/editCarDetail.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
   Alert,
+  Image,
   Keyboard,
   Modal,
   Pressable,
@@ -28,6 +29,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { TaxonomyCard } from '../components/TaxonomyCard';
 import { useTaxonomyItem } from '../hooks/useTaxonomyItem';
 import { TaxonomyItem } from '../types/taxonomy.types';
+
+const categoryIcons: Record<string, ReturnType<typeof require>> = {
+  'Oils & Filters': require('@/assets/in-app-icons/oil-filter.png'),
+  'Engine':         require('@/assets/in-app-icons/pistons.png'),
+  'Transmission':    require('@/assets/in-app-icons/gears.png'),
+  'Brakes':         require('@/assets/in-app-icons/disc-brake.png'),
+  'Suspension':     require('@/assets/in-app-icons/spring.png'),
+  'Steering':       require('@/assets/in-app-icons/steering-wheel.png'),
+  'Heating & AC':   require('@/assets/in-app-icons/air-conditioning.png'),
+  'Car Body: External': require('@/assets/in-app-icons/fender.png'),
+  'Car Body: Internal': require('@/assets/in-app-icons/chassis.png'),
+  'Electrical':     require('@/assets/in-app-icons/car-battery.png'),
+  'Tires & Wheels': require('@/assets/in-app-icons/wheels.png'),
+  'other':          require('@/assets/in-app-icons/car-parts.png'),
+};
 
 const RunningCostScreen = () => {
   const router = useRouter();
@@ -127,7 +143,7 @@ useEffect(() => {
     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
-  const openModal = (record?: MaintenanceRecord) => {
+  const openModal = (record?: MaintenanceRecord, defaultCategory?: string) => {
     if (record) {
       setEditingId(record.id);
       setMaintType(record.type);
@@ -143,7 +159,7 @@ useEffect(() => {
     } else {
       setEditingId(null);
       setMaintType(undefined);
-      setCategory('maintenance');
+      setCategory(defaultCategory ?? 'other');
       setDate('date', null);
       setCost('');
       setMileage('');
@@ -304,46 +320,44 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
           <Text style={styles.totalAmount}>€{totalCosts.toFixed(2)}</Text>
         </View>
 
-        {hasCostData ? (
-          <>
-            {/* Pie Chart Section */}
-            <View style={styles.chartSection}>
-              <View style={styles.sectionHeader}>
-                <Ionicons name="pie-chart" size={24} color="#7142CD" />
-                <Text style={styles.sectionTitle}>Cost Breakdown</Text>
-              </View>
-              <CostBreakdownChart
-                maintenanceHistory={maintenanceHistory}
-                categories={categories}
-              />
+        {hasCostData && (
+          <View style={styles.chartSection}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="pie-chart" size={24} color="#7142CD" />
+              <Text style={styles.sectionTitle}>Cost Breakdown</Text>
             </View>
+            <CostBreakdownChart
+              maintenanceHistory={maintenanceHistory}
+              categories={categories}
+            />
+          </View>
+        )}
 
-            {/* Records List */}
-            <View style={styles.listSection}>
+        {CATEGORIES.map((catName) => {
+          const catColor = categories.find((c) => c.name === catName)?.color ?? TAXONOMY_NEUTRAL;
+          const nonOther = CATEGORIES.filter((c) => c !== 'other') as unknown as string[];
+          const sectionRecords = catName === 'other'
+            ? sortedRecords.filter((r) => !nonOther.includes(r.category))
+            : sortedRecords.filter((r) => r.category === catName);
+
+          return (
+            <View key={catName} style={styles.listSection}>
               <View style={styles.sectionHeader}>
-                <Ionicons name="list" size={24} color="#7142CD" />
-                <Text style={[styles.sectionTitle, { flex: 1 }]}>
-                  All Records ({sortedRecords.length})
+                <Image source={categoryIcons[catName]} style={[localStyles.categoryIcon, { tintColor: catColor }]} />
+                <Text style={[styles.sectionTitle, { flex: 1, textTransform: 'capitalize' }]}>
+                  {catName}{sectionRecords.length > 0 ? ` (${sectionRecords.length})` : ''}
                 </Text>
-                <TouchableOpacity style={localStyles.addButton} onPress={() => openModal()}>
+                <TouchableOpacity
+                  style={localStyles.addButton}
+                  onPress={() => openModal(undefined, catName)}
+                >
                   <Ionicons name="add" size={20} color="#fff" />
                 </TouchableOpacity>
               </View>
-              {sortedRecords.map(renderRecordCard)}
+              {sectionRecords.map(renderRecordCard)}
             </View>
-          </>
-        ) : (
-          <View style={styles.listSection}>
-            <View style={styles.sectionHeader}>
-              <Ionicons name="list" size={24} color="#7142CD" />
-              <Text style={[styles.sectionTitle, { flex: 1 }]}>All Records</Text>
-              <TouchableOpacity style={localStyles.addButton} onPress={() => openModal()}>
-                <Ionicons name="add" size={20} color="#fff" />
-              </TouchableOpacity>
-            </View>
-            {renderEmptyState()}
-          </View>
-        )}
+          );
+        })}
       </ScrollView>
 
       <ContextMenu
@@ -618,6 +632,11 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
 };
 
 const localStyles = StyleSheet.create({
+  categoryIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 8,
+  },
   addButton: {
     backgroundColor: '#7142CD',
     width: 32,
@@ -651,16 +670,21 @@ const localStyles = StyleSheet.create({
   partRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
     paddingVertical: 2,
+    gap: 8,
   },
   partName: {
     fontSize: 13,
     color: '#E1E1E2',
+    flex: 1,
+    flexShrink: 1,
   },
   partCost: {
     fontSize: 13,
     color: '#7142CD',
     fontWeight: '600',
+    flexShrink: 0,
   },
   modalOverlay: {
     flex: 1,

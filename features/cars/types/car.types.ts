@@ -6,6 +6,7 @@
 export const CATEGORIES = [
     'Oils & Filters',
     'Engine',
+    'Transmission',
     'Brakes',
     'Suspension',
     'Steering',

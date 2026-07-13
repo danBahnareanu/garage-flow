@@ -31,7 +31,7 @@ const getLatestInspectionByType = (car: Car, types: string[]) =>
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
 const getLatestMaintenance = (car: Car) => {
-  const records = car.maintenanceHistory?.filter(record => record.category === 'maintenance');
+  const records = car.maintenanceHistory?.filter(record => record.category === 'Oils & Filters') // Only consider maintenance category for "latest maintenance";
   if (!records?.length) return undefined;
 
   // Get the most recently added record for display (date, description, etc.)
@@ -393,7 +393,7 @@ const CarDetailScreen = () => {
               <View style={styles.maintenanceHistory}>
                 <Text style={styles.maintenanceHistoryTitle}>Maintenance History</Text>
                 {[...car.maintenanceHistory]
-                  .filter(record => record.category === 'maintenance') // Only maintenance category
+                  .filter(record => record.category === 'Oils & Filters') // Only maintenance category
                   .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                   .slice(0, 3)
                   .map((record: any) => {

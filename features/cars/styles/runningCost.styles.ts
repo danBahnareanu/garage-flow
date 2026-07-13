@@ -103,6 +103,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#2C1F5E',
     borderRadius: 15,
     padding: 16,
+    marginBottom: 16,
   },
 
   // Cost Card
@@ -221,15 +222,16 @@ export const styles = StyleSheet.create({
 
 // Color mapping for cost types
 export const costTypeColors: Record<CategoriesType, string> = {
-    fuel: '#4CAF50',        // Green — universal "go/fuel"
-    maintenance: '#ca8b78', // Teal — steady, mechanical
-    repair: '#E05C5C',      // Muted red — urgent/attention
-    insurance: '#4A9EE0',   // Steel blue — trust/security
-    tax: '#F0A500',         // Amber gold — financial obligation
-    parking: '#00B4C8',     // Cyan — spatial, light
-    toll: '#EF6C00',        // Deep orange — transactional, road
-    other: '#8A9BB0',       // Cool grey-blue — neutral
-    aquisition: '#26A69A',  // Coral orange — significant purchase
-    performance: '#4c6eb3',
-    "visual mods": '#524cb3', // Warm tan/gold — premium, mechanical
+    'Oils & Filters': '#4CAF50',        // Green — universal "go/fuel"
+    'Engine': '#ca8b78', // Teal — steady, mechanical
+    'Brakes': '#E05C5C',      // Muted red — urgent/attention
+    'Suspension': '#4A9EE0',   // Steel blue — trust/security
+    'Steering': '#F0A500',         // Amber gold — financial obligation
+    'Heating & AC': '#00B4C8',     // Cyan — spatial, light
+    'Car Body: External': '#EF6C00',        // Deep orange — transactional, road
+    'other': '#8A9BB0',       // Cool grey-blue — neutral
+    'Car Body: Internal': '#26A69A',  // Coral orange — significant purchase
+    'Electrical': '#4c6eb3',
+    'Tires & Wheels': '#524cb3', // Warm tan/gold — premium, mechanical
+    'Transmission': '#9c27b0', // Purple — complex, significant
 };

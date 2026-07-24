@@ -1,5 +1,6 @@
 import { Colors } from '@/constants/colors';
 import { DropdownMenu, MenuButton } from '@/features/cars/components/DropdownMenu';
+import { NotificationSettingsModal } from '@/features/cars/components/NotificationSettingsModal';
 import { useDropdownMenu } from '@/features/cars/hooks/useDropdownMenu';
 import { Stack } from 'expo-router';
 import React from 'react';
@@ -16,6 +17,9 @@ export default function Layout() {
     handleAddNewCar,
     handleExportCarList,
     handleImportCarList,
+    notificationSettingsVisible,
+    openNotificationSettings,
+    closeNotificationSettings,
   } = useDropdownMenu();
 
   return (
@@ -57,8 +61,14 @@ export default function Layout() {
         onAddNewCar={handleAddNewCar}
         onExportCarList={handleExportCarList}
         onImportCarList={handleImportCarList}
+        onNotificationSettings={openNotificationSettings}
         cars={cars}
         onDeleteCar={handleDeleteCar}
+      />
+
+      <NotificationSettingsModal
+        visible={notificationSettingsVisible}
+        onClose={closeNotificationSettings}
       />
 
       {isLoading && (

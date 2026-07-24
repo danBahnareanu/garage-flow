@@ -25,6 +25,7 @@ interface DropdownMenuProps {
   onAddNewCar: () => void;
   onExportCarList: () => void;
   onImportCarList: () => void;
+  onNotificationSettings: () => void;
   cars: Car[];
   onDeleteCar: (car: Car) => void;
 }
@@ -37,6 +38,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
   onAddNewCar,
   onExportCarList,
   onImportCarList,
+  onNotificationSettings,
   cars,
   onDeleteCar,
 }) => {
@@ -108,7 +110,21 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
                       onPress={() => onDeleteCar(car)}
                     >
                       <Ionicons name="trash-outline" size={20} color={Colors.danger} />
-                      <Text style={styles.deleteCarText}>{car.make} {car.model}</Text>
+                      <View style={styles.deleteCarInfo}>
+                        <Text style={styles.deleteCarText} numberOfLines={1}>
+                          {car.name || `${car.make} ${car.model}`}
+                        </Text>
+                        {car.name ? (
+                          <Text style={styles.deleteCarSubtext} numberOfLines={1}>
+                            {car.make} {car.model}
+                          </Text>
+                        ) : null}
+                      </View>
+                      {car.licensePlate ? (
+                        <View style={styles.plateBox}>
+                          <Text style={styles.plateText}>{car.licensePlate.toUpperCase()}</Text>
+                        </View>
+                      ) : null}
                     </TouchableOpacity>
                   ))}
                 </ScrollView>
@@ -145,6 +161,14 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
                 >
                   <Ionicons name="download-outline" size={24} color={Colors.textPrimary} />
                   <Text style={styles.menuItemText}>Import Car List</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.menuItem}
+                  onPress={onNotificationSettings}
+                >
+                  <Ionicons name="notifications-outline" size={24} color={Colors.textPrimary} />
+                  <Text style={styles.menuItemText}>Notification Settings</Text>
                 </TouchableOpacity>
               </>
             )}
@@ -232,10 +256,34 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: Colors.background,
   },
+  deleteCarInfo: {
+    flex: 1,
+    marginLeft: 12,
+    marginRight: 8,
+  },
   deleteCarText: {
     color: Colors.textPrimary,
     fontSize: 16,
-    marginLeft: 12,
     fontWeight: '500',
+  },
+  deleteCarSubtext: {
+    color: Colors.purpleMuted,
+    fontSize: 13,
+    fontWeight: '500',
+    marginTop: 2,
+  },
+  plateBox: {
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+    backgroundColor: Colors.plateBackground,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#000',
+  },
+  plateText: {
+    color: Colors.plateText,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 2,
   },
 });

@@ -1,15 +1,21 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import useSettingsStore from '../store/settings.store';
 import { Car, InspectionRecord, InsuranceRecord, VignetteRecord } from '../types/car.types';
 
 const REMINDER_CHANNEL_ID = 'reminders';
 
-const REMINDER_OFFSETS = [
-  { days: 30, label: 'expires in 30 days' },
-  { days: 14, label: 'expires in 2 weeks' },
-  { days: 7, label: 'expires in 1 week' },
-  { days: 0, label: 'expires today!' },
+export const REMINDER_OFFSETS = [
+  { days: 30, label: 'expires in 30 days', settingLabel: '30 days before' },
+  { days: 14, label: 'expires in 2 weeks', settingLabel: '2 weeks before' },
+  { days: 7, label: 'expires in 1 week', settingLabel: '1 week before' },
+  { days: 0, label: 'expires today!', settingLabel: 'On expiry day' },
 ];
+
+function getActiveReminderOffsets() {
+  const enabled = useSettingsStore.getState().enabledReminderDays;
+  return REMINDER_OFFSETS.filter((offset) => enabled.includes(offset.days));
+}
 
 export function setupNotificationHandler() {
   Notifications.setNotificationHandler({
@@ -47,7 +53,7 @@ async function scheduleExpiryNotifications(
   const now = new Date();
   const ids: string[] = [];
 
-  for (const offset of REMINDER_OFFSETS) {
+  for (const offset of getActiveReminderOffsets()) {
     const triggerDate = new Date(expiry);
     triggerDate.setDate(triggerDate.getDate() - offset.days);
     triggerDate.setHours(9, 0, 0, 0);
@@ -174,6 +180,52 @@ export async function recheckAllNotifications(
     await recheckRecords(car.insuranceHistory, car.id, carName, scheduledIds, scheduleInsuranceNotifications, updateInsuranceRecord);
     await recheckRecords(car.inspectionHistory, car.id, carName, scheduledIds, scheduleInspectionNotifications, updateInspectionRecord);
     await recheckRecords(car.vignetteHistory, car.id, carName, scheduledIds, scheduleVignetteNotifications, updateVignetteRecord);
+  }
+}
+
+// --- Reschedule after reminder settings change ---
+
+async function rescheduleRecords<T extends { id: string; expiryDate?: string; notificationIds?: string[] }>(
+  records: T[] | undefined,
+  carId: string,
+  carName: string,
+  scheduleFn: (carName: string, record: T) => Promise<string[]>,
+  updateFn: (carId: string, recordId: string, updates: Partial<T>) => void,
+) {
+  if (!records) return;
+  const now = new Date();
+
+  for (const record of records) {
+    const hasExistingIds = !!record.notificationIds && record.notificationIds.length > 0;
+
+    let expiryInFuture = false;
+    if (record.expiryDate) {
+      const expiryTrigger = new Date(record.expiryDate);
+      expiryTrigger.setHours(9, 0, 0, 0);
+      expiryInFuture = expiryTrigger > now;
+    }
+
+    if (!hasExistingIds && !expiryInFuture) continue;
+
+    if (hasExistingIds) {
+      await cancelScheduledNotifications(record.notificationIds!);
+    }
+    const newIds = expiryInFuture ? await scheduleFn(carName, record) : [];
+    updateFn(carId, record.id, { notificationIds: newIds } as unknown as Partial<T>);
+  }
+}
+
+export async function rescheduleAllNotifications(
+  cars: Car[],
+  updateInsuranceRecord: (carId: string, recordId: string, updates: Partial<InsuranceRecord>) => void,
+  updateInspectionRecord: (carId: string, recordId: string, updates: Partial<InspectionRecord>) => void,
+  updateVignetteRecord: (carId: string, recordId: string, updates: Partial<VignetteRecord>) => void,
+): Promise<void> {
+  for (const car of cars) {
+    const carName = `${car.make} ${car.model}`;
+    await rescheduleRecords(car.insuranceHistory, car.id, carName, scheduleInsuranceNotifications, updateInsuranceRecord);
+    await rescheduleRecords(car.inspectionHistory, car.id, carName, scheduleInspectionNotifications, updateInspectionRecord);
+    await rescheduleRecords(car.vignetteHistory, car.id, carName, scheduleVignetteNotifications, updateVignetteRecord);
   }
 }
 

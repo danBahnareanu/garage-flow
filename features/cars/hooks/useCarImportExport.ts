@@ -1,7 +1,25 @@
 import { useState } from 'react';
 import { Alert } from 'react-native';
 import useCarStore from '../store/carList.store';
+import { Car } from '../types/car.types';
 import { exportCarsToFile, pickAndReadCarFile } from '../utils/carFileOperations';
+import { requestPermissions, rescheduleAllNotifications } from '../utils/notificationService';
+
+const scheduleNotificationsForImportedCars = async (importedCars: Car[]) => {
+  if (importedCars.length === 0) return;
+
+  const granted = await requestPermissions();
+  if (!granted) return;
+
+  const { updateInsuranceRecord, updateInspectionRecord, updateVignetteRecord } =
+    useCarStore.getState();
+  await rescheduleAllNotifications(
+    importedCars,
+    updateInsuranceRecord,
+    updateInspectionRecord,
+    updateVignetteRecord,
+  );
+};
 
 export const useCarImportExport = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -49,24 +67,26 @@ export const useCarImportExport = () => {
           {
             text: 'Replace All',
             style: 'destructive',
-            onPress: () => {
+            onPress: async () => {
               clearCars();
               importedCars.forEach((car) => addCar(car));
+              await scheduleNotificationsForImportedCars(importedCars);
               Alert.alert('Success', `Imported ${importedCars.length} car(s).`);
             },
           },
           {
             text: 'Merge',
-            onPress: () => {
+            onPress: async () => {
               const existingIds = new Set(cars.map((c) => c.id));
-              let addedCount = 0;
+              const addedCars: Car[] = [];
               importedCars.forEach((car) => {
                 if (!existingIds.has(car.id)) {
                   addCar(car);
-                  addedCount++;
+                  addedCars.push(car);
                 }
               });
-              Alert.alert('Success', `Added ${addedCount} new car(s).`);
+              await scheduleNotificationsForImportedCars(addedCars);
+              Alert.alert('Success', `Added ${addedCars.length} new car(s).`);
             },
           },
         ]

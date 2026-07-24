@@ -68,10 +68,10 @@ export const Colors = {
   textFaint: '#6d6f7880',       // faint text (empty states)
 
   // Status
-  success: '#57F287',           // Discord green
-  warning: '#F0B232',           // in-app yellow
+  success: '#0fbf47',           // Discord green
+  warning: '#ab7a18',           // in-app yellow
   warningSoft: '#FEE75C',       // brand yellow — 15-30 days left
-  warningStrong: '#E67E22',     // orange (no Discord equivalent) — <=14 days left
+  warningStrong: '#FF8C00',     // orange (no Discord equivalent) — <=14 days left
   danger: '#ED4245',            // Discord red
   dangerFaint: '#ED424522',     // danger tint backgrounds (sold tag)
 

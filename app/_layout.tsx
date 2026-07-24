@@ -20,6 +20,7 @@ export default function Layout() {
     notificationSettingsVisible,
     openNotificationSettings,
     closeNotificationSettings,
+    handleMenuClosed,
   } = useDropdownMenu();
 
   return (
@@ -58,6 +59,7 @@ export default function Layout() {
       <DropdownMenu
         visible={visible}
         onClose={close}
+        onClosed={handleMenuClosed}
         onAddNewCar={handleAddNewCar}
         onExportCarList={handleExportCarList}
         onImportCarList={handleImportCarList}

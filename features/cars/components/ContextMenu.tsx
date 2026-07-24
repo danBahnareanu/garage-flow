@@ -1,20 +1,8 @@
 import { Colors } from '@/constants/colors';
+import { BottomSheetModal } from '@/features/cars/components/BottomSheetModal';
 import { Ionicons } from '@expo/vector-icons';
-import React, { useEffect } from 'react';
-import {
-  Dimensions,
-  Pressable,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import Animated, {
-  Easing,
-  useAnimatedStyle,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated';
+import React, { useRef } from 'react';
+import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 interface ContextMenuAction {
   label: string;
@@ -28,83 +16,64 @@ interface ContextMenuProps {
   onClose: () => void;
   title: string;
   actions: ContextMenuAction[];
+  /** Render as an absolute overlay instead of a native Modal — only needed when
+   *  shown inside another native Modal (e.g. within a form sheet) */
+  asOverlay?: boolean;
 }
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+export const ContextMenu: React.FC<ContextMenuProps> = ({
+  visible,
+  onClose,
+  title,
+  actions,
+  asOverlay = false,
+}) => {
+  // Run the chosen action only after the menu's modal has fully closed, so a
+  // modal the action opens isn't torn down with this one (iOS)
+  const pendingAction = useRef<(() => void) | null>(null);
 
-export const ContextMenu: React.FC<ContextMenuProps> = ({ visible, onClose, title, actions }) => {
-  const progress = useSharedValue(0);
-
-  useEffect(() => {
-    if (visible) {
-      progress.value = withTiming(1, { duration: 300, easing: Easing.out(Easing.cubic) });
-    } else {
-      progress.value = withTiming(0, { duration: 250, easing: Easing.in(Easing.cubic) });
-    }
-  }, [visible]);
-
-  const overlayStyle = useAnimatedStyle(() => ({
-    opacity: progress.value * 0.5,
-  }));
-
-  const modalStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: (1 - progress.value) * SCREEN_HEIGHT }],
-  }));
+  const handleClosed = () => {
+    const action = pendingAction.current;
+    pendingAction.current = null;
+    action?.();
+  };
 
   return (
-    <View style={StyleSheet.absoluteFill} pointerEvents={visible ? 'auto' : 'none'}>
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <Animated.View style={[styles.overlayBg, overlayStyle]} />
-        <Animated.View style={[styles.content, modalStyle]}>
-          <Pressable onPress={(e) => e.stopPropagation()}>
-            <View style={styles.handle} />
-            <Text style={styles.title}>{title}</Text>
-            {actions.map((action, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.menuItem}
-                onPress={action.onPress}
-              >
-                <Ionicons
-                  name={action.icon as any}
-                  size={24}
-                  color={action.color || Colors.textPrimary}
-                />
-                <Text style={[styles.menuItemText, action.color ? { color: action.color } : undefined]}>
-                  {action.label}
-                </Text>
-              </TouchableOpacity>
-            ))}
-          </Pressable>
-        </Animated.View>
-      </Pressable>
-    </View>
+    <BottomSheetModal
+      visible={visible}
+      onClose={onClose}
+      dragArea="full"
+      asOverlay={asOverlay}
+      contentStyle={styles.sheetContent}
+      onClosed={handleClosed}
+    >
+      <Text style={styles.title}>{title}</Text>
+      {actions.map((action, index) => (
+        <TouchableOpacity
+          key={index}
+          style={styles.menuItem}
+          onPress={() => {
+            pendingAction.current = action.onPress;
+            onClose();
+          }}
+        >
+          <Ionicons
+            name={action.icon as any}
+            size={24}
+            color={action.color || Colors.textPrimary}
+          />
+          <Text style={[styles.menuItemText, action.color ? { color: action.color } : undefined]}>
+            {action.label}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </BottomSheetModal>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    justifyContent: 'flex-end',
-  },
-  overlayBg: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 1)',
-  },
-  content: {
-    backgroundColor: Colors.surface,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+  sheetContent: {
     paddingBottom: 40,
-  },
-  handle: {
-    width: 40,
-    height: 4,
-    backgroundColor: Colors.primary,
-    borderRadius: 2,
-    alignSelf: 'center',
-    marginTop: 12,
-    marginBottom: 16,
   },
   title: {
     color: Colors.textPrimary,

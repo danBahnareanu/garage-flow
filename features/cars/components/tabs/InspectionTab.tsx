@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/colors';
+import { BottomSheetModal } from '@/features/cars/components/BottomSheetModal';
 import { ContextMenu } from '@/features/cars/components/ContextMenu';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import useCarStore from '@/features/cars/store/carList.store';
@@ -15,8 +16,6 @@ import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
 import {
   Alert,
-  KeyboardAvoidingView,
-  Modal,
   ScrollView,
   Text,
   TextInput,
@@ -253,9 +252,13 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
         ]}
       />
 
-      <Modal visible={modalVisible} animationType="slide" transparent>
-        <KeyboardAvoidingView style={styles.modalOverlay} behavior="padding">
-          <View style={styles.modalContent}>
+      <BottomSheetModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        avoidKeyboard
+        closeOnBackdropPress={false}
+        contentStyle={[styles.modalContent, { paddingTop: 0 }]}
+      >
             <Text style={styles.modalTitle}>{editingId ? 'Edit' : 'Add'} Inspection</Text>
             <ScrollView keyboardShouldPersistTaps="handled">
               <Text style={styles.label}>Type</Text>
@@ -349,9 +352,7 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
                 <Text style={styles.modalSaveButtonText}>Save</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
+      </BottomSheetModal>
     </View>
   );
 };

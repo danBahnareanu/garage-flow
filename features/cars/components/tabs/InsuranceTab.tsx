@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/colors';
+import { BottomSheetModal } from '@/features/cars/components/BottomSheetModal';
 import { ContextMenu } from '@/features/cars/components/ContextMenu';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import useCarStore from '@/features/cars/store/carList.store';
@@ -18,8 +19,6 @@ import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
   Alert,
-  KeyboardAvoidingView,
-  Modal,
   ScrollView,
   Text,
   TextInput,
@@ -262,9 +261,13 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
         ]}
       />
 
-      <Modal visible={modalVisible} animationType="slide" transparent>
-        <KeyboardAvoidingView style={styles.modalOverlay} behavior="padding">
-          <View style={styles.modalContent}>
+      <BottomSheetModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        avoidKeyboard
+        closeOnBackdropPress={false}
+        contentStyle={[styles.modalContent, { paddingTop: 0 }]}
+      >
             <Text style={styles.modalTitle}>{editingId ? 'Edit' : 'Add'} Insurance</Text>
             <ScrollView keyboardShouldPersistTaps="handled">
               <Text style={styles.label}>Provider *</Text>
@@ -350,9 +353,7 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
                 <Text style={styles.modalSaveButtonText}>Save</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </KeyboardAvoidingView>
-      </Modal>
+      </BottomSheetModal>
     </View>
   );
 };

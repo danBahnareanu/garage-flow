@@ -12,6 +12,9 @@ export const useDropdownMenu = () => {
   const [visible, setVisible] = useState(false);
   const [notificationSettingsVisible, setNotificationSettingsVisible] = useState(false);
   const reminderDaysSnapshot = useRef<number[]>([]);
+  // Deferred until the dropdown's modal has fully closed (iOS can't present a
+  // modal while another is dismissing)
+  const pendingAfterMenuClose = useRef<(() => void) | null>(null);
   const { isLoading, handleExport, handleImport } = useCarImportExport();
   const cars = useCarStore(state => state.cars);
   const removeCar = useCarStore(state => state.removeCar);
@@ -24,8 +27,14 @@ export const useDropdownMenu = () => {
 
   const openNotificationSettings = () => {
     reminderDaysSnapshot.current = useSettingsStore.getState().enabledReminderDays;
+    pendingAfterMenuClose.current = () => setNotificationSettingsVisible(true);
     close();
-    setNotificationSettingsVisible(true);
+  };
+
+  const handleMenuClosed = () => {
+    const pending = pendingAfterMenuClose.current;
+    pendingAfterMenuClose.current = null;
+    pending?.();
   };
 
   const closeNotificationSettings = async () => {
@@ -96,5 +105,6 @@ export const useDropdownMenu = () => {
     notificationSettingsVisible,
     openNotificationSettings,
     closeNotificationSettings,
+    handleMenuClosed,
   };
 };

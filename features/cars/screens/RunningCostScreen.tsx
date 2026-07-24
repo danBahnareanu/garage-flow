@@ -1,4 +1,5 @@
 import { Colors } from '@/constants/colors';
+import { BottomSheetModal } from '@/features/cars/components/BottomSheetModal';
 import { ContextMenu } from '@/features/cars/components/ContextMenu';
 import { CostBreakdownChart } from '@/features/cars/components/CostBreakdownChart';
 import { ItemEditorModal } from '@/features/cars/components/ItemEditorModal';
@@ -11,12 +12,10 @@ import { Car, CATEGORIES, MaintenanceRecord, ReplacedPart } from '@/features/car
 import { generateId } from '@/features/cars/types/editCarDetail.types';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
   Image,
-  Keyboard,
-  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -58,9 +57,6 @@ const RunningCostScreen = () => {
     maintTypes,
   } = useCarStore();
 
-  // Keyboard state
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
-
   // Modal state
   const [modalVisible, setModalVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -96,20 +92,6 @@ const RunningCostScreen = () => {
   onCategoryChange: (categoryId) => setCategory(categoryId),
   onTypeChange: (typeId) => setMaintType(typeId),
 });
-
-useEffect(() => {
-  const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', (e) => {
-    setKeyboardHeight(e.endCoordinates.height);
-  });
-  const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => {
-    setKeyboardHeight(0);
-  });
-
-  return () => {
-    keyboardDidShowListener.remove();
-    keyboardDidHideListener.remove();
-  };
-}, []);
 
   if (!car) {
     return (
@@ -393,15 +375,107 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
       />
 
       {/* Add/Edit Modal */}
-      <Modal visible={modalVisible} animationType="slide" transparent>
-        <View style={{ flex: 1 }}>
-        <View style={localStyles.modalOverlay}>
-          <View style={localStyles.modalContent}>
+      <BottomSheetModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        avoidKeyboard
+        closeOnBackdropPress={false}
+        contentStyle={[localStyles.modalContent, { paddingTop: 0 }]}
+        overlayChildren={
+          <>
+            <PickerModal
+              visible={categoryPickerOpen}
+              onClose={() => setCategoryPickerOpen(false)}
+              title="Select Category"
+              items={categories}
+              selectedId={category}
+              onSelect={(catId) => setCategory(catId ?? 'maintenance')}
+              onItemLongPress={(item) => setTaxonomyContextMenu({ kind: 'category', item })}
+              onAddPress={() => {
+                setCategoryPickerOpen(false);
+                setCategoryEditor({ mode: 'add' });
+              }}
+            />
+
+            <PickerModal
+              visible={typePickerOpen}
+              onClose={() => setTypePickerOpen(false)}
+              title="Select Type"
+              items={maintTypes}
+              selectedId={maintType}
+              showNoneOption
+              onSelect={(tid) => setMaintType(tid)}
+              onItemLongPress={(item) => setTaxonomyContextMenu({ kind: 'type', item })}
+              onAddPress={() => {
+                setTypePickerOpen(false);
+                setTypeEditor({ mode: 'add' });
+              }}
+            />
+
+            <ContextMenu
+              asOverlay
+              visible={taxonomyContextMenu !== null}
+              onClose={() => setTaxonomyContextMenu(null)}
+              title={taxonomyContextMenu ? taxonomyContextMenu.item.name : ''}
+              actions={[
+                {
+                  label: 'Edit',
+                  icon: 'create-outline',
+                  onPress: () => {
+                    const ctx = taxonomyContextMenu;
+                    setTaxonomyContextMenu(null);
+                    if (!ctx) return;
+                    if (ctx.kind === 'category') {
+                      setCategoryEditor({ mode: 'edit', initial: ctx.item });
+                    } else {
+                      setTypeEditor({ mode: 'edit', initial: ctx.item });
+                    }
+                  },
+                },
+                {
+                  label: 'Delete',
+                  icon: 'trash-outline',
+                  color: Colors.danger,
+                  onPress: () => {
+                    const ctx = taxonomyContextMenu;
+                    setTaxonomyContextMenu(null);
+                    if (ctx) handleDeleteTaxonomyWithContext(ctx.kind, ctx.item);
+                  },
+                },
+              ]}
+            />
+
+            <ItemEditorModal
+              visible={categoryEditor !== null}
+              mode={categoryEditor?.mode ?? 'add'}
+              initial={categoryEditor?.initial}
+              title="Category"
+              onClose={() => setCategoryEditor(null)}
+              onSave={(data, context) => {
+                handleTaxonomySave(data, context)
+                setCategoryEditor(null)
+              }}
+            />
+
+            <ItemEditorModal
+              visible={typeEditor !== null}
+              mode={typeEditor?.mode ?? 'add'}
+              initial={typeEditor?.initial}
+              title="Type"
+              onClose={() => setTypeEditor(null)}
+              onSave={(data, context) => {
+                handleTaxonomySave(data, context)
+                setTypeEditor(null)
+              }}
+            />
+          </>
+        }
+      >
             <Text style={localStyles.modalTitle}>{editingId ? 'Edit' : 'Add'} Record</Text>
             <ScrollView 
               keyboardShouldPersistTaps="handled"
               showsVerticalScrollIndicator={false}
-              contentContainerStyle={{ paddingBottom: keyboardHeight +20 }}
+              contentContainerStyle={{ paddingBottom: 20 }}
             >
               <TaxonomyCard
                 label="Category"
@@ -539,95 +613,7 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
                 <Text style={localStyles.saveButtonText}>Save</Text>
               </TouchableOpacity>
             </View>
-          </View>
-        </View>
-
-        <PickerModal
-          visible={categoryPickerOpen}
-          onClose={() => setCategoryPickerOpen(false)}
-          title="Select Category"
-          items={categories}
-          selectedId={category}
-          onSelect={(catId) => setCategory(catId ?? 'maintenance')}
-          onItemLongPress={(item) => setTaxonomyContextMenu({ kind: 'category', item })}
-          onAddPress={() => {
-            setCategoryPickerOpen(false);
-            setCategoryEditor({ mode: 'add' });
-          }}
-        />
-
-        <PickerModal
-          visible={typePickerOpen}
-          onClose={() => setTypePickerOpen(false)}
-          title="Select Type"
-          items={maintTypes}
-          selectedId={maintType}
-          showNoneOption
-          onSelect={(tid) => setMaintType(tid)}
-          onItemLongPress={(item) => setTaxonomyContextMenu({ kind: 'type', item })}
-          onAddPress={() => {
-            setTypePickerOpen(false);
-            setTypeEditor({ mode: 'add' });
-          }}
-        />
-
-        <ContextMenu
-          visible={taxonomyContextMenu !== null}
-          onClose={() => setTaxonomyContextMenu(null)}
-          title={taxonomyContextMenu ? taxonomyContextMenu.item.name : ''}
-          actions={[
-            {
-              label: 'Edit',
-              icon: 'create-outline',
-              onPress: () => {
-                const ctx = taxonomyContextMenu;
-                setTaxonomyContextMenu(null);
-                if (!ctx) return;
-                if (ctx.kind === 'category') {
-                  setCategoryEditor({ mode: 'edit', initial: ctx.item });
-                } else {
-                  setTypeEditor({ mode: 'edit', initial: ctx.item });
-                }
-              },
-            },
-            {
-              label: 'Delete',
-              icon: 'trash-outline',
-              color: Colors.danger,
-              onPress: () => {
-                const ctx = taxonomyContextMenu;
-                setTaxonomyContextMenu(null);
-                if (ctx) handleDeleteTaxonomyWithContext(ctx.kind, ctx.item);
-              },
-            },
-          ]}
-        />
-
-        <ItemEditorModal
-          visible={categoryEditor !== null}
-          mode={categoryEditor?.mode ?? 'add'}
-          initial={categoryEditor?.initial}
-          title="Category"
-          onClose={() => setCategoryEditor(null)}
-          onSave={(data, context) => {
-            handleTaxonomySave(data, context)
-            setCategoryEditor(null)
-          }}
-        />
-
-        <ItemEditorModal
-          visible={typeEditor !== null}
-          mode={typeEditor?.mode ?? 'add'}
-          initial={typeEditor?.initial}
-          title="Type"
-          onClose={() => setTypeEditor(null)}
-          onSave={(data, context) => {
-            handleTaxonomySave(data, context)
-            setTypeEditor(null)
-          }}
-        />
-        </View>
-      </Modal>
+      </BottomSheetModal>
     </SafeAreaView>
   );
 };

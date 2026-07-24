@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { CostBreakdownChart } from '@/features/cars/components/CostBreakdownChart';
 import useCarStore from '@/features/cars/store/carList.store';
 import { Car } from '@/features/cars/types/car.types';
@@ -98,10 +99,10 @@ const CarDetailScreen = () => {
   };
 
   const getExpiryColor = (daysRemaining: number | null): string => {
-    if (daysRemaining === null) return '#7142CD';
-    if (daysRemaining < 0) return '#FF4444'; // expired - red
-    if (daysRemaining <= 30) return '#FFA500'; // expiring soon - orange
-    return '#4CAF50'; // valid - green
+    if (daysRemaining === null) return Colors.primary;
+    if (daysRemaining < 0) return Colors.danger; // expired - red
+    if (daysRemaining <= 30) return Colors.warning; // expiring soon - orange
+    return Colors.success; // valid - green
   };
 
   // Get data from arrays
@@ -133,7 +134,7 @@ const CarDetailScreen = () => {
             />
           ) : (
             <View style={styles.placeholderImage}>
-              <Ionicons name="car-sport" size={80} color="#7142CD" />
+              <Ionicons name="car-sport" size={80} color={Colors.primary} />
             </View>
           )}
         </View>
@@ -144,7 +145,7 @@ const CarDetailScreen = () => {
               onPress={() => router.push(`/cars/edit/${id}`)}>
             <Text style={styles.carTitle}>
               {car.make} {car.model}
-              <Ionicons name="chevron-forward-outline" size={20} color="#fff" />      
+              <Ionicons name="chevron-forward-outline" size={20} color={Colors.white} />      
             </Text>
             <Text style={styles.carSubtitle}>
               {car.year} --- {car.licensePlate} --- {car.fuel}
@@ -168,9 +169,9 @@ const CarDetailScreen = () => {
           activeOpacity={0.7}
         >
           <View style={styles.sectionHeader}>
-            <Ionicons name="shield-checkmark" size={24} color="#7142CD" />
+            <Ionicons name="shield-checkmark" size={24} color={Colors.primary} />
             <Text style={[styles.sectionTitle, { flex: 1 }]}>Insurance</Text>
-            <Ionicons name="chevron-forward" size={20} color="#7142CD" />
+            <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
           </View>
           <View style={styles.sectionContent}>
             {latestInsurance ? (
@@ -224,9 +225,9 @@ const CarDetailScreen = () => {
           activeOpacity={0.7}
         >
           <View style={styles.sectionHeader}>
-            <Ionicons name="checkmark-done-circle" size={24} color="#7142CD" />
+            <Ionicons name="checkmark-done-circle" size={24} color={Colors.primary} />
             <Text style={[styles.sectionTitle, { flex: 1 }]}>Technical Inspection</Text>
-            <Ionicons name="chevron-forward" size={20} color="#7142CD" />
+            <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
           </View>
           <View style={styles.sectionContent}>
             {technicalInspection ? (
@@ -262,7 +263,7 @@ const CarDetailScreen = () => {
                 )}
                 <View style={styles.infoRow}>
                   <Text style={styles.infoLabel}>Result:</Text>
-                  <Text style={[styles.infoValue, { color: technicalInspection.result === 'pass' ? '#4CAF50' : '#FF4444' }]}>
+                  <Text style={[styles.infoValue, { color: technicalInspection.result === 'pass' ? Colors.success : Colors.danger }]}>
                     {technicalInspection.result.toUpperCase()}
                   </Text>
                 </View>
@@ -280,9 +281,9 @@ const CarDetailScreen = () => {
           activeOpacity={0.7}
         >
           <View style={styles.sectionHeader}>
-            <Ionicons name="receipt" size={24} color="#7142CD" />
+            <Ionicons name="receipt" size={24} color={Colors.primary} />
             <Text style={[styles.sectionTitle, { flex: 1 }]}>Road Tax</Text>
-            <Ionicons name="chevron-forward" size={20} color="#7142CD" />
+            <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
           </View>
           <View style={styles.sectionContent}>
             {validVignettes.length > 0 ? (
@@ -339,9 +340,9 @@ const CarDetailScreen = () => {
           activeOpacity={0.7}
         >
           <View style={styles.sectionHeader}>
-            <Ionicons name="cash-outline" size={24} color="#7142CD" />
+            <Ionicons name="cash-outline" size={24} color={Colors.primary} />
             <Text style={[styles.sectionTitle, { flex: 1 }]}>Costs & Maintenance</Text>
-            <Ionicons name="chevron-forward" size={20} color="#7142CD" />
+            <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
           </View>
           <View style={styles.sectionContent}>
             {hasCostData ? (
@@ -354,7 +355,7 @@ const CarDetailScreen = () => {
             )}
           </View>
           <View style={[styles.sectionHeader, styles.maintenanceSection]}>
-            <Ionicons name="build" size={24} color="#7142CD" />
+            <Ionicons name="build" size={24} color={Colors.primary} />
             <Text style={[styles.sectionTitle, { flex: 1 }]}>Maintenance History</Text>
           </View>
           <View style={styles.sectionContent}>
@@ -451,7 +452,7 @@ const CarDetailScreen = () => {
         {(car.color || car.transmission || car.notes) && (
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
-              <Ionicons name="information-circle" size={24} color="#7142CD" />
+              <Ionicons name="information-circle" size={24} color={Colors.primary} />
               <Text style={styles.sectionTitle}>Additional Details</Text>
             </View>
             <View style={styles.sectionContent}>
@@ -488,7 +489,7 @@ const CarDetailScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
   },
   scrollView: {
     flex: 1,
@@ -500,25 +501,25 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   errorText: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 18,
     marginBottom: 20,
   },
   backButton: {
-    backgroundColor: '#7142CD',
+    backgroundColor: Colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   backButtonText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
   imageContainer: {
     width: '100%',
     aspectRatio: 16 / 9,
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
   },
   carImage: {
     width: '100%',
@@ -532,30 +533,30 @@ const styles = StyleSheet.create({
   },
   headerInfo: {
     padding: 20,
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderBottomWidth: 1,
-    borderBottomColor: '#3D2F6E',
+    borderBottomColor: Colors.border,
   },
   carTitle: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   carSubtitle: {
     fontSize: 16,
-    color: '#B0B0B2',
+    color: Colors.textSecondary,
   },
   vinText: {
     fontSize: 14,
-    color: '#8A8A8C',
+    color: Colors.textMuted,
     marginTop: 4,
   },
   editButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#7142CD',
+    backgroundColor: Colors.primary,
     // marginHorizontal: 20,
     // marginTop: 20,
     padding: 5,
@@ -563,14 +564,14 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   editButtonText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 13,
     fontWeight: '600',
   },
   section: {
     marginTop: 20,
     marginHorizontal: 20,
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderRadius: 15,
     padding: 16,
   },
@@ -583,7 +584,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
   },
   sectionContent: {
     gap: 12,
@@ -595,11 +596,11 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 15,
-    color: '#B0B0B2',
+    color: Colors.textSecondary,
   },
   infoValue: {
     fontSize: 15,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontWeight: '500',
   },
   expiryBadge: {
@@ -609,12 +610,12 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   expiryText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
   noDataText: {
-    color: '#8A8A8C',
+    color: Colors.textMuted,
     fontSize: 15,
     fontStyle: 'italic',
     textAlign: 'center',
@@ -622,7 +623,7 @@ const styles = StyleSheet.create({
   },
   maintenanceSection: {
     borderTopWidth: 1,
-    borderTopColor: '#3D2F6E',
+    borderTopColor: Colors.border,
     borderStyle: 'solid',
     marginTop: 20,
     paddingTop: 20,
@@ -633,11 +634,11 @@ const styles = StyleSheet.create({
   maintenanceHistoryTitle: {
     fontSize: 16,
     fontWeight: '600',
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     marginBottom: 12,
   },
   maintenanceRecord: {
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
     borderRadius: 10,
     marginBottom: 12,
   },
@@ -651,17 +652,17 @@ const styles = StyleSheet.create({
   },
   maintenanceDate: {
     fontSize: 14,
-    color: '#B0B0B2',
+    color: Colors.textSecondary,
     fontWeight: '500',
   },
   maintenanceCost: {
     fontSize: 14,
-    color: '#7142CD',
+    color: Colors.primary,
     fontWeight: '600',
   },
   maintenanceDescription: {
     fontSize: 15,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   maintenanceRecordFooter: {
@@ -671,25 +672,25 @@ const styles = StyleSheet.create({
   },
   maintenanceMileage: {
     fontSize: 13,
-    color: '#8A8A8C',
+    color: Colors.textMuted,
   },
   notesContainer: {
     gap: 8,
   },
   notesText: {
     fontSize: 14,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     lineHeight: 20,
   },
   partsSection: {
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#2C1F5E',
+    borderTopColor: Colors.surface,
   },
   partsLabel: {
     fontSize: 12,
-    color: '#B0B0B2',
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   partRow: {
@@ -699,22 +700,22 @@ const styles = StyleSheet.create({
   },
   partName: {
     fontSize: 13,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
   },
   partCost: {
     fontSize: 13,
-    color: '#7142CD',
+    color: Colors.primary,
     fontWeight: '600',
   },
   vignetteCard: {
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
     padding: 12,
     borderRadius: 10,
     marginBottom: 12,
     gap: 8,
   },
   seeAllLink: {
-    color: '#7142CD',
+    color: Colors.primary,
     fontSize: 14,
     fontWeight: '600',
     textAlign: 'center',
@@ -728,7 +729,7 @@ const styles = StyleSheet.create({
     // borderRadius: 12,
   },
   maintenanceTypeText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 12,
     fontWeight: '600',
     textTransform: 'capitalize',

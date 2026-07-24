@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { ContextMenu } from '@/features/cars/components/ContextMenu';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import useCarStore from '@/features/cars/store/carList.store';
@@ -43,9 +44,9 @@ const RESULT_OPTIONS: InspectionRecord['result'][] = ['pass', 'fail', 'pending']
 
 const getResultColor = (result: string) => {
   switch (result) {
-    case 'pass': return '#4CAF50';
-    case 'fail': return '#FF4444';
-    default: return '#FFA500';
+    case 'pass': return Colors.success;
+    case 'fail': return Colors.danger;
+    default: return Colors.warning;
   }
 };
 
@@ -145,7 +146,7 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
       <View style={ls.header}>
         <Text style={ls.headerTitle}>Inspection Records</Text>
         <TouchableOpacity style={ls.addButton} onPress={() => openModal()}>
-          <Ionicons name="add" size={20} color="#fff" />
+          <Ionicons name="add" size={20} color={Colors.white} />
         </TouchableOpacity>
       </View>
 
@@ -199,10 +200,10 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
                         ls.statusBadge,
                         {
                           backgroundColor: isExpired
-                            ? '#FF4444'
+                            ? Colors.danger
                             : isExpiringSoon
-                              ? '#FFA500'
-                              : '#4CAF50',
+                              ? Colors.warning
+                              : Colors.success,
                         },
                       ]}
                     >
@@ -242,7 +243,7 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
           {
             label: 'Remove Inspection',
             icon: 'trash-outline',
-            color: '#FF4444',
+            color: Colors.danger,
             onPress: () => {
               const rec = contextRecord;
               setContextRecord(null);
@@ -319,7 +320,7 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
                 value={mileage}
                 onChangeText={setMileage}
                 placeholder="125000"
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
                 keyboardType="number-pad"
               />
               <Text style={styles.label}>Cost (€)</Text>
@@ -328,7 +329,7 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
                 value={cost}
                 onChangeText={setCost}
                 placeholder="50"
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
                 keyboardType="decimal-pad"
               />
               <Text style={styles.label}>Location</Text>
@@ -337,7 +338,7 @@ export const InspectionTab: React.FC<InspectionTabProps> = ({ carId, carName, in
                 value={location}
                 onChangeText={setLocation}
                 placeholder="Service center"
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
               />
             </ScrollView>
             <View style={styles.modalButtons}>

@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { DropdownMenu, MenuButton } from '@/features/cars/components/DropdownMenu';
 import { useDropdownMenu } from '@/features/cars/hooks/useDropdownMenu';
 import { Stack } from 'expo-router';
@@ -21,9 +22,9 @@ export default function Layout() {
     <>
       <Stack screenOptions={{
           headerStyle: {
-            backgroundColor: '#1C1643',
+            backgroundColor: Colors.background,
           },
-          headerTintColor: '#fff',
+          headerTintColor: Colors.white,
           headerShadowVisible: false,
           headerTitleStyle: {
             fontWeight: 'bold',
@@ -62,7 +63,7 @@ export default function Layout() {
 
       {isLoading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#7142CD" />
+          <ActivityIndicator size="large" color={Colors.primary} />
         </View>
       )}
     </>

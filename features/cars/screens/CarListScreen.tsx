@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import useCarStore from '@/features/cars/store/carList.store';
 import { Car } from '@/features/cars/types/car.types';
 import { Ionicons } from '@expo/vector-icons';
@@ -20,11 +21,11 @@ const daysUntil = (isoDate: string): number =>
   Math.ceil((new Date(isoDate).getTime() - Date.now()) / 86_400_000);
 
 const daysLabel = (days: number): { text: string; color: string } => {
-  if (days < 0)  return { text: 'Expired',    color: '#FF4444' };
-  if (days === 0) return { text: 'Today',      color: '#FF4444' };
-  if (days <= 14) return { text: `${days} days left`,   color: '#FF8C00' };
-  if (days <= 30) return { text: `${days} days left`,   color: '#F0C040' };
-  return              { text: `${days} days left`,   color: '#4CAF50' };
+  if (days < 0)  return { text: 'Expired',    color: Colors.danger };
+  if (days === 0) return { text: 'Today',      color: Colors.danger };
+  if (days <= 14) return { text: `${days} days left`,   color: Colors.warningStrong };
+  if (days <= 30) return { text: `${days} days left`,   color: Colors.warningSoft };
+  return              { text: `${days} days left`,   color: Colors.success };
 };
 
 const getInsuranceDays = (car: Car) => {
@@ -69,7 +70,7 @@ const CarCard = ({ item, selected, onPress }: { item: Car; selected: boolean; on
             <Text style={styles.soldTagText}>SOLD</Text>
           </View>
         )}
-        <Ionicons name="chevron-forward" size={20} color="#7142CD" />
+        <Ionicons name="chevron-forward" size={20} color={Colors.primary} />
       </View>
 
       {/* Row 2 — Make & Model */}
@@ -95,7 +96,7 @@ const CarCard = ({ item, selected, onPress }: { item: Car; selected: boolean; on
           {insurance ? (
             <View style={styles.statusCell}>
               <View style={styles.statusLabelRow}>
-                <Ionicons name="shield-checkmark" size={16} color="#7142CD" />
+                <Ionicons name="shield-checkmark" size={16} color={Colors.primary} />
                 <Text style={styles.statusLabel}>Insurance</Text>
               </View>
               <Text style={[styles.statusDays, { color: insurance.color }]}>
@@ -107,7 +108,7 @@ const CarCard = ({ item, selected, onPress }: { item: Car; selected: boolean; on
           {service ? (
             <View style={styles.statusCell}>
               <View style={styles.statusLabelRow}>
-                <Ionicons name="build" size={16} color="#7142CD" />
+                <Ionicons name="build" size={16} color={Colors.primary} />
                 <Text style={styles.statusLabel}>Service</Text>
               </View>
               <Text style={[styles.statusDays, { color: service.color }]}>
@@ -208,11 +209,11 @@ const CarList = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
     marginTop: StatusBar.currentHeight || 0,
   },
   screenTitle: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 24,
     fontWeight: '700',
     padding: 20,
@@ -220,7 +221,7 @@ const styles = StyleSheet.create({
 
   // Card
   card: {
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderRadius: 16,
     paddingVertical: 16,
     paddingHorizontal: 18,
@@ -228,9 +229,9 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
   },
   cardSelected: {
-    backgroundColor: '#3D2F8A',
+    backgroundColor: Colors.surfaceSelected,
     borderWidth: 1,
-    borderColor: '#7142CD',
+    borderColor: Colors.primary,
   },
   cardNameRow: {
     flexDirection: 'row',
@@ -238,28 +239,28 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   cardName: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 26,
     fontWeight: '700',
     letterSpacing: 0.2,
     flex: 1,
   },
   soldTag: {
-    backgroundColor: '#FF444422',
+    backgroundColor: Colors.dangerFaint,
     borderWidth: 1,
-    borderColor: '#FF4444',
+    borderColor: Colors.danger,
     borderRadius: 4,
     paddingHorizontal: 6,
     paddingVertical: 2,
   },
   soldTagText: {
-    color: '#FF4444',
+    color: Colors.danger,
     fontSize: 10,
     fontWeight: '700',
     letterSpacing: 1,
   },
   cardMakeModel: {
-    color: '#7A6EA0',
+    color: Colors.purpleMuted,
     fontSize: 15,
     fontWeight: '500',
     marginTop: 2,
@@ -271,13 +272,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
     paddingHorizontal: 7,
     paddingVertical: 2,
-    backgroundColor: '#F5F0D0',
+    backgroundColor: Colors.plateBackground,
     borderRadius: 4,
     borderWidth: 1,
     borderColor: '#000',
   },
   plateText: {
-    color: '#1A1A1A',
+    color: Colors.plateText,
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 2,
@@ -285,7 +286,7 @@ const styles = StyleSheet.create({
 
   // Meta row
   cardMeta: {
-    color: '#9B8FBF',
+    color: Colors.purpleSoft,
     fontSize: 12,
     fontWeight: '500',
     marginTop: 8,
@@ -297,7 +298,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     marginTop: 14,
     borderTopWidth: 1,
-    borderTopColor: '#3D2F6E',
+    borderTopColor: Colors.border,
     paddingTop: 12,
   },
   statusCell: {
@@ -307,7 +308,7 @@ const styles = StyleSheet.create({
   },
   statusDivider: {
     width: 1,
-    backgroundColor: '#3D2F6E',
+    backgroundColor: Colors.border,
     marginHorizontal: 8,
   },
   statusLabelRow: {
@@ -316,7 +317,7 @@ const styles = StyleSheet.create({
     gap: 5,
   },
   statusLabel: {
-    color: '#9B8FBF',
+    color: Colors.purpleSoft,
     fontSize: 11,
     fontWeight: '600',
   },
@@ -332,7 +333,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyStateText: {
-    color: '#665e7f80',
+    color: Colors.textFaint,
     fontSize: 15,
     lineHeight: 22,
     textAlign: 'center',
@@ -344,11 +345,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 10,
-    backgroundColor: '#3D2F6E',
+    backgroundColor: Colors.border,
     marginTop: 8,
   },
   learnMoreText: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -356,26 +357,26 @@ const styles = StyleSheet.create({
   // Modal
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: Colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
   },
   modalContent: {
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderRadius: 16,
     padding: 24,
     marginHorizontal: 32,
     width: '85%',
   },
   modalTitle: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 20,
     fontWeight: '700',
     marginBottom: 16,
     textAlign: 'center',
   },
   modalText: {
-    color: '#C4BDE0',
+    color: Colors.textSoft,
     fontSize: 15,
     lineHeight: 22,
     marginBottom: 12,
@@ -383,12 +384,12 @@ const styles = StyleSheet.create({
   modalCloseButton: {
     marginTop: 8,
     paddingVertical: 10,
-    backgroundColor: '#7142CD',
+    backgroundColor: Colors.primary,
     borderRadius: 10,
     alignItems: 'center',
   },
   modalCloseText: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 16,
     fontWeight: '600',
   },

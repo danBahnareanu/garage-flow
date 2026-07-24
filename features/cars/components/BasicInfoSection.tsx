@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { styles } from '@/features/cars/styles/editCarDetail.styles';
 import { Car } from '@/features/cars/types/car.types';
 import { Ionicons } from '@expo/vector-icons';
@@ -14,10 +15,10 @@ const cropperOptions = {
   compressImageQuality: 0.8,
   cropperToolbarTitle: 'Crop Image',
   // Android cropper theming (ignored on iOS)
-  cropperToolbarColor: '#1C1643',
-  cropperToolbarWidgetColor: '#FFFFFF',
-  cropperStatusBarColor: '#1C1643',
-  cropperActiveWidgetColor: '#7142CD',
+  cropperToolbarColor: Colors.background,
+  cropperToolbarWidgetColor: Colors.white,
+  cropperStatusBarColor: Colors.background,
+  cropperActiveWidgetColor: Colors.primary,
 };
 
 const isPickerCancelled = (error: unknown): boolean =>
@@ -105,7 +106,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
   return (
     <View style={styles.basicInfoSection}>
       <View style={styles.sectionHeader}>
-        <Ionicons name="car" size={24} color="#7142CD" />
+        <Ionicons name="car" size={24} color={Colors.primary} />
         <Text style={styles.sectionTitle}>Basic Info</Text>
       </View>
 
@@ -115,7 +116,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
         value={name}
         onChangeText={setName}
         placeholder="e.g. My Daily Driver"
-        placeholderTextColor="#8A8A8C"
+        placeholderTextColor={Colors.textMuted}
       />
 
       <View style={styles.basicInfoGrid}>
@@ -126,7 +127,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
             value={make}
             onChangeText={setMake}
             placeholder="Toyota"
-            placeholderTextColor="#8A8A8C"
+            placeholderTextColor={Colors.textMuted}
           />
         </View>
         <View style={styles.gridItem}>
@@ -136,7 +137,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
             value={model}
             onChangeText={setModel}
             placeholder="Camry"
-            placeholderTextColor="#8A8A8C"
+            placeholderTextColor={Colors.textMuted}
           />
         </View>
       </View>
@@ -149,7 +150,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
             value={year}
             onChangeText={setYear}
             placeholder="2020"
-            placeholderTextColor="#8A8A8C"
+            placeholderTextColor={Colors.textMuted}
             keyboardType="number-pad"
           />
         </View>
@@ -160,7 +161,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
             value={fuel}
             onChangeText={setFuel}
             placeholder="Petrol"
-            placeholderTextColor="#8A8A8C"
+            placeholderTextColor={Colors.textMuted}
           />
         </View>
       </View>
@@ -173,7 +174,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
             value={licensePlate}
             onChangeText={setLicensePlate}
             placeholder="ABC123"
-            placeholderTextColor="#8A8A8C"
+            placeholderTextColor={Colors.textMuted}
           />
         </View>
       </View>
@@ -186,7 +187,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
             value={purchasePrice}
             onChangeText={setPurchasePrice}
             placeholder="15000"
-            placeholderTextColor="#8A8A8C"
+            placeholderTextColor={Colors.textMuted}
             keyboardType="decimal-pad"
           />
         </View>
@@ -197,7 +198,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
             value={currentMileage}
             onChangeText={setCurrentMileage}
             placeholder="125000"
-            placeholderTextColor="#8A8A8C"
+            placeholderTextColor={Colors.textMuted}
             keyboardType="number-pad"
           />
         </View>
@@ -211,7 +212,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
             value={vin}
             onChangeText={setVin}
             placeholder="VIN"
-            placeholderTextColor="#8A8A8C"
+            placeholderTextColor={Colors.textMuted}
             autoCapitalize="characters"
           />
         </View>
@@ -222,7 +223,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
             value={color}
             onChangeText={setColor}
             placeholder="Silver"
-            placeholderTextColor="#8A8A8C"
+            placeholderTextColor={Colors.textMuted}
           />
         </View>
       </View>
@@ -258,10 +259,10 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
       <TouchableOpacity
         onPress={pickImage}
         style={{
-          backgroundColor: '#1C1643',
+          backgroundColor: Colors.background,
           borderRadius: 8,
           borderWidth: 1,
-          borderColor: '#3D2F6E',
+          borderColor: Colors.border,
           overflow: 'hidden',
           width: '100%',
           aspectRatio: IMAGE_ASPECT,
@@ -277,18 +278,18 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
           />
         ) : (
           <View style={{ alignItems: 'center', gap: 8 }}>
-            <Ionicons name="image-outline" size={40} color="#8A8A8C" />
-            <Text style={{ color: '#8A8A8C', fontSize: 14 }}>Tap to select image</Text>
+            <Ionicons name="image-outline" size={40} color={Colors.textMuted} />
+            <Text style={{ color: Colors.textMuted, fontSize: 14 }}>Tap to select image</Text>
           </View>
         )}
       </TouchableOpacity>
       {imageUrl && (
         <View style={{ marginTop: 8, flexDirection: 'row', justifyContent: 'flex-end', gap: 16 }}>
           <TouchableOpacity onPress={adjustCrop}>
-            <Text style={{ color: '#9B7BE0', fontSize: 12 }}>Adjust crop</Text>
+            <Text style={{ color: Colors.primaryLight, fontSize: 12 }}>Adjust crop</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setImageUrl('')}>
-            <Text style={{ color: '#FF4444', fontSize: 12 }}>Remove image</Text>
+            <Text style={{ color: Colors.danger, fontSize: 12 }}>Remove image</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -299,7 +300,7 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
         value={notes}
         onChangeText={setNotes}
         placeholder="Notes..."
-        placeholderTextColor="#8A8A8C"
+        placeholderTextColor={Colors.textMuted}
         multiline
         numberOfLines={2}
         textAlignVertical="top"
@@ -310,13 +311,13 @@ export const BasicInfoSection: React.FC<BasicInfoSectionProps> = ({ car, onSave 
         <Switch
           value={sold}
           onValueChange={setSold}
-          trackColor={{ false: '#3D2F6E', true: '#7142CD' }}
-          thumbColor={sold ? '#E1E1E2' : '#8A8A8C'}
+          trackColor={{ false: Colors.border, true: Colors.primary }}
+          thumbColor={sold ? Colors.textPrimary : Colors.textMuted}
         />
       </View>
 
       <TouchableOpacity style={styles.saveBasicButton} onPress={handleSave}>
-        <Ionicons name="save" size={16} color="#fff" />
+        <Ionicons name="save" size={16} color={Colors.white} />
         <Text style={styles.saveBasicButtonText}>Save Basic Info</Text>
       </TouchableOpacity>
     </View>

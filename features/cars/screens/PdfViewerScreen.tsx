@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { Dimensions, StyleSheet, View } from 'react-native';
@@ -20,7 +21,7 @@ export default function PdfViewerScreen()  {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
   },
   pdf: {
     flex: 1,

@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { TAXONOMY_COLORS } from '@/features/cars/constants/colors';
 import React, { useEffect, useState } from 'react';
 import {
@@ -73,7 +74,7 @@ export const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
             value={name}
             onChangeText={setName}
             placeholder="Name"
-            placeholderTextColor="#8A8A8C"
+            placeholderTextColor={Colors.textMuted}
             autoFocus
           />
 
@@ -112,13 +113,13 @@ export const ItemEditorModal: React.FC<ItemEditorModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
+    backgroundColor: Colors.overlay,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
   },
   card: {
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderRadius: 16,
     padding: 20,
     width: '100%',
@@ -127,21 +128,21 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     marginBottom: 16,
     textAlign: 'center',
   },
   label: {
     fontSize: 13,
-    color: '#B0B0B2',
+    color: Colors.textSecondary,
     marginBottom: 6,
     marginTop: 8,
   },
   input: {
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
     borderRadius: 10,
     padding: 12,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 15,
   },
   swatchGrid: {
@@ -158,7 +159,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   swatchSelected: {
-    borderColor: '#fff',
+    borderColor: Colors.white,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -167,25 +168,25 @@ const styles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
     padding: 12,
     borderRadius: 10,
     alignItems: 'center',
   },
   cancelButtonText: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 15,
     fontWeight: '500',
   },
   saveButton: {
     flex: 1,
-    backgroundColor: '#7142CD',
+    backgroundColor: Colors.primary,
     padding: 12,
     borderRadius: 10,
     alignItems: 'center',
   },
   saveButtonText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 15,
     fontWeight: '600',
   },

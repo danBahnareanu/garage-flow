@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import React from 'react';
 import { View, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
 import Svg, { G, Path } from 'react-native-svg';
@@ -193,11 +194,11 @@ const styles = StyleSheet.create({
   emptyContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderRadius: 100,
   },
   emptyText: {
-    color: '#8A8A8C',
+    color: Colors.textMuted,
     fontSize: 14,
   },
   centerLabelContainer: {

@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { CategoriesType } from '@/features/cars/types/car.types';
 import { StyleSheet } from 'react-native';
 
@@ -5,7 +6,7 @@ export const styles = StyleSheet.create({
   // Container
   container: {
     flex: 1,
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
   },
   scrollView: {
     flex: 1,
@@ -17,7 +18,7 @@ export const styles = StyleSheet.create({
 
   // Header
   headerSection: {
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderRadius: 15,
     padding: 16,
     marginBottom: 16,
@@ -25,23 +26,23 @@ export const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     marginBottom: 4,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#B0B0B2',
+    color: Colors.textSecondary,
   },
   totalAmount: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#7142CD',
+    color: Colors.primary,
     marginTop: 12,
   },
 
   // Pie Chart Section
   chartSection: {
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderRadius: 15,
     padding: 16,
     marginBottom: 16,
@@ -55,7 +56,7 @@ export const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
   },
   chartContainer: {
     alignItems: 'center',
@@ -84,23 +85,23 @@ export const styles = StyleSheet.create({
   },
   legendLabel: {
     fontSize: 14,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     textTransform: 'capitalize',
   },
   legendValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
   },
   legendPercentage: {
     fontSize: 12,
-    color: '#B0B0B2',
+    color: Colors.textSecondary,
     marginLeft: 8,
   },
 
   // List Section
   listSection: {
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderRadius: 15,
     padding: 16,
     marginBottom: 16,
@@ -108,7 +109,7 @@ export const styles = StyleSheet.create({
 
   // Cost Card
   costCard: {
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
     borderRadius: 10,
     // padding: 12,
     marginBottom: 10,
@@ -138,13 +139,13 @@ export const styles = StyleSheet.create({
   typeBadgeText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#fff',
+    color: Colors.white,
     textTransform: 'capitalize',
   },
   costAmount: {
     fontSize: 18,
     fontWeight: '700',
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     paddingRight: 12,
     marginTop: 6,
   },
@@ -153,24 +154,24 @@ export const styles = StyleSheet.create({
   },
   costDate: {
     fontSize: 13,
-    color: '#B0B0B2',
+    color: Colors.textSecondary,
   },
   costDescription: {
     fontSize: 14,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     marginTop: 4,
   },
   costVendor: {
     fontSize: 12,
-    color: '#8A8A8C',
+    color: Colors.textMuted,
   },
   costMileage: {
     fontSize: 12,
-    color: '#8A8A8C',
+    color: Colors.textMuted,
   },
   fuelDetails: {
     fontSize: 12,
-    color: '#8A8A8C',
+    color: Colors.textMuted,
     marginTop: 2,
   },
 
@@ -185,12 +186,12 @@ export const styles = StyleSheet.create({
   emptyStateTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     marginBottom: 8,
   },
   emptyStateText: {
     fontSize: 14,
-    color: '#8A8A8C',
+    color: Colors.textMuted,
     textAlign: 'center',
     paddingHorizontal: 20,
   },
@@ -203,18 +204,18 @@ export const styles = StyleSheet.create({
     padding: 20,
   },
   errorText: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 18,
     marginBottom: 20,
   },
   backButton: {
-    backgroundColor: '#7142CD',
+    backgroundColor: Colors.primary,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
   },
   backButtonText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -222,7 +223,7 @@ export const styles = StyleSheet.create({
 
 // Color mapping for cost types
 export const costTypeColors: Record<CategoriesType, string> = {
-    'Oils & Filters': '#4CAF50',        // Green — universal "go/fuel"
+    'Oils & Filters': Colors.success,        // Green — universal "go/fuel"
     'Engine': '#ca8b78', // Teal — steady, mechanical
     'Brakes': '#E05C5C',      // Muted red — urgent/attention
     'Suspension': '#4A9EE0',   // Steel blue — trust/security

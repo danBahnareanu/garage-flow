@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { ContextMenu } from '@/features/cars/components/ContextMenu';
 import { CostBreakdownChart } from '@/features/cars/components/CostBreakdownChart';
 import { ItemEditorModal } from '@/features/cars/components/ItemEditorModal';
@@ -297,7 +298,7 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
       <View style={styles.emptyStateIcon}>
-        <Ionicons name="build-outline" size={64} color="#3D2F6E" />
+        <Ionicons name="build-outline" size={64} color={Colors.border} />
       </View>
       <Text style={styles.emptyStateTitle}>No Records</Text>
       <Text style={styles.emptyStateText}>
@@ -323,7 +324,7 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
         {hasCostData && (
           <View style={styles.chartSection}>
             <View style={styles.sectionHeader}>
-              <Ionicons name="pie-chart" size={24} color="#7142CD" />
+              <Ionicons name="pie-chart" size={24} color={Colors.primary} />
               <Text style={styles.sectionTitle}>Cost Breakdown</Text>
             </View>
             <CostBreakdownChart
@@ -351,7 +352,7 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
                   style={localStyles.addButton}
                   onPress={() => openModal(undefined, catName)}
                 >
-                  <Ionicons name="add" size={20} color="#fff" />
+                  <Ionicons name="add" size={20} color={Colors.white} />
                 </TouchableOpacity>
               </View>
               {sectionRecords.map(renderRecordCard)}
@@ -381,7 +382,7 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
           {
             label: 'Remove Record',
             icon: 'trash-outline',
-            color: '#FF4444',
+            color: Colors.danger,
             onPress: () => {
               const rec = contextRecord;
               setContextRecord(null);
@@ -435,7 +436,7 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
                 value={mileage}
                 onChangeText={setMileage}
                 placeholder="125000"
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
                 keyboardType="number-pad"
               />
               <Text style={localStyles.label}>Description *</Text>
@@ -444,7 +445,7 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
                 value={description}
                 onChangeText={setDescription}
                 placeholder="Oil change..."
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
                 multiline
                 numberOfLines={3}
                 textAlignVertical="top"
@@ -455,7 +456,7 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
                 value={serviceProvider}
                 onChangeText={setServiceProvider}
                 placeholder="BMW Service"
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
               />
               <Text style={localStyles.label}>Parts Replaced</Text>
               <View style={localStyles.partsInputRow}>
@@ -464,18 +465,18 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
                   value={partName}
                   onChangeText={setPartName}
                   placeholder="Part name"
-                  placeholderTextColor="#8A8A8C"
+                  placeholderTextColor={Colors.textMuted}
                 />
                 <TextInput
                   style={[localStyles.input, { width: 70 }]}
                   value={partCost}
                   onChangeText={setPartCost}
                   placeholder="€"
-                  placeholderTextColor="#8A8A8C"
+                  placeholderTextColor={Colors.textMuted}
                   keyboardType="decimal-pad"
                 />
                 <Pressable style={localStyles.partAddButton} onPress={handleAddPart}>
-                  <Ionicons name="add" size={18} color="#fff" />
+                  <Ionicons name="add" size={18} color={Colors.white} />
                 </Pressable>
               </View>
               {partsReplaced.map((part, index) => (
@@ -484,7 +485,7 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                     <Text style={localStyles.partItemCost}>€{part.cost.toFixed(2)}</Text>
                     <TouchableOpacity onPress={() => handleRemovePart(index)}>
-                      <Text style={{ color: '#FF4444', fontSize: 16 }}>✕</Text>
+                      <Text style={{ color: Colors.danger, fontSize: 16 }}>✕</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -503,7 +504,7 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
                     value={cost}
                     onChangeText={setCost}
                     placeholder="50"
-                    placeholderTextColor="#8A8A8C"
+                    placeholderTextColor={Colors.textMuted}
                     keyboardType="decimal-pad"
                   />
                 </>
@@ -526,7 +527,7 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
                 value={nextServiceMileage}
                 onChangeText={setNextServiceMileage}
                 placeholder="135000"
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
                 keyboardType="number-pad"
               />
             </ScrollView>
@@ -592,7 +593,7 @@ const handleDeleteTaxonomyWithContext = (kind: 'category' | 'type', item: Taxono
             {
               label: 'Delete',
               icon: 'trash-outline',
-              color: '#FF4444',
+              color: Colors.danger,
               onPress: () => {
                 const ctx = taxonomyContextMenu;
                 setTaxonomyContextMenu(null);
@@ -638,7 +639,7 @@ const localStyles = StyleSheet.create({
     marginRight: 8,
   },
   addButton: {
-    backgroundColor: '#7142CD',
+    backgroundColor: Colors.primary,
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -653,18 +654,18 @@ const localStyles = StyleSheet.create({
   maintTypeBadgeText: {
     fontSize: 11,
     fontWeight: '600',
-    color: '#fff',
+    color: Colors.white,
     textTransform: 'capitalize',
   },
   partsSection: {
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#2C1F5E',
+    borderTopColor: Colors.surface,
   },
   partsLabel: {
     fontSize: 12,
-    color: '#B0B0B2',
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   partRow: {
@@ -676,13 +677,13 @@ const localStyles = StyleSheet.create({
   },
   partName: {
     fontSize: 13,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     flex: 1,
     flexShrink: 1,
   },
   partCost: {
     fontSize: 13,
-    color: '#7142CD',
+    color: Colors.primary,
     fontWeight: '600',
     flexShrink: 0,
   },
@@ -692,7 +693,7 @@ const localStyles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -701,29 +702,29 @@ const localStyles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     marginBottom: 16,
     textAlign: 'center',
   },
   label: {
     fontSize: 14,
-    color: '#B0B0B2',
+    color: Colors.textSecondary,
     marginBottom: 6,
     marginTop: 12,
   },
   input: {
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
     borderRadius: 10,
     padding: 12,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 15,
   },
   inputText: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 15,
   },
   placeholderText: {
-    color: '#8A8A8C',
+    color: Colors.textMuted,
     fontSize: 15,
   },
   partsInputRow: {
@@ -732,7 +733,7 @@ const localStyles = StyleSheet.create({
     alignItems: 'center',
   },
   partAddButton: {
-    backgroundColor: '#7142CD',
+    backgroundColor: Colors.primary,
     width: 36,
     height: 36,
     borderRadius: 10,
@@ -745,15 +746,15 @@ const localStyles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: '#1C1643',
+    borderBottomColor: Colors.background,
   },
   partItemText: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 14,
     flex: 1,
   },
   partItemCost: {
-    color: '#7142CD',
+    color: Colors.primary,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -763,10 +764,10 @@ const localStyles = StyleSheet.create({
     paddingVertical: 8,
     marginTop: 4,
     borderTopWidth: 1,
-    borderTopColor: '#3D2F6E',
+    borderTopColor: Colors.border,
   },
   partsTotalText: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 15,
     fontWeight: '600',
   },
@@ -777,25 +778,25 @@ const localStyles = StyleSheet.create({
   },
   cancelButton: {
     flex: 1,
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
     padding: 14,
     borderRadius: 10,
     alignItems: 'center',
   },
   cancelButtonText: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 16,
     fontWeight: '500',
   },
   saveButton: {
     flex: 1,
-    backgroundColor: '#7142CD',
+    backgroundColor: Colors.primary,
     padding: 14,
     borderRadius: 10,
     alignItems: 'center',
   },
   saveButtonText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 16,
     fontWeight: '600',
   },

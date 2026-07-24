@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 // useCarStore.ts
 import { TAXONOMY_NEUTRAL } from '@/features/cars/constants/colors';
 import { costTypeColors } from '@/features/cars/styles/runningCost.styles';
@@ -16,11 +17,11 @@ import { createJSONStorage, persist, StateStorage } from 'zustand/middleware';
 import { CategoryItem, MaintTypeItem } from '../types/taxonomy.types';
 
 const MAINT_TYPE_SEEDS: { id: string; name: string; color: string }[] = [
-  { id: 'scheduled', name: 'scheduled', color: '#4CAF50' },
-  { id: 'unscheduled', name: 'unscheduled', color: '#FFA500' },
-  { id: 'recall', name: 'recall', color: '#FF4444' },
+  { id: 'scheduled', name: 'scheduled', color: Colors.success },
+  { id: 'unscheduled', name: 'unscheduled', color: Colors.warning },
+  { id: 'recall', name: 'recall', color: Colors.danger },
   { id: 'upgrade', name: 'upgrade', color: '#4ECDC4' },
-  { id: 'preventive', name: 'preventive', color: '#4CAF50' },
+  { id: 'preventive', name: 'preventive', color: Colors.success },
   { id: 'repair', name: 'repair', color: '#FF6B6B' },
 ];
 

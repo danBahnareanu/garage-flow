@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -24,7 +25,7 @@ const cardStyles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
     borderRadius: 10,
     paddingRight: 12,
     marginTop: 12,
@@ -43,12 +44,12 @@ const cardStyles = StyleSheet.create({
   },
   label: {
     fontSize: 11,
-    color: '#B0B0B2',
+    color: Colors.textSecondary,
     marginBottom: 2,
   },
   value: {
     fontSize: 15,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontWeight: '600',
     textTransform: 'capitalize',
   },

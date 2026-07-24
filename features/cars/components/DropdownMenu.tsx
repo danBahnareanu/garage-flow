@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { Car } from '@/features/cars/types/car.types';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useEffect, useState } from 'react';
@@ -93,7 +94,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
                   style={styles.menuItem}
                   onPress={() => setShowDeleteList(false)}
                 >
-                  <Ionicons name="arrow-back" size={24} color="#E1E1E2" />
+                  <Ionicons name="arrow-back" size={24} color={Colors.textPrimary} />
                   <Text style={styles.menuItemText}>Back</Text>
                 </TouchableOpacity>
 
@@ -106,7 +107,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
                       style={styles.deleteCarItem}
                       onPress={() => onDeleteCar(car)}
                     >
-                      <Ionicons name="trash-outline" size={20} color="#FF4444" />
+                      <Ionicons name="trash-outline" size={20} color={Colors.danger} />
                       <Text style={styles.deleteCarText}>{car.make} {car.model}</Text>
                     </TouchableOpacity>
                   ))}
@@ -118,7 +119,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
                   style={styles.menuItem}
                   onPress={onAddNewCar}
                 >
-                  <Ionicons name="add-circle-outline" size={24} color="#E1E1E2" />
+                  <Ionicons name="add-circle-outline" size={24} color={Colors.textPrimary} />
                   <Text style={styles.menuItemText}>Add New Car</Text>
                 </TouchableOpacity>
 
@@ -126,15 +127,15 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
                   style={styles.menuItem}
                   onPress={() => setShowDeleteList(true)}
                 >
-                  <Ionicons name="trash-outline" size={24} color="#FF4444" />
-                  <Text style={[styles.menuItemText, { color: '#FF4444' }]}>Delete Car</Text>
+                  <Ionicons name="trash-outline" size={24} color={Colors.danger} />
+                  <Text style={[styles.menuItemText, { color: Colors.danger }]}>Delete Car</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.menuItem}
                   onPress={onExportCarList}
                 >
-                  <Ionicons name="share-outline" size={24} color="#E1E1E2" />
+                  <Ionicons name="share-outline" size={24} color={Colors.textPrimary} />
                   <Text style={styles.menuItemText}>Export Car List</Text>
                 </TouchableOpacity>
 
@@ -142,7 +143,7 @@ export const DropdownMenu: React.FC<DropdownMenuProps> = ({
                   style={styles.menuItem}
                   onPress={onImportCarList}
                 >
-                  <Ionicons name="download-outline" size={24} color="#E1E1E2" />
+                  <Ionicons name="download-outline" size={24} color={Colors.textPrimary} />
                   <Text style={styles.menuItemText}>Import Car List</Text>
                 </TouchableOpacity>
               </>
@@ -159,7 +160,7 @@ export const MenuButton: React.FC<{ onPress: () => void }> = ({ onPress }) => {
     <Pressable 
       onPress={onPress} 
       style={({ pressed }) => [styles.menuButton, { opacity: pressed ? 0.7 : 1 }]}>
-      <Ionicons name="ellipsis-horizontal" size={24} color="#fff"/>
+      <Ionicons name="ellipsis-horizontal" size={24} color={Colors.white}/>
     </Pressable>
   );
 };
@@ -168,7 +169,7 @@ const styles = StyleSheet.create({
   menuButton: {
     padding: 8,
     marginRight: 8,
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderRadius: 20,
   },
   modalOverlay: {
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 1)',
   },
   modalContent: {
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: 40,
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
   modalHandle: {
     width: 40,
     height: 4,
-    backgroundColor: '#7142CD',
+    backgroundColor: Colors.primary,
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
@@ -202,16 +203,16 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 4,
     borderRadius: 12,
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
   },
   menuItemText: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 18,
     marginLeft: 16,
     fontWeight: '500',
   },
   deleteListHeader: {
-    color: '#8A8A8C',
+    color: Colors.textMuted,
     fontSize: 14,
     marginHorizontal: 20,
     marginTop: 8,
@@ -229,10 +230,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 4,
     borderRadius: 12,
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
   },
   deleteCarText: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 16,
     marginLeft: 12,
     fontWeight: '500',

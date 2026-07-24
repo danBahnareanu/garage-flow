@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { ContextMenu } from '@/features/cars/components/ContextMenu';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import useCarStore from '@/features/cars/store/carList.store';
@@ -123,7 +124,7 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
       <View style={ls.header}>
         <Text style={ls.headerTitle}>Road Tax Records</Text>
         <TouchableOpacity style={ls.addButton} onPress={() => openModal()}>
-          <Ionicons name="add" size={20} color="#fff" />
+          <Ionicons name="add" size={20} color={Colors.white} />
         </TouchableOpacity>
       </View>
 
@@ -168,10 +169,10 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
                       ls.statusBadge,
                       {
                         backgroundColor: isExpired
-                          ? '#FF4444'
+                          ? Colors.danger
                           : isExpiringSoon
-                            ? '#FFA500'
-                            : '#4CAF50',
+                            ? Colors.warning
+                            : Colors.success,
                       },
                     ]}
                   >
@@ -210,7 +211,7 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
           {
             label: 'Remove Road Tax',
             icon: 'trash-outline',
-            color: '#FF4444',
+            color: Colors.danger,
             onPress: () => {
               const rec = contextRecord;
               setContextRecord(null);
@@ -231,7 +232,7 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
                 value={name}
                 onChangeText={setName}
                 placeholder="e.g., Romania Vignette"
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
               />
               <Text style={styles.label}>Country</Text>
               <TextInput
@@ -239,7 +240,7 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
                 value={country}
                 onChangeText={setCountry}
                 placeholder="e.g., Romania"
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
               />
               <Text style={styles.label}>Purchase Date *</Text>
               <TouchableOpacity style={styles.input} onPress={() => showPicker('purchaseDate')}>
@@ -271,7 +272,7 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
                 value={cost}
                 onChangeText={setCost}
                 placeholder="50"
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
                 keyboardType="decimal-pad"
               />
               <Text style={styles.label}>Notes</Text>
@@ -280,7 +281,7 @@ export const RoadTaxTab: React.FC<RoadTaxTabProps> = ({ carId, carName, vignette
                 value={notes}
                 onChangeText={setNotes}
                 placeholder="Additional notes"
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
               />
             </ScrollView>
             <View style={styles.modalButtons}>

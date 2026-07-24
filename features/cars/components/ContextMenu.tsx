@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect } from 'react';
 import {
@@ -67,7 +68,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ visible, onClose, titl
                 <Ionicons
                   name={action.icon as any}
                   size={24}
-                  color={action.color || '#E1E1E2'}
+                  color={action.color || Colors.textPrimary}
                 />
                 <Text style={[styles.menuItemText, action.color ? { color: action.color } : undefined]}>
                   {action.label}
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 1)',
   },
   content: {
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: 40,
@@ -99,14 +100,14 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 4,
-    backgroundColor: '#7142CD',
+    backgroundColor: Colors.primary,
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
     marginBottom: 16,
   },
   title: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 16,
     fontWeight: '600',
     marginHorizontal: 20,
@@ -120,10 +121,10 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginVertical: 4,
     borderRadius: 12,
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
   },
   menuItemText: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 18,
     marginLeft: 16,
     fontWeight: '500',

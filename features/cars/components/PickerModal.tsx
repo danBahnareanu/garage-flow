@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { TAXONOMY_NEUTRAL } from '@/features/cars/constants/colors';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useEffect } from 'react';
@@ -84,7 +85,7 @@ export const PickerModal: React.FC<PickerModalProps> = ({
                   <View style={[styles.dot, { backgroundColor: TAXONOMY_NEUTRAL }]} />
                   <Text style={styles.itemText}>None</Text>
                   {noneSelected && (
-                    <Ionicons name="checkmark" size={20} color="#7142CD" />
+                    <Ionicons name="checkmark" size={20} color={Colors.primary} />
                   )}
                 </TouchableOpacity>
               )}
@@ -104,14 +105,14 @@ export const PickerModal: React.FC<PickerModalProps> = ({
                     <View style={[styles.dot, { backgroundColor: item.color }]} />
                     <Text style={styles.itemText}>{item.name}</Text>
                     {isSelected && (
-                      <Ionicons name="checkmark" size={20} color="#7142CD" />
+                      <Ionicons name="checkmark" size={20} color={Colors.primary} />
                     )}
                   </TouchableOpacity>
                 );
               })}
             </ScrollView>
             <TouchableOpacity style={styles.addButton} onPress={onAddPress}>
-              <Ionicons name="add-circle" size={20} color="#fff" />
+              <Ionicons name="add-circle" size={20} color={Colors.white} />
               <Text style={styles.addButtonText}>Add new</Text>
             </TouchableOpacity>
           </Pressable>
@@ -131,7 +132,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 1)',
   },
   content: {
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingBottom: 24,
@@ -140,14 +141,14 @@ const styles = StyleSheet.create({
   handle: {
     width: 40,
     height: 4,
-    backgroundColor: '#7142CD',
+    backgroundColor: Colors.primary,
     borderRadius: 2,
     alignSelf: 'center',
     marginTop: 12,
     marginBottom: 16,
   },
   title: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 16,
     fontWeight: '600',
     marginHorizontal: 20,
@@ -167,12 +168,12 @@ const styles = StyleSheet.create({
     padding: 14,
     marginVertical: 4,
     borderRadius: 12,
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
     gap: 12,
   },
   itemSelected: {
     borderWidth: 1,
-    borderColor: '#7142CD',
+    borderColor: Colors.primary,
   },
   dot: {
     width: 12,
@@ -180,7 +181,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
   },
   itemText: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 16,
     fontWeight: '500',
     flex: 1,
@@ -190,7 +191,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#7142CD',
+    backgroundColor: Colors.primary,
     marginHorizontal: 16,
     marginTop: 12,
     padding: 14,
@@ -198,7 +199,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   addButtonText: {
-    color: '#fff',
+    color: Colors.white,
     fontSize: 15,
     fontWeight: '600',
   },

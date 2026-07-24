@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { StyleSheet } from 'react-native';
 
 export const tabListStyles = StyleSheet.create({
@@ -13,10 +14,10 @@ export const tabListStyles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
   },
   addButton: {
-    backgroundColor: '#7142CD',
+    backgroundColor: Colors.primary,
     width: 32,
     height: 32,
     borderRadius: 16,
@@ -26,7 +27,7 @@ export const tabListStyles = StyleSheet.create({
 
   // Card styles
   card: {
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     padding: 16,
     borderRadius: 12,
     marginBottom: 12,
@@ -38,23 +39,23 @@ export const tabListStyles = StyleSheet.create({
   },
   cardDate: {
     fontSize: 14,
-    color: '#B0B0B2',
+    color: Colors.textSecondary,
     fontWeight: '500',
   },
   cardCost: {
     fontSize: 14,
-    color: '#7142CD',
+    color: Colors.primary,
     fontWeight: '600',
   },
   cardTitle: {
     fontSize: 16,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontWeight: '600',
     marginBottom: 4,
   },
   cardMeta: {
     fontSize: 13,
-    color: '#8A8A8C',
+    color: Colors.textMuted,
     marginBottom: 2,
   },
   cardFooter: {
@@ -72,11 +73,11 @@ export const tabListStyles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
-    backgroundColor: '#3D2F6E',
+    backgroundColor: Colors.border,
   },
   badgeText: {
     fontSize: 11,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontWeight: '500',
     textTransform: 'capitalize',
   },
@@ -87,13 +88,13 @@ export const tabListStyles = StyleSheet.create({
   },
   statusBadgeText: {
     fontSize: 11,
-    color: '#fff',
+    color: Colors.white,
     fontWeight: '600',
   },
 
   // Empty state
   emptyText: {
-    color: '#8A8A8C',
+    color: Colors.textMuted,
     fontSize: 15,
     fontStyle: 'italic',
     textAlign: 'center',
@@ -105,11 +106,11 @@ export const tabListStyles = StyleSheet.create({
     marginTop: 8,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: '#3D2F6E',
+    borderTopColor: Colors.border,
   },
   partsLabel: {
     fontSize: 12,
-    color: '#B0B0B2',
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   partRow: {
@@ -119,13 +120,13 @@ export const tabListStyles = StyleSheet.create({
   },
   partName: {
     fontSize: 13,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     flex: 1,
     flexShrink: 1,
   },
   partCost: {
     fontSize: 13,
-    color: '#7142CD',
+    color: Colors.primary,
     fontWeight: '600',
   },
 });

@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import * as Crypto from 'expo-crypto'
 import { useRouter } from 'expo-router'
 import { useState } from 'react'
@@ -40,28 +41,28 @@ export default function CarForm() {
           <Text style={styles.title}>Add New Car</Text>
           <TextInput
             placeholder="Name (optional, e.g. My Daily Driver)"
-            placeholderTextColor="#999"
+            placeholderTextColor={Colors.textMuted}
             value={name}
             onChangeText={setName}
             style={styles.input}
           />
           <TextInput
             placeholder="Make"
-            placeholderTextColor="#999"
+            placeholderTextColor={Colors.textMuted}
             value={make}
             onChangeText={setMake}
             style={styles.input}
           />
           <TextInput
             placeholder="Model"
-            placeholderTextColor="#999"
+            placeholderTextColor={Colors.textMuted}
             value={model}
             onChangeText={setModel}
             style={styles.input}
           />
           <TextInput
             placeholder="Year"
-            placeholderTextColor="#999"
+            placeholderTextColor={Colors.textMuted}
             value={year}
             onChangeText={setYear}
             keyboardType="numeric"
@@ -69,14 +70,14 @@ export default function CarForm() {
           />
           <TextInput
             placeholder="License Plate"
-            placeholderTextColor="#999"
+            placeholderTextColor={Colors.textMuted}
             value={licensePlate}
             onChangeText={setLicensePlate}
             style={styles.input}
           />
           <TextInput
             placeholder="Engine Code (optional)"
-            placeholderTextColor="#999"
+            placeholderTextColor={Colors.textMuted}
             value={engineCode}
             onChangeText={setEngineCode}
             style={styles.input}
@@ -93,7 +94,7 @@ export default function CarForm() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1C1643',
+    backgroundColor: Colors.background,
   },
   content: {
     flex: 1,
@@ -102,21 +103,21 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     marginBottom: 24,
   },
   input: {
-    backgroundColor: '#2C1F5E',
+    backgroundColor: Colors.surface,
     borderWidth: 1,
-    borderColor: '#7142CD',
+    borderColor: Colors.primary,
     borderRadius: 12,
     padding: 15,
     marginVertical: 8,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 16,
   },
   button: {
-    backgroundColor: '#7142CD',
+    backgroundColor: Colors.primary,
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 12,
@@ -124,7 +125,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   buttonText: {
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     fontSize: 18,
     fontWeight: '600',
   },

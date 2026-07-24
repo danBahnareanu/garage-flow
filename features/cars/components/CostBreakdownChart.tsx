@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { DonutChart } from '@/features/cars/components/DonutChart';
 import { TAXONOMY_NEUTRAL } from '@/features/cars/constants/colors';
 import { MaintenanceRecord } from '@/features/cars/types/car.types';
@@ -63,19 +64,19 @@ export const CostBreakdownChart: React.FC<CostBreakdownChartProps> = ({
           centerLabel={
             selectedIndex !== null && pieChartData[selectedIndex] ? (
               <>
-                <Text style={{ fontSize: 24, color: '#fff', fontWeight: 'bold' }}>
+                <Text style={{ fontSize: 24, color: Colors.white, fontWeight: 'bold' }}>
                   {((pieChartData[selectedIndex].value / totalCosts) * 100).toFixed(1)}%
                 </Text>
-                <Text style={{ fontSize: 14, color: '#B0B0B2', textTransform: 'capitalize' }}>
+                <Text style={{ fontSize: 14, color: Colors.textSecondary, textTransform: 'capitalize' }}>
                   {pieChartData[selectedIndex].name}
                 </Text>
               </>
             ) : (
               <>
-                <Text style={{ fontSize: 24, color: '#fff', fontWeight: 'bold' }}>
+                <Text style={{ fontSize: 24, color: Colors.white, fontWeight: 'bold' }}>
                   €{totalCosts.toFixed(0)}
                 </Text>
-                <Text style={{ fontSize: 14, color: '#B0B0B2' }}>Total</Text>
+                <Text style={{ fontSize: 14, color: Colors.textSecondary }}>Total</Text>
               </>
             )
           }
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   legendRowSelected: {
-    backgroundColor: '#3D2F6E',
+    backgroundColor: Colors.border,
   },
   legendLeft: {
     flexDirection: 'row',
@@ -140,17 +141,17 @@ const styles = StyleSheet.create({
   },
   legendLabel: {
     fontSize: 14,
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
     textTransform: 'capitalize',
   },
   legendValue: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#E1E1E2',
+    color: Colors.textPrimary,
   },
   legendPercentage: {
     fontSize: 12,
-    color: '#B0B0B2',
+    color: Colors.textSecondary,
     marginLeft: 8,
   },
 });

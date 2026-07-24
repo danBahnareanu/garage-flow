@@ -1,3 +1,4 @@
+import { Colors } from '@/constants/colors';
 import { ContextMenu } from '@/features/cars/components/ContextMenu';
 import { useDatePicker } from '@/features/cars/hooks/useDatePicker';
 import useCarStore from '@/features/cars/store/carList.store';
@@ -151,7 +152,7 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
       <View style={ls.header}>
         <Text style={ls.headerTitle}>Insurance Records</Text>
         <TouchableOpacity style={ls.addButton} onPress={() => openModal()}>
-          <Ionicons name="add" size={20} color="#fff" />
+          <Ionicons name="add" size={20} color={Colors.white} />
         </TouchableOpacity>
       </View>
 
@@ -202,17 +203,17 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
                     </View>
                   )}
                   {record.pdfUri && (
-                    <Ionicons name="document-text" size={16} color="#7142CD" />
+                    <Ionicons name="document-text" size={16} color={Colors.primary} />
                   )}
                   <View
                     style={[
                       ls.statusBadge,
                       {
                         backgroundColor: isExpired
-                          ? '#FF4444'
+                          ? Colors.danger
                           : isExpiringSoon
-                            ? '#FFA500'
-                            : '#4CAF50',
+                            ? Colors.warning
+                            : Colors.success,
                       },
                     ]}
                   >
@@ -251,7 +252,7 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
           {
             label: 'Remove Insurance',
             icon: 'trash-outline',
-            color: '#FF4444',
+            color: Colors.danger,
             onPress: () => {
               const rec = contextRecord;
               setContextRecord(null);
@@ -272,7 +273,7 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
                 value={provider}
                 onChangeText={setProvider}
                 placeholder="e.g., Grawe"
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
               />
               <Text style={styles.label}>Policy Number</Text>
               <TextInput
@@ -280,7 +281,7 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
                 value={policyNumber}
                 onChangeText={setPolicyNumber}
                 placeholder="Policy number"
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
               />
               <Text style={styles.label}>Start Date *</Text>
               <TouchableOpacity style={styles.input} onPress={() => showPicker('startDate')}>
@@ -312,7 +313,7 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
                 value={cost}
                 onChangeText={setCost}
                 placeholder="400"
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
                 keyboardType="decimal-pad"
               />
               <Text style={styles.label}>Coverage Type</Text>
@@ -321,22 +322,22 @@ export const InsuranceTab: React.FC<InsuranceTabProps> = ({ carId, carName, insu
                 value={coverageType}
                 onChangeText={setCoverageType}
                 placeholder="comprehensive"
-                placeholderTextColor="#8A8A8C"
+                placeholderTextColor={Colors.textMuted}
               />
               <Text style={styles.label}>PDF Document</Text>
               {pdfUri ? (
                 <View style={styles.pdfAttachment}>
-                  <Ionicons name="document-text" size={20} color="#7142CD" />
+                  <Ionicons name="document-text" size={20} color={Colors.primary} />
                   <Text style={styles.pdfFileName} numberOfLines={1}>
                     {pdfUri.split('/').pop()}
                   </Text>
                   <TouchableOpacity onPress={() => setPdfUri(undefined)}>
-                    <Ionicons name="close-circle" size={20} color="#FF4444" />
+                    <Ionicons name="close-circle" size={20} color={Colors.danger} />
                   </TouchableOpacity>
                 </View>
               ) : (
                 <TouchableOpacity style={styles.pdfPickerButton} onPress={pickPdf}>
-                  <Ionicons name="cloud-upload-outline" size={20} color="#7142CD" />
+                  <Ionicons name="cloud-upload-outline" size={20} color={Colors.primary} />
                   <Text style={styles.pdfPickerText}>Attach PDF</Text>
                 </TouchableOpacity>
               )}

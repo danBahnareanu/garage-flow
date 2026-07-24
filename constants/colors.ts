@@ -4,7 +4,7 @@
  * so the theme can be adjusted in one place.
  * (Taxonomy/chart category colors live in features/cars/constants/colors.ts.)
  */
-export const Colors = {
+export const ColorsUnused = {
   // Backgrounds & surfaces
   background: '#1C1643',        // main app background
   surface: '#2C1F5E',           // cards, modals, inputs
@@ -39,3 +39,44 @@ export const Colors = {
   plateBorder: '#C8B800',
   plateText: '#1A1A1A',
 } as const;
+
+/**
+ * Discord dark mode theme — same tokens as `Colors`, using the palette of the
+ * Discord app's dark theme. To try it, swap it in for `Colors` above
+ * (e.g. `export const Colors = DiscordDarkColors;`).
+ */
+export const Colors = {
+  // Backgrounds & surfaces
+  background: '#1E1F22',        // main chat background
+  surface: '#2B2D31',           // sidebar / darker panels
+  surfaceSelected: '#404249',   // selected/hover state
+  border: '#3F4147',            // dividers
+  overlay: 'rgba(12, 10, 10, 0.6)',   // modal backdrop
+
+  // Brand
+  primary: '#5865F2',           // blurple
+  primaryLight: '#7983F5',      // lighter blurple tint
+
+  // Text
+  white: '#fff',
+  textPrimary: '#DBDEE1',       // main text
+  textSecondary: '#B5BAC1',     // secondary text
+  textMuted: '#949BA4',         // placeholders, hints
+  textSoft: '#C4C9CE',          // soft body text (modals)
+  purpleMuted: '#80848E',       // muted subtitles (interactive-muted gray)
+  purpleSoft: '#949BA4',        // soft labels (status rows)
+  textFaint: '#6d6f7880',       // faint text (empty states)
+
+  // Status
+  success: '#57F287',           // Discord green
+  warning: '#F0B232',           // in-app yellow
+  warningSoft: '#FEE75C',       // brand yellow — 15-30 days left
+  warningStrong: '#E67E22',     // orange (no Discord equivalent) — <=14 days left
+  danger: '#ED4245',            // Discord red
+  dangerFaint: '#ED424522',     // danger tint backgrounds (sold tag)
+
+  // License plate — kept identical; a plate looks the same in any theme
+  plateBackground: '#F5F0D0',
+  plateBorder: '#C8B800',
+  plateText: '#1A1A1A',
+} as const 

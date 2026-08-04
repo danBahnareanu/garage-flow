@@ -105,6 +105,23 @@ const CarDetailScreen = () => {
     return Colors.success; // valid - green
   };
 
+  // Flat status chip: colored dot + tinted background, shown in section headers
+  const renderStatusPill = (daysRemaining: number | null) => {
+    const color = getExpiryColor(daysRemaining);
+    const label =
+      daysRemaining === null
+        ? 'N/A'
+        : daysRemaining < 0
+          ? `${Math.abs(daysRemaining)} days overdue`
+          : `${daysRemaining} days left`;
+    return (
+      <View style={[styles.statusPill, { backgroundColor: `${color}22` }]}>
+        <View style={[styles.statusPillDot, { backgroundColor: color }]} />
+        <Text style={[styles.statusPillText, { color }]}>{label}</Text>
+      </View>
+    );
+  };
+
   // Get data from arrays
   const latestInsurance = getLatestInsurance(car);
   const technicalInspection = getLatestInspectionByType(car, ['technical', 'ITP']);
@@ -192,15 +209,6 @@ const CarDetailScreen = () => {
                     {new Date(latestInsurance.expiryDate).toLocaleDateString()}
                   </Text>
                 </View>
-                <View style={[styles.expiryBadge, { backgroundColor: getExpiryColor(insuranceDays) }]}>
-                  <Text style={styles.expiryText}>
-                    {insuranceDays !== null
-                      ? insuranceDays < 0
-                        ? `Expired ${Math.abs(insuranceDays)} days ago`
-                        : `${insuranceDays} days remaining`
-                      : 'N/A'}
-                  </Text>
-                </View>
                 <View style={styles.infoRow}>
                   <Text style={styles.infoLabel}>Cost:</Text>
                   <Text style={styles.infoValue}>€{latestInsurance.cost.toFixed(2)}</Text>
@@ -211,6 +219,7 @@ const CarDetailScreen = () => {
                     <Text style={styles.infoValue}>{latestInsurance.coverageType}</Text>
                   </View>
                 )}
+                {renderStatusPill(insuranceDays)}
               </>
             ) : (
               <Text style={styles.noDataText}>No insurance information available</Text>
@@ -243,23 +252,12 @@ const CarDetailScreen = () => {
                   </Text>
                 </View>
                 {technicalInspection.expiryDate && (
-                  <>
-                    <View style={styles.infoRow}>
-                      <Text style={styles.infoLabel}>Expiry Date:</Text>
-                      <Text style={styles.infoValue}>
-                        {new Date(technicalInspection.expiryDate).toLocaleDateString()}
-                      </Text>
-                    </View>
-                    <View style={[styles.expiryBadge, { backgroundColor: getExpiryColor(inspectionDays) }]}>
-                      <Text style={styles.expiryText}>
-                        {inspectionDays !== null
-                          ? inspectionDays < 0
-                            ? `Expired ${Math.abs(inspectionDays)} days ago`
-                            : `${inspectionDays} days remaining`
-                          : 'N/A'}
-                      </Text>
-                    </View>
-                  </>
+                  <View style={styles.infoRow}>
+                    <Text style={styles.infoLabel}>Expiry Date:</Text>
+                    <Text style={styles.infoValue}>
+                      {new Date(technicalInspection.expiryDate).toLocaleDateString()}
+                    </Text>
+                  </View>
                 )}
                 <View style={styles.infoRow}>
                   <Text style={styles.infoLabel}>Result:</Text>
@@ -267,6 +265,7 @@ const CarDetailScreen = () => {
                     {technicalInspection.result.toUpperCase()}
                   </Text>
                 </View>
+                {technicalInspection.expiryDate ? renderStatusPill(inspectionDays) : null}
               </>
             ) : (
               <Text style={styles.noDataText}>No inspection information available</Text>
@@ -291,9 +290,10 @@ const CarDetailScreen = () => {
                 const vignetteDays = calculateDaysRemaining(vignette.expiryDate);
                 return (
                   <View key={vignette.id} style={styles.vignetteCard}>
-                    <View style={styles.infoRow}>
-                      <Text style={styles.infoLabel}>Name:</Text>
-                      <Text style={styles.infoValue}>{vignette.name}</Text>
+                    <View style={styles.vignetteHeader}>
+                      <Text style={styles.vignetteName} numberOfLines={1}>
+                        {vignette.name}
+                      </Text>
                     </View>
                     {vignette.country && (
                       <View style={styles.infoRow}>
@@ -313,17 +313,11 @@ const CarDetailScreen = () => {
                         {new Date(vignette.expiryDate).toLocaleDateString()}
                       </Text>
                     </View>
-                    <View style={[styles.expiryBadge, { backgroundColor: getExpiryColor(vignetteDays) }]}>
-                      <Text style={styles.expiryText}>
-                        {vignetteDays !== null
-                          ? `${vignetteDays} days remaining`
-                          : 'N/A'}
-                      </Text>
-                    </View>
                     <View style={styles.infoRow}>
                       <Text style={styles.infoLabel}>Cost:</Text>
                       <Text style={styles.infoValue}>€{vignette.cost.toFixed(2)}</Text>
                     </View>
+                    {renderStatusPill(vignetteDays)}
                   </View>
                 );
               })
@@ -603,15 +597,24 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     fontWeight: '500',
   },
-  expiryBadge: {
-    padding: 12,
-    borderRadius: 8,
+  statusPill: {
+    flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 8,
+    alignSelf: 'stretch',
+    justifyContent: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 999,
+    marginTop: 4,
   },
-  expiryText: {
-    color: Colors.white,
-    fontSize: 16,
+  statusPillDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  statusPillText: {
+    fontSize: 12,
     fontWeight: '600',
   },
   noDataText: {
@@ -713,6 +716,19 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 12,
     gap: 8,
+  },
+  vignetteHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginBottom: 4,
+  },
+  vignetteName: {
+    flex: 1,
+    fontSize: 16,
+    fontWeight: '600',
+    color: Colors.textPrimary,
   },
   seeAllLink: {
     color: Colors.primary,

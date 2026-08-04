@@ -1,50 +1,61 @@
-# Welcome to your Expo app 👋
+# Garage Flow — Support
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Garage Flow** is a car maintenance and ownership tracker for iOS and Android. Keep every vehicle's service history, insurance, inspections, road tax, and running costs in one place — stored privately on your device.
 
-## Get started
+---
 
-1. Install dependencies
+## Features
 
-   ```bash
-   npm install
-   ```
+- **Multiple vehicles** — track any number of cars with make, model, year, license plate, VIN, fuel type, transmission, engine code, and a photo. Mark cars as sold to keep their history without cluttering your active list.
+- **Maintenance history** — log services with date, mileage, cost, replaced parts, service provider, and notes. Organize entries with customizable categories (Oils & Filters, Brakes, Suspension, Electrical, and more) and set the next service date or mileage.
+- **Insurance tracking** — record policies with provider, policy number, coverage type, dates, and cost. Attach the policy PDF and view it right in the app.
+- **Inspections** — track technical inspections (ITP), registration, emissions, and safety checks with results, expiry dates, and costs.
+- **Road tax / vignettes** — log vignettes per country with purchase and expiry dates.
+- **Expiry reminders** — get notifications before insurance, inspections, or vignettes expire. Choose when you're reminded (30, 14, 7 days before, and on the day) in notification settings.
+- **Running costs** — see what each car actually costs you, with maintenance, insurance, inspection, and road tax expenses summarized in charts.
+- **Backup & restore** — export all your data to a file for backup or transfer to another device, and import it back at any time.
+- **Light & dark mode** — follows your system appearance automatically.
 
-2. Start the app
+---
 
-   ```bash
-   npx expo start
-   ```
+## Frequently Asked Questions
 
-In the output, you'll find options to open the app in a
+### Where is my data stored?
+All data lives locally on your device. Garage Flow has no account system, no cloud sync, and no server — nothing you enter ever leaves your phone unless you explicitly export it.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### How do I back up my data?
+Use the export option to save all cars, history, and categories to a file, then store it somewhere safe (cloud drive, email to yourself, etc.). To restore or move to a new device, use the import option and select that file.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### I'm not receiving expiry reminders. What can I check?
+1. Make sure notifications are allowed for Garage Flow in your device settings.
+2. Check the in-app notification settings to confirm at least one reminder interval is enabled.
+3. Verify the record (insurance, inspection, or vignette) has an expiry date set.
 
-## Get a fresh project
+### Can I attach documents?
+Yes — insurance records support PDF attachments, which you can open in the built-in viewer.
 
-When you're ready, run:
+### Does the app work offline?
+Yes, completely. No internet connection is required for any feature.
 
-```bash
-npm run reset-project
-```
+### Will I lose my data if I delete the app?
+Yes — because data is stored only on your device, deleting the app deletes your data. Export a backup first if you plan to reinstall or switch devices.
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## Privacy
 
-To learn more about developing your project with Expo, look at the following resources:
+Garage Flow does not collect, transmit, or share any personal data. There are no analytics, no ads, and no third-party tracking. Photo library access is used only so you can add pictures of your cars, and notification permission is used only for the expiry reminders you configure.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## Contact & Support
 
-Join our community of developers creating universal apps.
+Questions, bug reports, or feature requests are always welcome.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **Email:** [dan.bahnareanu@gmail.com](mailto:dan.bahnareanu@gmail.com)
+
+When reporting a bug, it helps to include your device model, OS version, and a short description of what happened.
+
+---
+
+*Garage Flow is developed by Technology Labs.*

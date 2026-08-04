@@ -69,7 +69,7 @@ export const Colors = {
 
   // Status
   success: '#0fbf47',           // Discord green
-  warning: '#ab7a18',           // in-app yellow
+  warning: '#ffb31b',           // in-app yellow
   warningSoft: '#FEE75C',       // brand yellow — 15-30 days left
   warningStrong: '#FF8C00',     // orange (no Discord equivalent) — <=14 days left
   danger: '#ED4245',            // Discord red

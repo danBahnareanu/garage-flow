@@ -3,13 +3,13 @@
     "name": "Garage Flow",
     "slug": "garage-flow",
     "version": "1.2.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icons/ios-light.png",
     "scheme": "garageflow",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.technologylabs.garage-flow",
       "icon": {
         "dark": "./assets/icons/ios-dark.png",
